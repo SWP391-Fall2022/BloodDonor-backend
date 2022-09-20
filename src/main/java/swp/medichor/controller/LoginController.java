@@ -36,9 +36,4 @@ public class LoginController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         return tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
     }
-    
-    @GetMapping("/test")
-    public String onLoginSuccess() {
-        return "*** LOGed IN***";
-    }
 }
