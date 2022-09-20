@@ -46,7 +46,7 @@ public class WebSecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/v1/login").permitAll()
+                .antMatchers("/v1/login/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
