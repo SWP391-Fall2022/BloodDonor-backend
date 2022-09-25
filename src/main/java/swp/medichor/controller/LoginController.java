@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -69,28 +70,38 @@ public class LoginController {
 
     @PostMapping("/google")
     public ResponseEntity<?> authenticateGoogle(@RequestBody String idTokenString) {
+        String email = null;
+
         try {
             GoogleIdToken idToken = verifier.verify(idTokenString);
             if (idToken != null) {
                 Payload payload = idToken.getPayload();
-                String email = payload.getEmail();
+                email = payload.getEmail();
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
-                // If email is valid
-                UsernamePasswordAuthenticationToken authentication
-                        = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                // If email is valid, check account's status
+                if (userDetails.isAccountNonExpired() && userDetails.isAccountNonLocked()
+                        && userDetails.isCredentialsNonExpired() && userDetails.isEnabled()) {
+                    UsernamePasswordAuthenticationToken authentication
+                            = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                String jwt = tokenProvider.generateToken(userDetails);
+                    String jwt = tokenProvider.generateToken(userDetails);
+                    return ResponseEntity.ok(jwt);
+                }
 
-                return ResponseEntity.ok(jwt);
+                // Account cannot be accessed
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             } else {
                 throw new GeneralSecurityException("Invalid ID token");
             }
         } catch (UsernameNotFoundException e) {
-            // Login via Google sucess but app account doesn't exist,
-            // should redirect to register page
-            return ResponseEntity.status(HttpStatus.FOUND).body(e.getLocalizedMessage());
+            // Email is valid but account doesn't exist in database,
+            // should redirect to register page.
+            // Generate jwt for validate registered email later.
+            long expiration = 1000 * 60 * 60; // 1 hour
+            String jwt = tokenProvider.generateToken(email, expiration);
+            return ResponseEntity.status(HttpStatus.FOUND).body(jwt);
         } catch (Exception e) {
             // Cannot validate id_token
             return ResponseEntity.badRequest().body(e.getLocalizedMessage());

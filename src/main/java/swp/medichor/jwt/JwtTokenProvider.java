@@ -21,10 +21,21 @@ public class JwtTokenProvider {
     private String JWT_SECRET;
     private SecretKey JWT_SECRET_KEY;
     private final long JWT_EXPIRATION = 60000; // 1 min
-    
+
     @PostConstruct
     public void postConstruct() {
         JWT_SECRET_KEY = Keys.hmacShaKeyFor(JWT_SECRET.getBytes(StandardCharsets.UTF_16));
+    }
+
+    public String generateToken(String str, long expiration) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expiration);
+        return Jwts.builder()
+                .setSubject(str)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(JWT_SECRET_KEY)
+                .compact();
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -38,7 +49,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String getUsersEmailFromJwt(String token) {
+    public String getUsernameEmailFromJwt(String token) {
         return Jwts.parserBuilder()
                 .setSigningKey(JWT_SECRET_KEY)
                 .build()
