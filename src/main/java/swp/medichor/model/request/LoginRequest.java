@@ -1,4 +1,4 @@
-package swp.medichor.model;
+package swp.medichor.model.request;
 
 public class LoginRequest {
 
