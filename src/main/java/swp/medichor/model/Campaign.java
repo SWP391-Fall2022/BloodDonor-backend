@@ -1,18 +1,17 @@
 package swp.medichor.model;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,24 +19,28 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import swp.medichor.enums.Role;
 
 @Entity
-@Table(name = "[User]")
+@Table(name = "Campaign")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
-public class User implements Serializable {
+public class Campaign implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String username;
-    private String password;
-    private String phone;
-    private String email;
+    private String name;
+    private String images;
+    private String description;
+    private Date startDate;
+    private Date endDate;
+    private Boolean emergency;
+
+    @Builder.Default
+    private Boolean status = true;
 
     @ManyToOne
     @JoinColumn(name = "DistrictId")
@@ -47,36 +50,29 @@ public class User implements Serializable {
 
     private String addressDetails;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    @Builder.Default
-    private Boolean status = true;
-    @Builder.Default
-    private Boolean enabled = false;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Donor donor;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "OrganizationId")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Organization organization;
 
-    @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "likedCampaigns", cascade = CascadeType.MERGE)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private Set<Message> senderMessages;
+    private Set<Donor> likingDonors;
 
-    @OneToMany(mappedBy = "receiver", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private Set<Message> receiverMessages;
+    private Set<Question> questions;
 
-    @OneToMany(mappedBy = "postingUser", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private Set<Post> posts;
+    private Set<DonateRegistration> registrations;
+
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<DonateRecord> record;
 }
