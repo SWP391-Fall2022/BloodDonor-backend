@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import swp.medichor.model.requests.RegisterOrganizationRequest;
+import swp.medichor.model.request.RegisterOrganizationRequest;
 import swp.medichor.service.RegisterService;
 
 @RestController

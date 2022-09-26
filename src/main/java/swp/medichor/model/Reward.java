@@ -1,33 +1,46 @@
 package swp.medichor.model;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @Entity
-@Table(name = "Province")
+@Table(name = "Reward")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class Province implements Serializable {
+@Builder
+public class Reward implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    private String name;
+    private Date expiredDate;
+    private Integer level;
+    private String sponsor;
     private String code;
 
-    @OneToMany(mappedBy = "province", cascade = CascadeType.ALL)
+    @Builder.Default
+    private Boolean status = true;
+
+    private String details;
+
+    @OneToMany(mappedBy = "reward", cascade = CascadeType.MERGE)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
-    private Set<District> districts;
+    private Set<EarnedReward> earnedRewards;
 }

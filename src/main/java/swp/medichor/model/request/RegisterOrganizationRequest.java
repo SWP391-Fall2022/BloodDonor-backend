@@ -1,8 +1,8 @@
-package swp.medichor.model.requests;
+package swp.medichor.model.request;
 
 import lombok.Getter;
 import lombok.Setter;
-import swp.medichor.model.User;
+import swp.medichor.enums.Role;
 
 @Getter
 @Setter
@@ -14,7 +14,7 @@ public class RegisterOrganizationRequest {
     private String email;
     private int districtId;
     private String AddressDetails;
-    private User.Role role;
+    private Role role;
     private String name;
     private String taxcode;
 }
