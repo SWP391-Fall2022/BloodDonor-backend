@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import swp.medichor.jwt.JwtTokenProvider;
 import swp.medichor.model.CustomUserDetails;
-import swp.medichor.model.LoginRequest;
+import swp.medichor.model.requests.LoginRequest;
 import swp.medichor.service.UserService;
 
 @RestController
