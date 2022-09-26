@@ -69,6 +69,11 @@ public class User implements Serializable {
     @ToString.Exclude
     private Organization organization;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private VerificationCode verificationCode;
+
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude

@@ -1,5 +1,6 @@
 package swp.medichor.controller;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,10 +12,11 @@ import swp.medichor.service.LoginService;
 
 @RestController
 @RequestMapping("/v1/login")
+@AllArgsConstructor
 public class LoginController {
 
     @Autowired
-    private LoginService loginService;
+    private final LoginService loginService;
 
     @PostMapping
     public String authenticateUser(@RequestBody LoginRequest request) {

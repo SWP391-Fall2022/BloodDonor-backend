@@ -10,6 +10,8 @@ import swp.medichor.model.CustomUserDetails;
 import swp.medichor.model.User;
 import swp.medichor.repository.UserRepository;
 
+import java.util.Optional;
+
 @Service
 public class UserService implements UserDetailsService {
 
@@ -32,11 +34,23 @@ public class UserService implements UserDetailsService {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new IllegalStateException("Email already exists");
         }
-        user.setId(userRepository.findAll().size() + 1);
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
         userRepository.save(user);
+        user = userRepository.findByEmail(user.getEmail()).get();
         return user;
+    }
+
+    public void enableUser(User user) {
+        user.setEnabled(true);
+    }
+
+    public Optional<User> getUserById(Integer userId) {
+        return userRepository.findById(userId);
+    }
+
+    public Optional<User> getUserByEmailAndUsername(String username, String email) {
+        return userRepository.findByUsernameAndEmail(username, email);
     }
 
 }

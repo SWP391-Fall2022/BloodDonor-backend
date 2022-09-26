@@ -47,7 +47,8 @@ public class WebSecurityConfig {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/v1/login/**").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/v1/register/**").permitAll()
+//                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
