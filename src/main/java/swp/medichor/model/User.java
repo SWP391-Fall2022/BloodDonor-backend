@@ -1,10 +1,5 @@
 package swp.medichor.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
 import java.io.Serializable;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -34,8 +29,6 @@ import swp.medichor.enums.Role;
 @AllArgsConstructor
 @Data
 @Builder
-@Setter
-@Getter
 public class User implements Serializable {
 
     @Id
