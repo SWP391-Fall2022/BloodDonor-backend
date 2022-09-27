@@ -6,6 +6,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
+import swp.medichor.enums.Approve;
+import swp.medichor.enums.Role;
 import swp.medichor.model.CustomUserDetails;
 import swp.medichor.model.User;
 import swp.medichor.repository.UserRepository;
@@ -42,7 +44,10 @@ public class UserService implements UserDetailsService {
     }
 
     public void enableUser(User user) {
-        user.setEnabled(true);
+        if (user.getRole().equals(Role.ORGANIZATION) && user.getOrganization().getApprove().equals(Approve.PENDING)) {
+            user.setEnabled(false);
+        }
+        else user.setEnabled(true);
     }
 
     public Optional<User> getUserById(Integer userId) {

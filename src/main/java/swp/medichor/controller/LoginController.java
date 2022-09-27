@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import swp.medichor.model.request.LoginRequest;
+import swp.medichor.model.response.Response;
 import swp.medichor.service.LoginService;
 
 @RestController
@@ -19,8 +20,8 @@ public class LoginController {
     private final LoginService loginService;
 
     @PostMapping
-    public String authenticateUser(@RequestBody LoginRequest request) {
-        return loginService.authenicateUser(
+    public Response authenticateUser(@RequestBody LoginRequest request) {
+        return loginService.authenticateUser(
                 request.getUsername(),
                 request.getPassword());
     }

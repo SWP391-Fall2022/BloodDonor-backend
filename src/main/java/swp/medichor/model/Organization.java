@@ -49,28 +49,7 @@ public class Organization implements Serializable {
     @ToString.Exclude
     private Set<Campaign> campaigns;
 
-    public Organization(Integer userId, String name, String taxCode, Approve approve, String avatar, String website, String introduction) {
-        this.userId = userId;
-        this.name = name;
-        this.taxCode = taxCode;
-        this.approve = approve;
-        this.avatar = avatar;
-        this.website = website;
-        this.introduction = introduction;
-    }
-
     public Organization(User user, String name, String taxCode, Approve approve, String avatar, String website, String introduction) {
-        this.user = user;
-        this.name = name;
-        this.taxCode = taxCode;
-        this.approve = approve;
-        this.avatar = avatar;
-        this.website = website;
-        this.introduction = introduction;
-    }
-
-    public Organization(Integer userId, User user, String name, String taxCode, Approve approve, String avatar, String website, String introduction) {
-        this.userId = userId;
         this.user = user;
         this.name = name;
         this.taxCode = taxCode;

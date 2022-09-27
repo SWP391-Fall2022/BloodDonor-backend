@@ -17,6 +17,7 @@ public class AdminService {
             return new IllegalStateException("ID not found");
         });
         organization.setApprove(Approve.APPROVED);
+        organization.getUser().setEnabled(true);
         return "Approve successfully";
     }
 
@@ -26,6 +27,7 @@ public class AdminService {
             return new IllegalStateException("ID not found");
         });
         organization.setApprove(Approve.REJECTED);
+
         return "Reject successfully";
     }
 }

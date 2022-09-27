@@ -69,19 +69,6 @@ public class Donor implements Serializable {
     @ToString.Exclude
     private Set<DonateRecord> record;
 
-    public Donor(Integer userId, String name, LocalDate birthday, Sex sex, String identityNum, String avatar,
-                 String bloodType,
-                 String anamnesis) {
-        this.userId = userId;
-        this.name = name;
-        this.birthday = birthday;
-        this.sex = sex;
-        this.identityNum = identityNum;
-        this.avatar = avatar;
-        this.bloodType = bloodType;
-        this.anamnesis = anamnesis;
-    }
-
     public Donor(User user, String name, LocalDate birthday, Sex sex, String identityNum, String avatar,
                  String bloodType, String anamnesis) {
         this.user = user;
