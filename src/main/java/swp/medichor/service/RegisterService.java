@@ -1,12 +1,13 @@
 package swp.medichor.service;
 
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.enums.Role;
 import swp.medichor.model.*;
 import swp.medichor.model.request.RegisterDonorRequest;
 import swp.medichor.model.request.RegisterOrganizationRequest;
+import swp.medichor.model.response.Response;
 import swp.medichor.utils.EmailPlatform;
 import swp.medichor.utils.Validator;
 
@@ -14,50 +15,46 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
-@AllArgsConstructor
 public class RegisterService {
     private final String FROM = "nvtien1602.forwork@gmail.com";
     private final String SUBJECT = "CONFIRM YOUR CODE";
-    private final UserService userService;
-    private final OrganizationServive organizationServive;
-    private final DonorService donorService;
-    private final AddressService addressService;
-    private final VerificationCodeService verificationCodeService;
-    private final EmailService emailService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private OrganizationServive organizationServive;
+    @Autowired
+    private DonorService donorService;
+    @Autowired
+    private AddressService addressService;
+    @Autowired
+    private VerificationCodeService verificationCodeService;
+    @Autowired
+    private EmailService emailService;
 
     @Transactional
-    public String registerOrganization(RegisterOrganizationRequest request) {
+    public Response registerOrganization(RegisterOrganizationRequest request) {
         if (!request.getRole().equals(Role.ORGANIZATION))
-            throw new IllegalStateException("Invalid role");
+            return new Response(400, false, "Invalid role");
         if (!Validator.testEmail(request.getEmail())) {
-            throw new IllegalStateException("Email not valid");
+            return new Response(400, false, "Email not valid");
         }
         if (!Validator.testPhoneNumber(request.getPhone())) {
-            throw new IllegalStateException("Phone number not valid");
+            return new Response(400, false, "Phone number not valid");
         }
         if (!request.getConfirmPassword().equals(request.getPassword())) {
-            throw new IllegalStateException("Confirm password not match");
+            return new Response(400, false, "Confirm password not match");
         }
         Optional<User> user = userService.getUserByEmailAndUsername(request.getUsername(), request.getEmail());
         if (user.isPresent() && user.get().getVerificationCode().getConfirmed()) {
-            throw new IllegalStateException("Account already registered");
+            return new Response(400, false, "Account already registered");
         }
         else if (user.isPresent() && !user.get().getVerificationCode().getConfirmed()) {
             return resendCode(user.get().getId());
         }
-//        User user = userService.registerUser(new User(
-//                request.getUsername(),
-//                request.getPassword(),
-//                request.getPhone(),
-//                request.getEmail(),
-//                addressService.getDistrictById(request.getDistrictId()),
-//                request.getAddressDetails(),
-//                request.getRole(),
-//                true,
-//                false
-//        ));
+
         District district = District.builder().id(request.getDistrictId()).build();
         User newUser = userService.registerUser(User.builder()
                 .username(request.getUsername())
@@ -83,44 +80,33 @@ public class RegisterService {
 
         int code = verificationCodeService.addVerificationCode(newUser);
         emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildEmail(request.getName(), code));
-        return "Register successfully";
+        return new Response(200, true, "Register successfully");
     }
 
     @Transactional
-    public String registerDonor(RegisterDonorRequest request) {
+    public Response registerDonor(RegisterDonorRequest request) {
         if (!request.getRole().equals(Role.DONOR))
-            throw new IllegalStateException("Invalid role");
+            return new Response(400, false, "Invalid role");
         if (!Validator.testEmail(request.getEmail())) {
-            throw new IllegalStateException("Email not valid");
+            return new Response(400, false, "Email not valid");
         }
         if (!Validator.testPhoneNumber(request.getPhone())) {
-            throw new IllegalStateException("Phone number not valid");
+            return new Response(400, false, "Phone number not valid");
         }
         if (!request.getConfirmPassword().equals(request.getPassword())) {
-            throw new IllegalStateException("Confirm password not match");
+            return new Response(400, false, "Confirm password not match");
         }
         if (request.getBirthday().isAfter(LocalDate.now())) {
-            throw new IllegalStateException("Invalid birthday");
+            return new Response(400, false, "Invalid birthday");
         }
         Optional<User> user = userService.getUserByEmailAndUsername(request.getUsername(), request.getEmail());
         if (user.isPresent() && user.get().getVerificationCode().getConfirmed()) {
-            throw new IllegalStateException("Account already registered");
+            return new Response(400, false, "Account already registered");
         }
         else if (user.isPresent() && !user.get().getVerificationCode().getConfirmed()) {
             return resendCode(user.get().getId());
         }
 
-//        User user = userService.registerUser(new User(
-//                request.getUsername(),
-//                request.getPassword(),
-//                request.getPhone(),
-//                request.getEmail(),
-//                addressService.getDistrictById(request.getDistrictId()),
-//                request.getAddressDetails(),
-//                request.getRole(),
-//                true,
-//                false
-//        ));
         District district = District.builder().id(request.getDistrictId()).build();
         User newUser = userService.registerUser(User.builder()
                 .username(request.getUsername())
@@ -147,38 +133,38 @@ public class RegisterService {
 
         int code = verificationCodeService.addVerificationCode(newUser);
         emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildEmail(request.getName(), code));
-        return "Register successfully";
+        return new Response(200, true, "Register successfully");
 
     }
 
     @Transactional
-    public String confirmCode(int code) {
-        VerificationCode verificationCode = verificationCodeService.getVerificationCodeByCode(code)
-                .orElseThrow(() -> {
-                    return new IllegalStateException("Invalid code");
-                });
+    public Response confirmCode(int code) {
+        Optional<VerificationCode> existVerificationCode = verificationCodeService.getVerificationCodeByCode(code);
+        if (existVerificationCode.isEmpty())
+            return new Response(400, false, "Invalid code");
+        VerificationCode verificationCode = existVerificationCode.get();
         if (verificationCode.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Code expires");
+            return new Response(406, false, "Code expires");
         }
         verificationCodeService.setConfirmsAt(verificationCode);
         userService.enableUser(verificationCode.getUser());
-        return "Confirmed";
+        return new Response(200, true, "Confirmed");
     }
 
     @Transactional
-    public String resendCode(Integer userId) {
-        User user = userService.getUserById(userId).orElseThrow(() -> {
-            return new IllegalStateException("ID not found");
-        });
+    public Response resendCode(Integer userId) {
+        Optional<User> existUser = userService.getUserById(userId);
+        if (existUser.isEmpty()) return new Response(400, false, "ID not found");
+        User user = existUser.get();
         VerificationCode verificationCode = verificationCodeService.getVerificationCodeById(userId).get();
         if (verificationCode.getConfirmed()) {
-            throw new IllegalStateException("Already registered");
+            return new Response(400, false, "Already registered");
         }
         int code = verificationCodeService.alterVerificationCode(verificationCode);
         String name = "null";
         if (user.getRole().equals(Role.ORGANIZATION)) name = user.getOrganization().getName();
         else if (user.getRole().equals(Role.DONOR)) name = user.getDonor().getName();
         emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildEmail(name, code));
-        return "Resend successfully";
+        return new Response(200, true, "Resend successfully");
     }
 }

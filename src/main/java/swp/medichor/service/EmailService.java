@@ -10,10 +10,9 @@ import org.springframework.stereotype.Service;
 import javax.mail.internet.MimeMessage;
 
 @Service
-@AllArgsConstructor
 public class EmailService {
-
-    private final JavaMailSender mailSender;
+    @Autowired
+    private JavaMailSender mailSender;
 
     @Async
     public void send(String from, String to, String subject, String email) {

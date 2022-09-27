@@ -13,11 +13,10 @@ import swp.medichor.service.LoginService;
 
 @RestController
 @RequestMapping("/v1/login")
-@AllArgsConstructor
 public class LoginController {
 
     @Autowired
-    private final LoginService loginService;
+    private LoginService loginService;
 
     @PostMapping
     public Response authenticateUser(@RequestBody LoginRequest request) {
@@ -27,12 +26,12 @@ public class LoginController {
     }
 
     @PostMapping("/google")
-    public ResponseEntity<?> authenticateGoogle(@RequestBody String idTokenString) {
+    public Response authenticateGoogle(@RequestBody String idTokenString) {
         try {
             return loginService.authenticateGoogle(idTokenString);
         } catch (Exception e) {
             // Cannot validate id_token
-            return ResponseEntity.badRequest().body(e.getLocalizedMessage());
+            return new Response(400, false, e.getLocalizedMessage());
         }
     }
 }

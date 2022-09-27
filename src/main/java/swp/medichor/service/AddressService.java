@@ -8,12 +8,11 @@ import swp.medichor.repository.DistrictRepository;
 import swp.medichor.repository.ProvinceRepository;
 
 @Service
-@AllArgsConstructor
 public class AddressService {
     @Autowired
-    private final ProvinceRepository provinceRepository;
+    private ProvinceRepository provinceRepository;
     @Autowired
-    private final DistrictRepository districtRepository;
+    private DistrictRepository districtRepository;
 
     public District getDistrictById(int districtId) {
         return districtRepository.findById(districtId).orElseThrow(() ->

@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class Response {
-    Integer status;
-    Boolean success;
-    Object body;
+    private Integer status;
+    private Boolean success;
+    private Object body;
 }

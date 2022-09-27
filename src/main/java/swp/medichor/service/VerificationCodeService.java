@@ -1,6 +1,7 @@
 package swp.medichor.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.model.User;
 import swp.medichor.model.VerificationCode;
@@ -13,9 +14,9 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class VerificationCodeService {
-    private final VerificationCodeRepository verificationCodeRepository;
+    @Autowired
+    private VerificationCodeRepository verificationCodeRepository;
 
     public Optional<VerificationCode> getVerificationCodeByCode(int code) {
         return verificationCodeRepository.findByCode(code);
