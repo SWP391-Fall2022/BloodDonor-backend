@@ -1,5 +1,10 @@
 package swp.medichor.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.io.Serializable;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -22,31 +27,30 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import swp.medichor.enums.Role;
 
+
 @Entity
 @Table(name = "[User]")
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
 @Builder
+@Setter
+@Getter
 public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     private String username;
     private String password;
     private String phone;
     private String email;
-
     @ManyToOne
     @JoinColumn(name = "DistrictId")
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private District district;
-
     private String addressDetails;
-
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -65,6 +69,11 @@ public class User implements Serializable {
     @ToString.Exclude
     private Organization organization;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private VerificationCode verificationCode;
+
     @OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
@@ -79,4 +88,16 @@ public class User implements Serializable {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<Post> posts;
+
+    public User(String username, String password, String phone, String email, District district, String addressDetails, Role role, Boolean status, Boolean enabled) {
+        this.username = username;
+        this.password = password;
+        this.phone = phone;
+        this.email = email;
+        this.district = district;
+        this.addressDetails = addressDetails;
+        this.role = role;
+        this.status = status;
+        this.enabled = enabled;
+    }
 }

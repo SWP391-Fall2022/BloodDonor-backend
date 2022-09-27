@@ -30,12 +30,10 @@ public class Organization implements Serializable {
 
     @Id
     private Integer userId;
-
     @OneToOne
     @JoinColumn(name = "UserID")
     @MapsId
     private User user;
-
     private String name;
     private String taxCode;
 
@@ -50,4 +48,14 @@ public class Organization implements Serializable {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<Campaign> campaigns;
+
+    public Organization(User user, String name, String taxCode, Approve approve, String avatar, String website, String introduction) {
+        this.user = user;
+        this.name = name;
+        this.taxCode = taxCode;
+        this.approve = approve;
+        this.avatar = avatar;
+        this.website = website;
+        this.introduction = introduction;
+    }
 }

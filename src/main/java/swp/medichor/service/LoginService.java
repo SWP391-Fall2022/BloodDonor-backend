@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import swp.medichor.jwt.JwtTokenProvider;
 import swp.medichor.model.CustomUserDetails;
+import swp.medichor.model.response.Response;
 
 @Service
 public class LoginService {
@@ -47,7 +48,7 @@ public class LoginService {
                 .build();
     }
 
-    public String authenicateUser(String usernameEmail, String password) {
+    public Response authenticateUser(String usernameEmail, String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         usernameEmail,
@@ -56,7 +57,8 @@ public class LoginService {
 
         // No exception means login request is valid
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        return tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
+        String token = tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
+        return new Response(200, true, token);
     }
 
     public ResponseEntity<?> authenticateGoogle(String idTokenString) throws Exception {

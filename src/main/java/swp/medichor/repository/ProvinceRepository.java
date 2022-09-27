@@ -6,5 +6,4 @@ import swp.medichor.model.Province;
 
 @Repository
 public interface ProvinceRepository extends JpaRepository<Province, Integer> {
-    
 }

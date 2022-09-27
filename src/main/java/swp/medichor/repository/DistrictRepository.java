@@ -6,5 +6,4 @@ import swp.medichor.model.District;
 
 @Repository
 public interface DistrictRepository extends JpaRepository<District, Integer> {
-    
 }

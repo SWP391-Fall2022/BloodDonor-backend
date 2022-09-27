@@ -415,3 +415,11 @@ USE [master]
 GO
 ALTER DATABASE [BloodDonorProject] SET  READ_WRITE 
 GO
+
+create table VerificationCode(
+    UserId int not null primary key foreign key references [dbo].[User]([Id]),
+    Code int not null,
+    createdAt datetime not null,
+    expiresAt datetime not null,
+    confirmed bit default 0
+)
