@@ -15,12 +15,12 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class RegisterService {
     private final String FROM = "nvtien1602.forwork@gmail.com";
     private final String SUBJECT = "CONFIRM YOUR CODE";
+
     @Autowired
     private UserService userService;
     @Autowired

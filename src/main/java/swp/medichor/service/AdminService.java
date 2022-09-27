@@ -1,6 +1,5 @@
 package swp.medichor.service;
 
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
@@ -14,6 +13,7 @@ import java.util.Optional;
 public class AdminService {
     @Autowired
     private OrganizationRepository organizationRepository;
+
     @Transactional
     public Response verifyOrganizationAccount(Integer id) {
         Optional<Organization> existOrganization = organizationRepository.findById(id);
