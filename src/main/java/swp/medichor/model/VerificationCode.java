@@ -1,18 +1,23 @@
 package swp.medichor.model;
 
-import lombok.*;
-
-import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.MapsId;
+import javax.persistence.OneToOne;
+import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "VerificationCode")
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
-@ToString
-public class VerificationCode {
+@Data
+public class VerificationCode implements Serializable {
     @Id
     private Integer userId;
     @OneToOne
