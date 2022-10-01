@@ -31,4 +31,9 @@ public class DonorController {
     public Response countRegisteredCampaigns(@PathVariable int id) {
         return new Response(200, true, donorService.countRegisteredCampaigns(id));
     }
+    
+    @GetMapping("/{id}/participated/count")
+    public Response countParticipatedCampaigns(@PathVariable int id) {
+        return new Response(200, true, donorService.countParticipatedCampaigns(id));
+    }
 }

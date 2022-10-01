@@ -7,5 +7,5 @@ import swp.medichor.model.compositekey.DonateRecordKey;
 
 @Repository
 public interface DonateRecordRepository extends JpaRepository<DonateRecord, DonateRecordKey> {
-
+    long countById_DonorId(int donorId);
 }
