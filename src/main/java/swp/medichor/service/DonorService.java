@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import swp.medichor.model.District;
 import swp.medichor.model.Donor;
 import swp.medichor.model.request.UpdateDonorRequest;
+import swp.medichor.repository.DonateRegistrationRepository;
 import swp.medichor.repository.DonorRepository;
 import swp.medichor.repository.UserRepository;
 
@@ -17,6 +18,9 @@ public class DonorService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private DonateRegistrationRepository donateRegistrationRepository;
 
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
@@ -39,5 +43,9 @@ public class DonorService {
         donor.getUser().setDistrict(District.builder().id(updatedDonor.getUser().getDistrictId()).build());
         donor.getUser().setAddressDetails(updatedDonor.getUser().getAddressDetails());
         userRepository.save(donor.getUser());
+    }
+
+    public long countRegisteredCampaigns(int donorId) {
+        return donateRegistrationRepository.countById_DonorId(donorId);
     }
 }

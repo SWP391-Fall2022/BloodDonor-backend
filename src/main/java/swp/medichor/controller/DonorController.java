@@ -14,14 +14,21 @@ import swp.medichor.service.DonorService;
 @RestController
 @RequestMapping("/v1/donors")
 public class DonorController {
+
     @Autowired
     private DonorService donorService;
-    
+
     @GetMapping("/{id}")
     public Response getDonor(@PathVariable int id) {
         Optional<Donor> donor = donorService.findById(id);
-        if (donor.isPresent())
+        if (donor.isPresent()) {
             return new Response(200, true, new DonorResponse(donor.get()));
+        }
         return new Response(404, false, null);
+    }
+
+    @GetMapping("/{id}/registered/count")
+    public Response countRegisteredCampaigns(@PathVariable int id) {
+        return new Response(200, true, donorService.countRegisteredCampaigns(id));
     }
 }
