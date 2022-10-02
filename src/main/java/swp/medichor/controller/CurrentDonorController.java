@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import swp.medichor.model.User;
+import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
 import swp.medichor.model.response.DonorResponse;
 import swp.medichor.model.response.Response;
@@ -32,5 +33,18 @@ public class CurrentDonorController {
     public Response updateProfile(@RequestBody UpdateDonorRequest donor, @RequestAttribute User user) {
         donorService.updateDonor(user.getDonor(), donor);
         return new Response(200, true, null);
+    }
+
+    @PutMapping("/registered")
+    public Response registerDonor(@RequestAttribute User user, @RequestBody DonateRegistrationRequest registration) {
+        try {
+            if (user.getDonor() != null) {
+                donorService.registerDonor(user.getDonor(), registration);
+                return new Response(200, true, null);
+            }
+            return new Response(403, false, "Current user is not a donor");
+        } catch (IllegalArgumentException e) {
+            return new Response(400, false, e.getLocalizedMessage());
+        }
     }
 }
