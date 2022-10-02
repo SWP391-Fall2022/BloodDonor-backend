@@ -9,11 +9,13 @@ import org.springframework.transaction.annotation.Transactional;
 import swp.medichor.enums.DonateRegistrationStatus;
 import swp.medichor.model.Campaign;
 import swp.medichor.model.District;
+import swp.medichor.model.DonateRecord;
 import swp.medichor.model.DonateRegistration;
 import swp.medichor.model.Donor;
 import swp.medichor.model.compositekey.DonateRegistrationKey;
 import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
+import swp.medichor.model.response.DonateRecordResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
 import swp.medichor.repository.CampaignRepository;
 import swp.medichor.repository.DonateRecordRepository;
@@ -96,6 +98,18 @@ public class DonorService {
             Set<DonateRegistration> registrations = donor.get().getRegistrations();
             return registrations.stream()
                     .map(r -> new DonateRegistrationResponse(r))
+                    .collect(Collectors.toSet());
+        }
+        throw new IllegalArgumentException("Donor not found");
+    }
+
+    @Transactional
+    public Set<DonateRecordResponse> getAllDonations(int donorId) {
+        Optional<Donor> donor = donorRepository.findById(donorId);
+        if (donor.isPresent()) {
+            Set<DonateRecord> records = donor.get().getRecord();
+            return records.stream()
+                    .map(r -> new DonateRecordResponse(r))
                     .collect(Collectors.toSet());
         }
         throw new IllegalArgumentException("Donor not found");

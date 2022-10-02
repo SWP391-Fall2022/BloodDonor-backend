@@ -56,4 +56,13 @@ public class CurrentDonorController {
             return new Response(403, false, "Current user is not a donor");
         }
     }
+
+    @GetMapping("/donated")
+    public Response getDonations(@RequestAttribute User user) {
+        if (user.getDonor() != null) {
+            return new Response(200, true, donorService.getAllDonations(user.getId()));
+        } else {
+            return new Response(403, false, "Current user is not a donor");
+        }
+    }
 }
