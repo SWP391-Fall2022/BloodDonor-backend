@@ -114,4 +114,9 @@ public class DonorService {
         }
         throw new IllegalArgumentException("Donor not found");
     }
+
+    public int getTotalAmountOfBlood(int donorId) {
+        Integer amount = donateRecordRepository.sumOfAmountByDonorId(donorId);
+        return amount != null ? amount : 0;
+    }
 }
