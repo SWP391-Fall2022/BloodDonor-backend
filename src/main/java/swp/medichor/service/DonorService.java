@@ -1,6 +1,8 @@
 package swp.medichor.service;
 
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +14,7 @@ import swp.medichor.model.Donor;
 import swp.medichor.model.compositekey.DonateRegistrationKey;
 import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
+import swp.medichor.model.response.DonateRegistrationResponse;
 import swp.medichor.repository.CampaignRepository;
 import swp.medichor.repository.DonateRecordRepository;
 import swp.medichor.repository.DonateRegistrationRepository;
@@ -59,7 +62,7 @@ public class DonorService {
     public long countRegisteredCampaigns(int donorId) {
         return donateRegistrationRepository.countById_DonorId(donorId);
     }
-    
+
     public long countParticipatedCampaigns(int donorId) {
         return donateRecordRepository.countById_DonorIdAndStatusTrue(donorId);
     }
@@ -84,5 +87,17 @@ public class DonorService {
         }, () -> {
             throw new IllegalArgumentException("Campaign not found");
         });
+    }
+
+    @Transactional
+    public Set<DonateRegistrationResponse> getAllRegistrations(int donorId) {
+        Optional<Donor> donor = donorRepository.findById(donorId);
+        if (donor.isPresent()) {
+            Set<DonateRegistration> registrations = donor.get().getRegistrations();
+            return registrations.stream()
+                    .map(r -> new DonateRegistrationResponse(r))
+                    .collect(Collectors.toSet());
+        }
+        throw new IllegalArgumentException("Donor not found");
     }
 }

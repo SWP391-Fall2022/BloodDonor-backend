@@ -47,4 +47,13 @@ public class CurrentDonorController {
             return new Response(400, false, e.getLocalizedMessage());
         }
     }
+
+    @GetMapping("/registered")
+    public Response getRegistrations(@RequestAttribute User user) {
+        if (user.getDonor() != null) {
+            return new Response(200, true, donorService.getAllRegistrations(user.getId()));
+        } else {
+            return new Response(403, false, "Current user is not a donor");
+        }
+    }
 }
