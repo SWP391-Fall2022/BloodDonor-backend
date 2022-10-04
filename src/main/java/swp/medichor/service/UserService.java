@@ -12,6 +12,8 @@ import swp.medichor.model.CustomUserDetails;
 import swp.medichor.model.User;
 import swp.medichor.repository.UserRepository;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -56,6 +58,12 @@ public class UserService implements UserDetailsService {
 
     public Optional<User> getUserByEmailAndUsername(String username, String email) {
         return userRepository.findByUsernameAndEmail(username, email);
+    }
+
+    public List<User> getAllDonorsByDistrictId(Integer districtId) {
+        List<User> list = new ArrayList<>();
+        list = userRepository.findByDistrictId(districtId, Role.DONOR);
+        return list;
     }
 
 }

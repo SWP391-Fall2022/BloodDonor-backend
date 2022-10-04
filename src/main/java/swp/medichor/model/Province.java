@@ -22,7 +22,6 @@ public class Province implements Serializable {
 
     @Id
     private Integer id;
-
     private String name;
     private String code;
 

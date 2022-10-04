@@ -7,6 +7,7 @@ import swp.medichor.enums.Role;
 import swp.medichor.model.*;
 import swp.medichor.model.request.RegisterDonorRequest;
 import swp.medichor.model.request.RegisterOrganizationRequest;
+import swp.medichor.model.response.RegisterInfo;
 import swp.medichor.model.response.Response;
 import swp.medichor.utils.EmailPlatform;
 import swp.medichor.utils.Validator;
@@ -79,8 +80,11 @@ public class RegisterService {
         ));
 
         int code = verificationCodeService.addVerificationCode(newUser);
-        emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildEmail(request.getName(), code));
-        return new Response(200, true, "Register successfully");
+        emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(request.getName(), code));
+        return new Response(200, true, new RegisterInfo(
+                newUser.getId(),
+                "Register successfully"
+        ));
     }
 
     @Transactional
@@ -132,8 +136,11 @@ public class RegisterService {
         ));
 
         int code = verificationCodeService.addVerificationCode(newUser);
-        emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildEmail(request.getName(), code));
-        return new Response(200, true, "Register successfully");
+        emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(request.getName(), code));
+        return new Response(200, true, new RegisterInfo(
+                newUser.getId(),
+                "Register successfully"
+        ));
 
     }
 
@@ -164,7 +171,10 @@ public class RegisterService {
         String name = "null";
         if (user.getRole().equals(Role.ORGANIZATION)) name = user.getOrganization().getName();
         else if (user.getRole().equals(Role.DONOR)) name = user.getDonor().getName();
-        emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildEmail(name, code));
-        return new Response(200, true, "Resend successfully");
+        emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(name, code));
+        return new Response(200, true, new RegisterInfo(
+                userId,
+                "Register successfully"
+        ));
     }
 }

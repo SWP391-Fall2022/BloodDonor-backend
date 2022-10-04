@@ -16,7 +16,7 @@ public class RegisterDonorRequest {
     private String phone;
     private String email;
     private int districtId;
-    private String AddressDetails;
+    private String addressDetails;
     private Role role;
     private String name;
     private LocalDate birthday;

@@ -2,6 +2,7 @@ package swp.medichor.model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -35,8 +36,8 @@ public class Campaign implements Serializable {
     private String name;
     private String images;
     private String description;
-    private Date startDate;
-    private Date endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private Boolean emergency;
 
     @Builder.Default
