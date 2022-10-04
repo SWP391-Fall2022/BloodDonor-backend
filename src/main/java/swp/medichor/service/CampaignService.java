@@ -60,7 +60,6 @@ public class CampaignService {
                 .organization(Organization.builder().userId(organizationId).build())
                 .build();
         campaign = campaignRepository.save(campaign);
-        System.out.println(campaign);
         //send email to all donors in the same district
         List<User> listOfDonors = userService.getAllDonorsByDistrictId(request.getDistrictId());
 
