@@ -20,7 +20,7 @@ public class JwtTokenProvider {
     @Value("${jwt.jwt-secret}")
     private String JWT_SECRET;
     private SecretKey JWT_SECRET_KEY;
-    private final long JWT_EXPIRATION = 60000; // 1 min
+    private final long JWT_EXPIRATION = 60000 * 60; // 1 hr
 
     @PostConstruct
     public void postConstruct() {

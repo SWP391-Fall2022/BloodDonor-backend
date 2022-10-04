@@ -13,6 +13,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import swp.medichor.model.CustomUserDetails;
 import swp.medichor.service.UserService;
 
 @Component
@@ -32,12 +33,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String usersEmail = tokenProvider.getUsernameEmailFromJwt(jwt);
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(usersEmail);
-                
-                // If email is valid, set auth for security context
+
+                // If username or email is valid, set auth for security context
                 UsernamePasswordAuthenticationToken authenticationToken
                         = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
+                // Pass user to request scope
+                // so that controller can retrieve it later, if needed
+                request.setAttribute("user", ((CustomUserDetails) userDetails).getUser());
             }
         } catch (Exception e) {
             System.err.println("Fail on set user authentication");
