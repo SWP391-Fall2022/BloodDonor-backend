@@ -50,4 +50,19 @@ public class CampaignController {
     public Response getAllActiveCampaigns(@PathVariable("organizationId") Integer organizationId) {
         return campaignService.getAllActiveCampaignsByOrganizationId(organizationId);
     }
+
+    @GetMapping("/getNumberOfRegistration/allDay/{campaignId}")
+    public Response getNumberOfRegistrationAllDay(@PathVariable("campaignId") Integer campaignId) {
+        return campaignService.getNumberOfRegistrationAllDay(campaignId);
+    }
+
+    @GetMapping("/getNumberOfRegistration/morning/{campaignId}")
+    public Response getNumberOfRegistrationMorning(@PathVariable("campaignId") Integer campaignId) {
+        return campaignService.getNumberOfRegistrationMorning(campaignId);
+    }
+
+    @GetMapping("/getNumberOfRegistration/afternoon/{campaignId}")
+    public Response getNumberOfRegistrationAfternoon(@PathVariable("campaignId") Integer campaignId) {
+        return campaignService.getNumberOfRegistrationAfternoon(campaignId);
+    }
 }

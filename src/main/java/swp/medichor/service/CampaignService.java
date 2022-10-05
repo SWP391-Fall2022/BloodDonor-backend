@@ -3,14 +3,14 @@ package swp.medichor.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
-import swp.medichor.model.Campaign;
-import swp.medichor.model.District;
-import swp.medichor.model.Organization;
-import swp.medichor.model.User;
+import swp.medichor.enums.DonateRegistrationStatus;
+import swp.medichor.enums.Period;
+import swp.medichor.model.*;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.response.CampaignInfo;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.CampaignRepository;
+import swp.medichor.repository.DonateRegistrationRepository;
 import swp.medichor.repository.OrganizationRepository;
 import swp.medichor.utils.EmailPlatform;
 
@@ -26,6 +26,8 @@ public class CampaignService {
     private OrganizationRepository organizationRepository;
     @Autowired
     private CampaignRepository campaignRepository;
+    @Autowired
+    private DonateRegistrationRepository donateRegistrationRepository;
     @Autowired
     private UserService userService;
     @Autowired
@@ -193,4 +195,21 @@ public class CampaignService {
     }
 
 
+    public Response getNumberOfRegistrationAllDay(Integer campaignId) {
+        List<DonateRegistration> list = donateRegistrationRepository.findAllRegistrationAllDay(campaignId,
+                DonateRegistrationStatus.CANCELLED);
+        return new Response(200, true, list.size());
+    }
+
+    public Response getNumberOfRegistrationMorning(Integer campaignId) {
+        List<DonateRegistration> list = donateRegistrationRepository.findAllRegistrationByPeriod(campaignId,
+                DonateRegistrationStatus.CANCELLED, Period.MORNING);
+        return new Response(200, true, list.size());
+    }
+
+    public Response getNumberOfRegistrationAfternoon(Integer campaignId) {
+        List<DonateRegistration> list = donateRegistrationRepository.findAllRegistrationByPeriod(campaignId,
+                DonateRegistrationStatus.CANCELLED, Period.AFTERNOON);
+        return new Response(200, true, list.size());
+    }
 }
