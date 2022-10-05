@@ -39,4 +39,15 @@ public class CampaignController {
         return campaignService.closeCampaign(campaignId);
     }
 
+    //Get all active campaigns of all organizations
+    @GetMapping("/getAllActive")
+    public Response getAllActiveCampaigns() {
+        return campaignService.getAllActiveCampaigns();
+    }
+
+    //Get all active campaigns of a particular organizations
+    @GetMapping("/getAllActive/{organizationId}")
+    public Response getAllActiveCampaigns(@PathVariable("organizationId") Integer organizationId) {
+        return campaignService.getAllActiveCampaignsByOrganizationId(organizationId);
+    }
 }

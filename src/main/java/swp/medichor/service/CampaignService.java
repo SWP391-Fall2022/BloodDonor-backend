@@ -16,6 +16,7 @@ import swp.medichor.utils.EmailPlatform;
 
 import javax.transaction.Transactional;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -136,4 +137,60 @@ public class CampaignService {
         }
         return new Response(200, true, "Close successfully");
     }
+
+    public Response getAllActiveCampaigns() {
+        List<Campaign> listActiveCampaigns = new ArrayList<>();
+        List<CampaignInfo> listActiveCampaignsInfo = new ArrayList<>();
+        listActiveCampaigns = campaignRepository.findAllActiveCampaigns(LocalDate.now());
+        for (Campaign campaign : listActiveCampaigns) {
+            CampaignInfo campaignInfo = new CampaignInfo(
+                    campaign.getId(),
+                    campaign.getName(),
+                    campaign.getImages(),
+                    campaign.getDescription(),
+                    campaign.getStartDate(),
+                    campaign.getEndDate(),
+                    campaign.getEmergency(),
+                    campaign.getDistrict().getId(),
+                    campaign.getAddressDetails(),
+                    campaign.getOrganization().getName()
+            );
+            listActiveCampaignsInfo.add(campaignInfo);
+        }
+        return new Response(200, true, listActiveCampaignsInfo);
+    }
+
+    public Response getAllActiveCampaignsByOrganizationId(Integer organizationId) {
+        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
+        if (isExistOrganization.isEmpty())
+            return new Response(400, false, "ID not found");
+        Organization organization = isExistOrganization.get();
+        if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
+                || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
+            return new Response(403, false, "The account is disabled or unverified");
+        }
+
+        List<Campaign> listActiveCampaigns = new ArrayList<>();
+        List<CampaignInfo> listActiveCampaignsInfo = new ArrayList<>();
+        listActiveCampaigns = campaignRepository.findAllActiveCampaignsByOrganizationId(organizationId,
+                LocalDate.now());
+        for (Campaign campaign : listActiveCampaigns) {
+            CampaignInfo campaignInfo = new CampaignInfo(
+                    campaign.getId(),
+                    campaign.getName(),
+                    campaign.getImages(),
+                    campaign.getDescription(),
+                    campaign.getStartDate(),
+                    campaign.getEndDate(),
+                    campaign.getEmergency(),
+                    campaign.getDistrict().getId(),
+                    campaign.getAddressDetails(),
+                    campaign.getOrganization().getName()
+            );
+            listActiveCampaignsInfo.add(campaignInfo);
+        }
+        return new Response(200, true, listActiveCampaignsInfo);
+    }
+
+
 }
