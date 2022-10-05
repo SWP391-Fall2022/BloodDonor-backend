@@ -13,6 +13,7 @@ public class CampaignController {
 
     @Autowired
     private CampaignService campaignService;
+
     @PostMapping("/create/{organizationId}")
     public Response createCampaign(@PathVariable("organizationId") Integer organizationId,
                                 @RequestBody CreateCampaignRequest request) {

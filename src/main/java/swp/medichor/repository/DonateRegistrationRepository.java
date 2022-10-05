@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Repository
 public interface DonateRegistrationRepository extends JpaRepository<DonateRegistration, DonateRegistrationKey> {
+
     @Query("select r from DonateRegistration r where r.campaign.id = ?1 and r.status <> ?2")
     List<DonateRegistration> findAllRegistrationAllDay(Integer campaignId, DonateRegistrationStatus status);
 
@@ -20,4 +21,7 @@ public interface DonateRegistrationRepository extends JpaRepository<DonateRegist
     List<DonateRegistration> findAllRegistrationByPeriod(Integer campaignId,
                                                        DonateRegistrationStatus status,
                                                        Period period);
+//    @Query("SELECT count(d) FROM DonateRegistration d WHERE d.id.donorId = ?1")
+    long countById_DonorId(int donorId);
+
 }

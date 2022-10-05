@@ -17,6 +17,7 @@ import swp.medichor.jwt.JwtAuthenticationFilter;
 import swp.medichor.service.UserService;
 
 import java.util.List;
+import swp.medichor.enums.Role;
 
 @EnableWebSecurity
 public class WebSecurityConfig {
@@ -62,6 +63,8 @@ public class WebSecurityConfig {
                 .authorizeRequests()
                 .antMatchers("/v1/login/**").permitAll()
                 .antMatchers("/v1/register/**").permitAll()
+//                .antMatchers("/v1/admin/**").hasAuthority(Role.ADMIN.toString())
+//                .antMatchers("/v1/donors/me/**").hasAuthority(Role.DONOR.toString())
 //                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)

@@ -25,3 +25,4 @@ public class DonateRegistrationResponse {
         code = registration.getCode();
     }
 }
+

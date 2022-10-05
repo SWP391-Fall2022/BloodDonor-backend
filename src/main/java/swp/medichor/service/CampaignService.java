@@ -291,6 +291,4 @@ public class CampaignService {
         return new Response(200, true, listOfParticipatedDonor);
 
     }
-
-
 }
