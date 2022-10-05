@@ -1,6 +1,7 @@
 package swp.medichor.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.response.Response;
@@ -45,10 +46,20 @@ public class CampaignController {
         return campaignService.getAllActiveCampaigns();
     }
 
+    @GetMapping("/getAll")
+    public Response getAllCampaigns() {
+        return campaignService.getAllCampaigns();
+    }
+
     //Get all active campaigns of a particular organizations
     @GetMapping("/getAllActive/{organizationId}")
     public Response getAllActiveCampaigns(@PathVariable("organizationId") Integer organizationId) {
         return campaignService.getAllActiveCampaignsByOrganizationId(organizationId);
+    }
+
+    @GetMapping("/getAll/{organizationId}")
+    public Response getAllCampaigns(@PathVariable("organizationId") Integer organizationId) {
+        return campaignService.getAllCampaignsByOrganizationId(organizationId);
     }
 
     @GetMapping("/getNumberOfRegistration/allDay/{campaignId}")
@@ -64,5 +75,10 @@ public class CampaignController {
     @GetMapping("/getNumberOfRegistration/afternoon/{campaignId}")
     public Response getNumberOfRegistrationAfternoon(@PathVariable("campaignId") Integer campaignId) {
         return campaignService.getNumberOfRegistrationAfternoon(campaignId);
+    }
+
+    @GetMapping("/getParticipatedDonor/{campaignId}")
+    public Response getAllParticipatedDonor(@PathVariable("campaignId") Integer campaignId) {
+        return campaignService.getAllParticipatedDonor(campaignId);
     }
 }

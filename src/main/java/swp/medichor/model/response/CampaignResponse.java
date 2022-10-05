@@ -9,7 +9,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CampaignInfo {
+public class CampaignResponse {
     private Integer id;
     private String name;
     private String images;

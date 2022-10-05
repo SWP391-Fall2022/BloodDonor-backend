@@ -7,7 +7,7 @@ import swp.medichor.enums.Role;
 import swp.medichor.model.*;
 import swp.medichor.model.request.RegisterDonorRequest;
 import swp.medichor.model.request.RegisterOrganizationRequest;
-import swp.medichor.model.response.RegisterInfo;
+import swp.medichor.model.response.RegisterResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.utils.EmailPlatform;
 import swp.medichor.utils.Validator;
@@ -81,7 +81,7 @@ public class RegisterService {
 
         int code = verificationCodeService.addVerificationCode(newUser);
         emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(request.getName(), code));
-        return new Response(200, true, new RegisterInfo(
+        return new Response(200, true, new RegisterResponse(
                 newUser.getId(),
                 "Register successfully"
         ));
@@ -137,7 +137,7 @@ public class RegisterService {
 
         int code = verificationCodeService.addVerificationCode(newUser);
         emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(request.getName(), code));
-        return new Response(200, true, new RegisterInfo(
+        return new Response(200, true, new RegisterResponse(
                 newUser.getId(),
                 "Register successfully"
         ));
@@ -172,7 +172,7 @@ public class RegisterService {
         if (user.getRole().equals(Role.ORGANIZATION)) name = user.getOrganization().getName();
         else if (user.getRole().equals(Role.DONOR)) name = user.getDonor().getName();
         emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(name, code));
-        return new Response(200, true, new RegisterInfo(
+        return new Response(200, true, new RegisterResponse(
                 userId,
                 "Register successfully"
         ));

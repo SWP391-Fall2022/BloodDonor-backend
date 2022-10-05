@@ -1,5 +1,6 @@
 package swp.medichor.service;
 
+import io.opencensus.trace.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
@@ -7,10 +8,13 @@ import swp.medichor.enums.DonateRegistrationStatus;
 import swp.medichor.enums.Period;
 import swp.medichor.model.*;
 import swp.medichor.model.request.CreateCampaignRequest;
-import swp.medichor.model.response.CampaignInfo;
+import swp.medichor.model.response.CampaignResponse;
+import swp.medichor.model.response.DonateRegistrationResponse;
+import swp.medichor.model.response.ParticipatedDonorReponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.CampaignRepository;
 import swp.medichor.repository.DonateRegistrationRepository;
+import swp.medichor.repository.DonorRepository;
 import swp.medichor.repository.OrganizationRepository;
 import swp.medichor.utils.EmailPlatform;
 
@@ -24,6 +28,8 @@ import java.util.Optional;
 public class CampaignService {
     @Autowired
     private OrganizationRepository organizationRepository;
+    @Autowired
+    private DonorRepository donorRepository;
     @Autowired
     private CampaignRepository campaignRepository;
     @Autowired
@@ -101,7 +107,7 @@ public class CampaignService {
         if (isExistCampaign.isEmpty())
             return new Response(400, false, "ID not found");
         Campaign campaign = isExistCampaign.get();
-        CampaignInfo campaignInfo = new CampaignInfo(
+        CampaignResponse campaignInfo = new CampaignResponse(
                 campaign.getId(),
                 campaign.getName(),
                 campaign.getImages(),
@@ -142,10 +148,10 @@ public class CampaignService {
 
     public Response getAllActiveCampaigns() {
         List<Campaign> listActiveCampaigns = new ArrayList<>();
-        List<CampaignInfo> listActiveCampaignsInfo = new ArrayList<>();
+        List<CampaignResponse> listActiveCampaignsInfo = new ArrayList<>();
         listActiveCampaigns = campaignRepository.findAllActiveCampaigns(LocalDate.now());
         for (Campaign campaign : listActiveCampaigns) {
-            CampaignInfo campaignInfo = new CampaignInfo(
+            CampaignResponse campaignInfo = new CampaignResponse(
                     campaign.getId(),
                     campaign.getName(),
                     campaign.getImages(),
@@ -173,11 +179,11 @@ public class CampaignService {
         }
 
         List<Campaign> listActiveCampaigns = new ArrayList<>();
-        List<CampaignInfo> listActiveCampaignsInfo = new ArrayList<>();
+        List<CampaignResponse> listActiveCampaignsInfo = new ArrayList<>();
         listActiveCampaigns = campaignRepository.findAllActiveCampaignsByOrganizationId(organizationId,
                 LocalDate.now());
         for (Campaign campaign : listActiveCampaigns) {
-            CampaignInfo campaignInfo = new CampaignInfo(
+            CampaignResponse campaignInfo = new CampaignResponse(
                     campaign.getId(),
                     campaign.getName(),
                     campaign.getImages(),
@@ -192,6 +198,59 @@ public class CampaignService {
             listActiveCampaignsInfo.add(campaignInfo);
         }
         return new Response(200, true, listActiveCampaignsInfo);
+    }
+
+    public Response getAllCampaigns() {
+        List<Campaign> listCampaigns = new ArrayList<>();
+        List<CampaignResponse> listCampaignsInfo = new ArrayList<>();
+        listCampaigns = campaignRepository.findAllCampaigns();
+        for (Campaign campaign : listCampaigns) {
+            CampaignResponse campaignInfo = new CampaignResponse(
+                    campaign.getId(),
+                    campaign.getName(),
+                    campaign.getImages(),
+                    campaign.getDescription(),
+                    campaign.getStartDate(),
+                    campaign.getEndDate(),
+                    campaign.getEmergency(),
+                    campaign.getDistrict().getId(),
+                    campaign.getAddressDetails(),
+                    campaign.getOrganization().getName()
+            );
+            listCampaignsInfo.add(campaignInfo);
+        }
+        return new Response(200, true, listCampaignsInfo);
+    }
+
+    public Response getAllCampaignsByOrganizationId(Integer organizationId) {
+        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
+        if (isExistOrganization.isEmpty())
+            return new Response(400, false, "ID not found");
+        Organization organization = isExistOrganization.get();
+        if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
+                || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
+            return new Response(403, false, "The account is disabled or unverified");
+        }
+
+        List<Campaign> listCampaigns = new ArrayList<>();
+        List<CampaignResponse> listCampaignsInfo = new ArrayList<>();
+        listCampaigns = campaignRepository.findAllCampaignsByOrganizationId(organizationId);
+        for (Campaign campaign : listCampaigns) {
+            CampaignResponse campaignInfo = new CampaignResponse(
+                    campaign.getId(),
+                    campaign.getName(),
+                    campaign.getImages(),
+                    campaign.getDescription(),
+                    campaign.getStartDate(),
+                    campaign.getEndDate(),
+                    campaign.getEmergency(),
+                    campaign.getDistrict().getId(),
+                    campaign.getAddressDetails(),
+                    campaign.getOrganization().getName()
+            );
+            listCampaignsInfo.add(campaignInfo);
+        }
+        return new Response(200, true, listCampaignsInfo);
     }
 
 
@@ -212,4 +271,26 @@ public class CampaignService {
                 DonateRegistrationStatus.CANCELLED, Period.AFTERNOON);
         return new Response(200, true, list.size());
     }
+
+    public Response getAllParticipatedDonor(Integer campaignId) {
+        List<DonateRegistration> listOfRegistration = donateRegistrationRepository.findAllRegistrationAllDay(
+                campaignId,
+                DonateRegistrationStatus.CANCELLED
+        );
+        List<ParticipatedDonorReponse> listOfParticipatedDonor = new ArrayList<>();
+        for (DonateRegistration registration : listOfRegistration) {
+            listOfParticipatedDonor.add(new ParticipatedDonorReponse(
+                    registration.getDonor().getName(),
+                    registration.getDonor().getIdentityNum(),
+                    registration.getDonor().getSex(),
+                    registration.getDonor().getBloodType(),
+                    registration.getDonor().getAnamnesis(),
+                    new DonateRegistrationResponse(registration)
+            ));
+        }
+        return new Response(200, true, listOfParticipatedDonor);
+
+    }
+
+
 }

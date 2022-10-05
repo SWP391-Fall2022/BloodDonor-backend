@@ -16,9 +16,6 @@ public class OrganizationController {
 
     @GetMapping("/getInfo/{organizationId}")
     public Response getInfoOfOneOrganization(@PathVariable("organizationId") Integer organizationId) {
-
-        //PHAN QUYEN USER
-
         return organizationServive.getInfoOfOne(organizationId);
     }
 
@@ -27,12 +24,6 @@ public class OrganizationController {
                                                 @RequestBody UpdateInfoOrganizationRequest request) {
         return organizationServive.updateInfoOfOne(organizationId, request);
     }
-
-//    @PutMapping("/updateAvatar/{organizationId}")
-//    public Response updateAvatarOrganization(@PathVariable("organizationId") Integer organizationId,
-//                                                @RequestParam(name = "avatar", required = true) String avatar) {
-//        return organizationServive.updateAvatar(organizationId, avatar);
-//    }
 
     @PutMapping("/updateAvatar/{organizationId}")
     public Response updateAvatarOrganization(@PathVariable("organizationId") Integer organizationId,

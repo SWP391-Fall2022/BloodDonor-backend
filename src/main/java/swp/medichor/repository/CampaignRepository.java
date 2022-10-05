@@ -17,4 +17,10 @@ public interface CampaignRepository extends JpaRepository<Campaign, Integer> {
 
     @Query("SELECT c from Campaign c where c.organization.userId = ?1 and c.startDate <= ?2 and c.endDate >= ?2")
     List<Campaign> findAllActiveCampaignsByOrganizationId(Integer organizationId, LocalDate now);
+
+    @Query("select c from Campaign c where c.status = true")
+    List<Campaign> findAllCampaigns();
+
+    @Query("select c from Campaign c where c.organization.userId = ?1 and c.status = true")
+    List<Campaign> findAllCampaignsByOrganizationId(Integer organizationId);
 }

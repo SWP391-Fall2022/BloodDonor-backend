@@ -20,5 +20,4 @@ public interface DonateRegistrationRepository extends JpaRepository<DonateRegist
     List<DonateRegistration> findAllRegistrationByPeriod(Integer campaignId,
                                                        DonateRegistrationStatus status,
                                                        Period period);
-
 }

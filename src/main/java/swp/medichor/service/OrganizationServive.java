@@ -6,7 +6,7 @@ import swp.medichor.enums.Approve;
 import swp.medichor.model.Organization;
 import swp.medichor.model.request.UpdateAvatarRequest;
 import swp.medichor.model.request.UpdateInfoOrganizationRequest;
-import swp.medichor.model.response.OrganizationInfo;
+import swp.medichor.model.response.OrganizationResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.OrganizationRepository;
 import swp.medichor.utils.Validator;
@@ -35,7 +35,7 @@ public class OrganizationServive {
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
         }
-        OrganizationInfo organizationInfo = new OrganizationInfo(
+        OrganizationResponse organizationInfo = new OrganizationResponse(
                 organization.getUserId(),
                 organization.getUser().getUsername(),
                 organization.getUser().getPhone(),
