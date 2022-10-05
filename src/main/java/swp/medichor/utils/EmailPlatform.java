@@ -1,7 +1,9 @@
 package swp.medichor.utils;
 
+import swp.medichor.model.Campaign;
+
 public class EmailPlatform {
-    public static String buildEmail(String name, int code) {
+    public static String buildConfirmCodeEmail(String name, int code) {
         return "<div style=\"font-family:Helvetica,Arial,sans-serif;font-size:16px;margin:0;color:#0b0c0c\">\n" +
                 "\n" +
                 "<span style=\"display:none;font-size:1px;color:#fff;max-height:0\"></span>\n" +
@@ -68,5 +70,11 @@ public class EmailPlatform {
                 "  </tbody></table><div class=\"yj6qo\"></div><div class=\"adL\">\n" +
                 "\n" +
                 "</div></div>";
+    }
+
+    public static String buildJoinInCampaignEmail(String donorName, String campaignName) {
+        String content = "Hi " + donorName + ", a campaign takes place near you. Click here: link/"
+                + campaignName + " for more information. Thank you !";
+        return content;
     }
 }

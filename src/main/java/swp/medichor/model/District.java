@@ -26,7 +26,6 @@ public class District implements Serializable {
 
     @Id
     private int id;
-
     private String name;
     private String prefix;
 
