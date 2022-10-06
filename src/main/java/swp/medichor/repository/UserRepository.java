@@ -11,7 +11,7 @@ import swp.medichor.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
-    @Query("SELECT u FROM User u WHERE u.username = ?1 OR u.email = ?1 AND u.status = true")
+    @Query("SELECT u FROM User u WHERE u.username = ?1 OR u.email = ?1")
     Optional<User> findByUsernameOrEmail(String value);
     @Query("SELECT u FROM User u WHERE u.username = ?1 AND u.email = ?2 AND u.status = true")
     Optional<User> findByUsernameAndEmail(String username, String email);

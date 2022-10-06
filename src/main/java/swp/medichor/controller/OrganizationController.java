@@ -2,6 +2,7 @@ package swp.medichor.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import swp.medichor.model.User;
 import swp.medichor.model.request.UpdateAvatarRequest;
 import swp.medichor.model.request.UpdateInfoOrganizationRequest;
 import swp.medichor.model.response.Response;
@@ -14,21 +15,21 @@ public class OrganizationController {
     @Autowired
     private OrganizationServive organizationServive;
 
-    @GetMapping("/getInfo/{organizationId}")
-    public Response getInfoOfOneOrganization(@PathVariable("organizationId") Integer organizationId) {
-        return organizationServive.getInfoOfOne(organizationId);
+    @GetMapping("/getInfo")
+    public Response getInfoOfOneOrganization(@RequestAttribute User user) {
+        return organizationServive.getInfoOfOne(user.getOrganization());
     }
 
-    @PutMapping("/updateInfo/{organizationId}")
-    public Response updateInfoOfOneOrganization(@PathVariable("organizationId") Integer organizationId,
+    @PutMapping("/updateInfo")
+    public Response updateInfoOfOneOrganization(@RequestAttribute User user,
                                                 @RequestBody UpdateInfoOrganizationRequest request) {
-        return organizationServive.updateInfoOfOne(organizationId, request);
+        return organizationServive.updateInfoOfOne(user.getOrganization().getUserId(), request);
     }
 
-    @PutMapping("/updateAvatar/{organizationId}")
-    public Response updateAvatarOrganization(@PathVariable("organizationId") Integer organizationId,
+    @PutMapping("/updateAvatar")
+    public Response updateAvatarOrganization(@RequestAttribute User user,
                                              @RequestBody UpdateAvatarRequest request) {
-        return organizationServive.updateAvatar(organizationId, request);
+        return organizationServive.updateAvatar(user.getOrganization().getUserId(), request);
     }
 
 }

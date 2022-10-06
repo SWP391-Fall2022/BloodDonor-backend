@@ -6,7 +6,7 @@ import swp.medichor.enums.Sex;
 
 @AllArgsConstructor
 @Getter
-public class ParticipatedDonorReponse {
+public class ParticipatedDonorResponse {
     private String name;
     private String identityNum;
     private Sex sex;

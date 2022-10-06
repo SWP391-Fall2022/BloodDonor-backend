@@ -1,16 +1,16 @@
 package swp.medichor.service;
 
-import io.opencensus.trace.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.enums.DonateRegistrationStatus;
 import swp.medichor.enums.Period;
+import swp.medichor.enums.Role;
 import swp.medichor.model.*;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.response.CampaignResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
-import swp.medichor.model.response.ParticipatedDonorReponse;
+import swp.medichor.model.response.ParticipatedDonorResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.CampaignRepository;
 import swp.medichor.repository.DonateRegistrationRepository;
@@ -41,11 +41,7 @@ public class CampaignService {
     private final String FROM = "nvtien1602.forwork@gmail.com";
     private final String SUBJECT = "PLEASE JOIN IN THE BLOOD DONATION CAMPAIGN IF POSSIBLE";
 
-    public Response createCampaign(Integer organizationId, CreateCampaignRequest request) {
-        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
-        if (isExistOrganization.isEmpty())
-            return new Response(400, false, "ID not found");
-        Organization organization = isExistOrganization.get();
+    public Response createCampaign(Organization organization, CreateCampaignRequest request) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
@@ -66,7 +62,7 @@ public class CampaignService {
                 .status(true)
                 .district(District.builder().id(request.getDistrictId()).build())
                 .addressDetails(request.getAddressDetails())
-                .organization(Organization.builder().userId(organizationId).build())
+                .organization(organization)
                 .build();
         campaign = campaignRepository.save(campaign);
         //send email to all donors in the same district
@@ -82,15 +78,20 @@ public class CampaignService {
     }
 
     @Transactional
-    public Response updateCampaign(Integer campaignId, CreateCampaignRequest request) {
+    public Response updateCampaign(User user, Integer campaignId, CreateCampaignRequest request) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
             return new Response(400, false, "ID not found");
+        Campaign campaign = isExistCampaign.get();
+        if (campaign.getOrganization().getUserId() != user.getId()) {
+            return new Response(403, false, "You have no right to update other org's campaign");
+        }
+
         if (request.getStartDate().isAfter(request.getEndDate()))
             return new Response(400, false, "Start date can not be after end date");
         if (request.getEndDate().isBefore(LocalDate.now()))
             return new Response(400, false, "End date can not be before today");
-        Campaign campaign = isExistCampaign.get();
+
         campaign.setName(request.getName());
         campaign.setImages(request.getImages());
         campaign.setDescription(request.getDescription());
@@ -123,21 +124,36 @@ public class CampaignService {
     }
 
     @Transactional
-    public Response deleteCampaign(Integer campaignId) {
-        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
-        if (isExistCampaign.isEmpty())
-            return new Response(400, false, "ID not found");
-        Campaign campaign = isExistCampaign.get();
-        campaign.setStatus(false);
+    public Response deleteCampaign(User user, Integer campaignId) {
+        if (user.getRole().equals(Role.ADMIN)) {
+            Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+            if (isExistCampaign.isEmpty())
+                return new Response(400, false, "ID not found");
+            Campaign campaign = isExistCampaign.get();
+            campaign.setStatus(false);
+        }
+        else if (user.getRole().equals(Role.ORGANIZATION)) {
+            Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+            if (isExistCampaign.isEmpty())
+                return new Response(400, false, "ID not found");
+            Campaign campaign = isExistCampaign.get();
+            if (campaign.getOrganization().getUserId() != user.getId()) {
+                return new Response(403, false, "You have no right to delete other org's campaign");
+            }
+            campaign.setStatus(false);
+        }
         return new Response(200, true, "Delete successfully");
     }
 
     @Transactional
-    public Response closeCampaign(Integer campaignId) {
+    public Response closeCampaign(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
             return new Response(400, false, "ID not found");
         Campaign campaign = isExistCampaign.get();
+        if (campaign.getOrganization().getUserId() != user.getId()) {
+            return new Response(403, false, "You have no right to close other org's campaign");
+        }
         if (campaign.getStartDate().compareTo(LocalDate.now()) >= 0)
             campaign.setEndDate(campaign.getStartDate());
         else {
@@ -168,11 +184,7 @@ public class CampaignService {
         return new Response(200, true, listActiveCampaignsInfo);
     }
 
-    public Response getAllActiveCampaignsByOrganizationId(Integer organizationId) {
-        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
-        if (isExistOrganization.isEmpty())
-            return new Response(400, false, "ID not found");
-        Organization organization = isExistOrganization.get();
+    public Response getAllActiveCampaignsByOrganizationId(Organization organization) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
@@ -180,7 +192,7 @@ public class CampaignService {
 
         List<Campaign> listActiveCampaigns = new ArrayList<>();
         List<CampaignResponse> listActiveCampaignsInfo = new ArrayList<>();
-        listActiveCampaigns = campaignRepository.findAllActiveCampaignsByOrganizationId(organizationId,
+        listActiveCampaigns = campaignRepository.findAllActiveCampaignsByOrganizationId(organization.getUserId(),
                 LocalDate.now());
         for (Campaign campaign : listActiveCampaigns) {
             CampaignResponse campaignInfo = new CampaignResponse(
@@ -222,11 +234,7 @@ public class CampaignService {
         return new Response(200, true, listCampaignsInfo);
     }
 
-    public Response getAllCampaignsByOrganizationId(Integer organizationId) {
-        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
-        if (isExistOrganization.isEmpty())
-            return new Response(400, false, "ID not found");
-        Organization organization = isExistOrganization.get();
+    public Response getAllCampaignsByOrganizationId(Organization organization) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
@@ -234,7 +242,7 @@ public class CampaignService {
 
         List<Campaign> listCampaigns = new ArrayList<>();
         List<CampaignResponse> listCampaignsInfo = new ArrayList<>();
-        listCampaigns = campaignRepository.findAllCampaignsByOrganizationId(organizationId);
+        listCampaigns = campaignRepository.findAllCampaignsByOrganizationId(organization.getUserId());
         for (Campaign campaign : listCampaigns) {
             CampaignResponse campaignInfo = new CampaignResponse(
                     campaign.getId(),
@@ -277,9 +285,9 @@ public class CampaignService {
                 campaignId,
                 DonateRegistrationStatus.CANCELLED
         );
-        List<ParticipatedDonorReponse> listOfParticipatedDonor = new ArrayList<>();
+        List<ParticipatedDonorResponse> listOfParticipatedDonor = new ArrayList<>();
         for (DonateRegistration registration : listOfRegistration) {
-            listOfParticipatedDonor.add(new ParticipatedDonorReponse(
+            listOfParticipatedDonor.add(new ParticipatedDonorResponse(
                     registration.getDonor().getName(),
                     registration.getDonor().getIdentityNum(),
                     registration.getDonor().getSex(),

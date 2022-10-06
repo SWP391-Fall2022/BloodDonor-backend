@@ -3,6 +3,7 @@ package swp.medichor.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+import swp.medichor.model.User;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.CampaignService;
@@ -14,16 +15,17 @@ public class CampaignController {
     @Autowired
     private CampaignService campaignService;
 
-    @PostMapping("/create/{organizationId}")
-    public Response createCampaign(@PathVariable("organizationId") Integer organizationId,
+    @PostMapping("/create")
+    public Response createCampaign(@RequestAttribute User user,
                                 @RequestBody CreateCampaignRequest request) {
-        return campaignService.createCampaign(organizationId, request);
+        return campaignService.createCampaign(user.getOrganization(), request);
     }
 
     @PutMapping("/update/{campaignId}")
-    public Response updateCampaign(@PathVariable("campaignId") Integer campaignId,
+    public Response updateCampaign(@RequestAttribute User user,
+                                   @PathVariable("campaignId") Integer campaignId,
                                    @RequestBody CreateCampaignRequest request) {
-        return campaignService.updateCampaign(campaignId, request);
+        return campaignService.updateCampaign(user, campaignId, request);
     }
 
     @GetMapping("/readOne/{campaignId}")
@@ -32,13 +34,15 @@ public class CampaignController {
     }
 
     @DeleteMapping("/delete/{campaignId}")
-    public Response deleteCampaign(@PathVariable("campaignId") Integer campaignId) {
-        return campaignService.deleteCampaign(campaignId);
+    public Response deleteCampaign(@RequestAttribute User user,
+                                   @PathVariable("campaignId") Integer campaignId) {
+        return campaignService.deleteCampaign(user, campaignId);
     }
 
     @PutMapping("/close/{campaignId}")
-    public Response closeCampaign(@PathVariable("campaignId") Integer campaignId) {
-        return campaignService.closeCampaign(campaignId);
+    public Response closeCampaign(@RequestAttribute User user,
+                                  @PathVariable("campaignId") Integer campaignId) {
+        return campaignService.closeCampaign(user, campaignId);
     }
 
     //Get all active campaigns of all organizations
@@ -53,14 +57,14 @@ public class CampaignController {
     }
 
     //Get all active campaigns of a particular organizations
-    @GetMapping("/getAllActive/{organizationId}")
-    public Response getAllActiveCampaigns(@PathVariable("organizationId") Integer organizationId) {
-        return campaignService.getAllActiveCampaignsByOrganizationId(organizationId);
+    @GetMapping("/getAllActiveByOrganization")
+    public Response getAllActiveCampaigns(@RequestAttribute User user) {
+        return campaignService.getAllActiveCampaignsByOrganizationId(user.getOrganization());
     }
 
-    @GetMapping("/getAll/{organizationId}")
-    public Response getAllCampaigns(@PathVariable("organizationId") Integer organizationId) {
-        return campaignService.getAllCampaignsByOrganizationId(organizationId);
+    @GetMapping("/getAllByOrganization")
+    public Response getAllCampaigns(@RequestAttribute User user) {
+        return campaignService.getAllCampaignsByOrganizationId(user.getOrganization());
     }
 
     @GetMapping("/getNumberOfRegistration/allDay/{campaignId}")

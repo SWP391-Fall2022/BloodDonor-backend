@@ -65,7 +65,7 @@ public class WebSecurityConfig {
                 .antMatchers("/v1/register/**").permitAll()
 //                .antMatchers("/v1/admin/**").hasAuthority(Role.ADMIN.toString())
 //                .antMatchers("/v1/donors/me/**").hasAuthority(Role.DONOR.toString())
-//                .anyRequest().authenticated()
+                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
