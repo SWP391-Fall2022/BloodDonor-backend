@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.User;
 import swp.medichor.model.request.UpdateAvatarRequest;
-import swp.medichor.model.request.UpdateInfoOrganizationRequest;
+import swp.medichor.model.request.UpdateOrganizationRequest;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.OrganizationServive;
 
@@ -15,14 +15,14 @@ public class OrganizationController {
     @Autowired
     private OrganizationServive organizationServive;
 
-    @GetMapping("/getInfo")
-    public Response getInfoOfOneOrganization(@RequestAttribute User user) {
-        return organizationServive.getInfoOfOne(user.getOrganization());
+    @GetMapping("/getInfo/{organizationId}")
+    public Response getInfoOfOneOrganization(@PathVariable("organizationId") Integer organizationId) {
+        return organizationServive.getInfoOfOne(organizationId);
     }
 
     @PutMapping("/updateInfo")
     public Response updateInfoOfOneOrganization(@RequestAttribute User user,
-                                                @RequestBody UpdateInfoOrganizationRequest request) {
+                                                @RequestBody UpdateOrganizationRequest request) {
         return organizationServive.updateInfoOfOne(user.getOrganization().getUserId(), request);
     }
 

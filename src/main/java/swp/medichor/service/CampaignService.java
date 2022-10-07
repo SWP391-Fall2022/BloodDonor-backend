@@ -7,15 +7,14 @@ import swp.medichor.enums.DonateRegistrationStatus;
 import swp.medichor.enums.Period;
 import swp.medichor.enums.Role;
 import swp.medichor.model.*;
+import swp.medichor.model.compositekey.DonateRecordKey;
 import swp.medichor.model.request.CreateCampaignRequest;
+import swp.medichor.model.request.DonateRecordRequest;
 import swp.medichor.model.response.CampaignResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
 import swp.medichor.model.response.ParticipatedDonorResponse;
 import swp.medichor.model.response.Response;
-import swp.medichor.repository.CampaignRepository;
-import swp.medichor.repository.DonateRegistrationRepository;
-import swp.medichor.repository.DonorRepository;
-import swp.medichor.repository.OrganizationRepository;
+import swp.medichor.repository.*;
 import swp.medichor.utils.EmailPlatform;
 
 import javax.transaction.Transactional;
@@ -34,6 +33,8 @@ public class CampaignService {
     private CampaignRepository campaignRepository;
     @Autowired
     private DonateRegistrationRepository donateRegistrationRepository;
+    @Autowired
+    private DonateRecordRepository donateRecordRepository;
     @Autowired
     private UserService userService;
     @Autowired
@@ -83,7 +84,7 @@ public class CampaignService {
         if (isExistCampaign.isEmpty())
             return new Response(400, false, "ID not found");
         Campaign campaign = isExistCampaign.get();
-        if (campaign.getOrganization().getUserId() != user.getId()) {
+        if (!campaign.getOrganization().getUserId().equals(user.getId())) {
             return new Response(403, false, "You have no right to update other org's campaign");
         }
 
@@ -137,7 +138,7 @@ public class CampaignService {
             if (isExistCampaign.isEmpty())
                 return new Response(400, false, "ID not found");
             Campaign campaign = isExistCampaign.get();
-            if (campaign.getOrganization().getUserId() != user.getId()) {
+            if (!campaign.getOrganization().getUserId().equals(user.getId())) {
                 return new Response(403, false, "You have no right to delete other org's campaign");
             }
             campaign.setStatus(false);
@@ -151,7 +152,7 @@ public class CampaignService {
         if (isExistCampaign.isEmpty())
             return new Response(400, false, "ID not found");
         Campaign campaign = isExistCampaign.get();
-        if (campaign.getOrganization().getUserId() != user.getId()) {
+        if (!campaign.getOrganization().getUserId().equals(user.getId())) {
             return new Response(403, false, "You have no right to close other org's campaign");
         }
         if (campaign.getStartDate().compareTo(LocalDate.now()) >= 0)
@@ -298,5 +299,66 @@ public class CampaignService {
         }
         return new Response(200, true, listOfParticipatedDonor);
 
+    }
+
+    public Response getTotalAmountOfBlood(Integer campaignId) {
+        Integer totalAmount = donateRecordRepository.sumOfAmountByCampaignId(campaignId);
+        return new Response(200, true, totalAmount == null ? 0 : totalAmount);
+    }
+
+
+    @Transactional
+    public Response updateMedicalDocument(User user, DonateRecordRequest request) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(request.getCampaignId());
+        if (isExistCampaign.isEmpty())
+            return new Response(400, false, "Campaign Id not found");
+        Optional<Donor> isExistDonor = donorRepository.findById((request.getDonorId()));
+        if (isExistDonor.isEmpty())
+            return new Response(400, false, "Donor Id not found");
+        Optional<DonateRegistration> isExistDonateRegistration = donateRegistrationRepository.findByCampaignIdAndDonorId(
+                request.getCampaignId(),
+                request.getDonorId(),
+                DonateRegistrationStatus.CANCELLED
+        );
+        if (isExistDonateRegistration.isEmpty())
+            return new Response(400, false, "Donor haven't register for a campaign yet");
+        if (!user.getId().equals(isExistCampaign.get().getOrganization().getUserId()))
+            return new Response(403, false, "You have no right to update medical document of other org's campaign");
+
+        Campaign campaign = isExistCampaign.get();
+        Donor donor = isExistDonor.get();
+        DonateRegistration donateRegistration = isExistDonateRegistration.get();
+        if (donateRegistration.getStatus().equals(DonateRegistrationStatus.NOT_CHECKED_IN)) {
+            donateRegistration.setStatus(DonateRegistrationStatus.CHECKED_IN);
+            donor.setBloodType(request.getBloodType());
+            DonateRecord donateRecord = DonateRecord.builder()
+                    .id(new DonateRecordKey(
+                            null,
+                            null,
+                            request.getRegisteredDate()
+                    ))
+                    .campaign(campaign)
+                    .donor(donor)
+                    .details(request.getDetails())
+                    .status(request.getStatus())
+                    .bloodType(request.getBloodType())
+                    .amount(request.getAmount())
+                    .weight(request.getWeight())
+                    .build();
+            donateRecordRepository.save(donateRecord);
+        }
+        else {
+            donor.setBloodType(request.getBloodType());
+            DonateRecord donateRecord = donateRecordRepository.findByCampaignIdAndDonorId(
+                    request.getCampaignId(),
+                    request.getDonorId()
+            ).get();
+            donateRecord.setDetails(request.getDetails());
+            donateRecord.setStatus(request.getStatus());
+            donateRecord.setBloodType(request.getBloodType());
+            donateRecord.setAmount(request.getAmount());
+            donateRecord.setWeight(request.getWeight());
+        }
+        return new Response(200, true, "Update medical history successfully");
     }
 }

@@ -2,6 +2,7 @@ package swp.medichor.model.compositekey;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.time.LocalDate;
 import javax.persistence.Embeddable;
 import lombok.AllArgsConstructor;
 import lombok.Data;

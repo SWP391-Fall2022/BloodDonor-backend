@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.model.Organization;
 import swp.medichor.model.request.UpdateAvatarRequest;
-import swp.medichor.model.request.UpdateInfoOrganizationRequest;
+import swp.medichor.model.request.UpdateOrganizationRequest;
 import swp.medichor.model.response.OrganizationResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.OrganizationRepository;
@@ -26,7 +26,12 @@ public class OrganizationServive {
         return true;
     }
 
-    public Response getInfoOfOne(Organization organization) {
+    public Response getInfoOfOne(Integer organizationId) {
+        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
+        if (isExistOrganization.isEmpty()) {
+            return new Response(400, false, "ID not found");
+        }
+        Organization organization = isExistOrganization.get();
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
@@ -48,7 +53,7 @@ public class OrganizationServive {
     }
 
     @Transactional
-    public Response updateInfoOfOne(Integer organizationId, UpdateInfoOrganizationRequest request) {
+    public Response updateInfoOfOne(Integer organizationId, UpdateOrganizationRequest request) {
         Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
         if (isExistOrganization.isEmpty())
             return new Response(400, false, "ID not found");
