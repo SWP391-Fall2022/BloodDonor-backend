@@ -99,4 +99,8 @@ public class CampaignController {
         return campaignService.updateMedicalDocument(user, request);
     }
 
+    @GetMapping("/totalLike/{campaignId}")
+    public Response getTotalLike(@PathVariable Integer campaignId) {
+        return campaignService.getTotalLike(campaignId);
+    }
 }

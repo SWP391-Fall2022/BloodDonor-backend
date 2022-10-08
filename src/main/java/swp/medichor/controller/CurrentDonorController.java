@@ -1,12 +1,7 @@
 package swp.medichor.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestAttribute;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.User;
 import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
@@ -64,5 +59,11 @@ public class CurrentDonorController {
         } else {
             return new Response(403, false, "Current user is not a donor");
         }
+    }
+
+    @PostMapping("/campaign-interest/{campaignId}")
+    public Response likeCampaign(@RequestAttribute User user,
+                                 @PathVariable Integer campaignId) {
+        return donorService.likeCampaign(user, campaignId);
     }
 }

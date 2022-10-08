@@ -36,6 +36,8 @@ public class CampaignService {
     @Autowired
     private DonateRecordRepository donateRecordRepository;
     @Autowired
+    private LikeRecordRepository likeRecordRepository;
+    @Autowired
     private UserService userService;
     @Autowired
     private EmailService emailService;
@@ -360,5 +362,13 @@ public class CampaignService {
             donateRecord.setWeight(request.getWeight());
         }
         return new Response(200, true, "Update medical history successfully");
+    }
+
+    public Response getTotalLike(Integer campaignId) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+        if (isExistCampaign.isEmpty())
+            return new Response(400, false, "ID not found");
+        Integer totalLike = likeRecordRepository.countTotalLikeByCampaignId(campaignId);
+        return new Response(200, true, totalLike == null ? 0 : totalLike);
     }
 }
