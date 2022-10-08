@@ -1,5 +1,6 @@
 package swp.medichor.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
 import swp.medichor.model.response.DonateRecordResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
+import swp.medichor.model.response.DonorResponse;
 import swp.medichor.repository.CampaignRepository;
 import swp.medichor.repository.DonateRecordRepository;
 import swp.medichor.repository.DonateRegistrationRepository;
@@ -41,6 +43,13 @@ public class DonorService {
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
         return true;
+    }
+    
+    public List<DonorResponse> getAll() {
+        return donorRepository.findAll()
+                .stream()
+                .map(donor -> new DonorResponse(donor))
+                .collect(Collectors.toList());
     }
 
     public Optional<Donor> findById(int id) {

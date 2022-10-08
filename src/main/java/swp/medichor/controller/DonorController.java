@@ -18,6 +18,11 @@ public class DonorController {
     @Autowired
     private DonorService donorService;
 
+    @GetMapping
+    public Response getAllDonors() {
+        return new Response(200, true, donorService.getAll());
+    }
+
     @GetMapping("/{id}")
     public Response getDonor(@PathVariable int id) {
         Optional<Donor> donor = donorService.findById(id);
