@@ -15,6 +15,11 @@ public class OrganizationController {
     @Autowired
     private OrganizationServive organizationServive;
 
+    @GetMapping
+    public Response getAllOrganization() {
+        return new Response(200, true, organizationServive.getAllOrganizations());
+    }
+
     @GetMapping("/getInfo")
     public Response getInfoOfOneOrganization(@RequestAttribute User user) {
         return organizationServive.getInfoOfOne(user.getOrganization());
@@ -22,13 +27,13 @@ public class OrganizationController {
 
     @PutMapping("/updateInfo")
     public Response updateInfoOfOneOrganization(@RequestAttribute User user,
-                                                @RequestBody UpdateInfoOrganizationRequest request) {
+            @RequestBody UpdateInfoOrganizationRequest request) {
         return organizationServive.updateInfoOfOne(user.getOrganization().getUserId(), request);
     }
 
     @PutMapping("/updateAvatar")
     public Response updateAvatarOrganization(@RequestAttribute User user,
-                                             @RequestBody UpdateAvatarRequest request) {
+            @RequestBody UpdateAvatarRequest request) {
         return organizationServive.updateAvatar(user.getOrganization().getUserId(), request);
     }
 
