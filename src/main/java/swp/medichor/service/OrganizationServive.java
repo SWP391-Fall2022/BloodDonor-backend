@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.model.Organization;
+import swp.medichor.model.request.ChangePasswordRequest;
 import swp.medichor.model.request.UpdateAvatarRequest;
 import swp.medichor.model.request.UpdateOrganizationRequest;
 import swp.medichor.model.response.OrganizationResponse;
@@ -88,17 +89,4 @@ public class OrganizationServive {
 //        return new Response(200, true, "Update avatar successfully");
 //    }
 
-    @Transactional
-    public Response updateAvatar(Integer organizationId, UpdateAvatarRequest request) {
-        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
-        if (isExistOrganization.isEmpty())
-            return new Response(400, false, "ID not found");
-        Organization organization = isExistOrganization.get();
-        if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
-                || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-            return new Response(403, false, "The account is disabled or unverified");
-        }
-        organization.setAvatar(request.getAvatar());
-        return new Response(200, true, "Update avatar successfully");
-    }
 }

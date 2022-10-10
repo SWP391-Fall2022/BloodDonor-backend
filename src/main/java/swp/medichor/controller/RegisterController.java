@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import swp.medichor.model.request.ChangePasswordRequest;
 import swp.medichor.model.request.RegisterDonorRequest;
 import swp.medichor.model.request.RegisterOrganizationRequest;
 import swp.medichor.model.response.Response;
@@ -37,4 +38,16 @@ public class RegisterController {
     public Response resendCode(@PathVariable("userId") Integer userId) {
         return registerService.resendCode(userId);
     }
+
+    @PutMapping(path = "/password-reset/account/{email}")
+    public Response getAccountByEmailToChangePassword(@PathVariable("email") String email) {
+        return registerService.getAccountByEmailToChangePassword(email);
+    }
+
+    @PutMapping(path = "/password-reset/{userId}")
+    public Response changePasswordWhenForgetting(@PathVariable("userId") Integer userId,
+                                                 @RequestBody ChangePasswordRequest request) {
+        return registerService.changePasswordWhenForgetting(userId, request);
+    }
+
 }

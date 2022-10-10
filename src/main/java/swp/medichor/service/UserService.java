@@ -9,9 +9,14 @@ import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.enums.Role;
 import swp.medichor.model.CustomUserDetails;
+import swp.medichor.model.Organization;
 import swp.medichor.model.User;
+import swp.medichor.model.request.ChangePasswordRequest;
+import swp.medichor.model.request.UpdateAvatarRequest;
+import swp.medichor.model.response.Response;
 import swp.medichor.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,10 +65,53 @@ public class UserService implements UserDetailsService {
         return userRepository.findByUsernameAndEmail(username, email);
     }
 
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
     public List<User> getAllDonorsByDistrictId(Integer districtId) {
         List<User> list = new ArrayList<>();
         list = userRepository.findByDistrictId(districtId, Role.DONOR);
         return list;
+    }
+
+    @Transactional
+    public Response updateAvatar(Integer userId, UpdateAvatarRequest request) {
+        Optional<User> isExistUser = userRepository.findById(userId);
+        if (isExistUser.isEmpty())
+            return new Response(400, false, "ID not found");
+        User user = isExistUser.get();
+        if (!user.getStatus() || !user.getEnabled()) {
+            return new Response(403, false, "The account is disabled or unverified");
+        }
+
+        if (user.getRole().equals(Role.DONOR)) {
+            user.getDonor().setAvatar(request.getAvatar());
+        }
+        else if (user.getRole().equals(Role.ORGANIZATION)) {
+            if (user.getOrganization().getApprove().equals(Approve.PENDING) || user.getOrganization().getApprove().equals(Approve.REJECTED))
+                return new Response(403, false, "The account is disabled or unverified");
+            user.getOrganization().setAvatar(request.getAvatar());
+        }
+        return new Response(200, true, "Update avatar successfully");
+    }
+
+    @Transactional
+    public Response updatePassword(Integer userId, ChangePasswordRequest request) {
+        Optional<User> isExistUser = userRepository.findById(userId);
+        if (isExistUser.isEmpty())
+            return new Response(400, false, "ID not found");
+        User user = isExistUser.get();
+        if (!user.getStatus() || !user.getEnabled()) {
+            return new Response(403, false, "The account is disabled or unverified");
+        }
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
+            return new Response(400, false, "Old password is incorrect.");
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword()))
+            return new Response(400, false, "Confirm password not match");
+
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        return new Response(200, true, "Update password successfully");
     }
 
 }

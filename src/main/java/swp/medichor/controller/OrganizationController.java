@@ -3,6 +3,7 @@ package swp.medichor.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.User;
+import swp.medichor.model.request.ChangePasswordRequest;
 import swp.medichor.model.request.UpdateAvatarRequest;
 import swp.medichor.model.request.UpdateOrganizationRequest;
 import swp.medichor.model.response.Response;
@@ -24,12 +25,6 @@ public class OrganizationController {
     public Response updateInfoOfOneOrganization(@RequestAttribute User user,
                                                 @RequestBody UpdateOrganizationRequest request) {
         return organizationServive.updateInfoOfOne(user.getOrganization().getUserId(), request);
-    }
-
-    @PutMapping("/updateAvatar")
-    public Response updateAvatarOrganization(@RequestAttribute User user,
-                                             @RequestBody UpdateAvatarRequest request) {
-        return organizationServive.updateAvatar(user.getOrganization().getUserId(), request);
     }
 
 }
