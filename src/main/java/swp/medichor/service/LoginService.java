@@ -9,6 +9,9 @@ import javax.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -46,16 +49,24 @@ public class LoginService {
     }
 
     public Response authenticateUser(String usernameEmail, String password) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        usernameEmail,
-                        password)
-        );
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            usernameEmail,
+                            password)
+            );
 
-        // No exception means login request is valid
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
-        return new Response(200, true, token);
+            // No exception means login request is valid
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
+            return new Response(200, true, token);
+        } catch (BadCredentialsException ex) {
+            return new Response(401, false, "Username or password is incorrect");
+        } catch (LockedException ex) {
+            return new Response(401, false, "The account is locked");
+        } catch (DisabledException ex) {
+            return new Response(401, false, "The account is not verified or accepted by Admin");
+        }
     }
 
     public Response authenticateGoogle(String idTokenString) throws Exception {
@@ -64,7 +75,7 @@ public class LoginService {
         if (idToken != null) {
             GoogleIdToken.Payload payload = idToken.getPayload();
             String email = payload.getEmail();
-            
+
             try {
                 UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
 
