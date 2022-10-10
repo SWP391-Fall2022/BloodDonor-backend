@@ -36,6 +36,7 @@ public class Post implements Serializable {
     private String content;
     private String images;
     private Integer category;
+    private Boolean status;
 
     @ManyToOne
     @JoinColumn(name = "UserId")
