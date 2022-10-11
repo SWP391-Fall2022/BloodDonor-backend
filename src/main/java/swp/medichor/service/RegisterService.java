@@ -1,10 +1,12 @@
 package swp.medichor.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.enums.Role;
 import swp.medichor.model.*;
+import swp.medichor.model.request.ChangePasswordRequest;
 import swp.medichor.model.request.RegisterDonorRequest;
 import swp.medichor.model.request.RegisterOrganizationRequest;
 import swp.medichor.model.response.RegisterResponse;
@@ -22,6 +24,7 @@ public class RegisterService {
     private final String FROM = "nvtien1602.forwork@gmail.com";
     private final String SUBJECT = "CONFIRM YOUR CODE";
 
+    private final Argon2PasswordEncoder passwordEncoder =  new Argon2PasswordEncoder();
     @Autowired
     private UserService userService;
     @Autowired
@@ -155,7 +158,10 @@ public class RegisterService {
         }
         verificationCodeService.setConfirmsAt(verificationCode);
         userService.enableUser(verificationCode.getUser());
-        return new Response(200, true, "Confirmed");
+        return new Response(200, true, new RegisterResponse(
+                verificationCode.getUserId(),
+                "Confirmed"
+        ));
     }
 
     @Transactional
@@ -165,16 +171,55 @@ public class RegisterService {
         User user = existUser.get();
         VerificationCode verificationCode = verificationCodeService.getVerificationCodeById(userId).get();
         if (verificationCode.getConfirmed()) {
-            return new Response(400, false, "Already registered");
+             return new Response(400, false, "Already registered");
         }
         int code = verificationCodeService.alterVerificationCode(verificationCode);
         String name = "null";
         if (user.getRole().equals(Role.ORGANIZATION)) name = user.getOrganization().getName();
         else if (user.getRole().equals(Role.DONOR)) name = user.getDonor().getName();
-        emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(name, code));
+        if (!user.getEnabled())
+            emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(name, code));
+        else
+            emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmailForChangePass(name, code));
         return new Response(200, true, new RegisterResponse(
                 userId,
-                "Register successfully"
+                "Resend successfully"
         ));
+    }
+
+    @Transactional
+    public Response getAccountByEmailToChangePassword(String email) {
+        Optional<User> isExistUser = userService.getUserByEmail(email);
+        if (isExistUser.isEmpty() || !isExistUser.get().getEnabled())
+            return new Response(400, false, "This email has not been registered yet");
+        if (!isExistUser.get().getStatus())
+            return new Response(401, false, "Your account has been banned.");
+        User user = isExistUser.get();
+        VerificationCode verificationCode = verificationCodeService.getVerificationCodeById(user.getId()).get();
+        int code = verificationCodeService.alterVerificationCode(verificationCode);
+        String name = "null";
+        if (user.getRole().equals(Role.ORGANIZATION)) name = user.getOrganization().getName();
+        else if (user.getRole().equals(Role.DONOR)) name = user.getDonor().getName();
+        emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmailForChangePass(name, code));
+        return new Response(200, true, new RegisterResponse(
+                user.getId(),
+                "Account exists. Next step is verifying code."
+        ));
+    }
+
+    @Transactional
+    public Response changePasswordWhenForgetting(Integer userId, ChangePasswordRequest request) {
+        if (!request.getNewPassword().equals(request.getConfirmNewPassword()))
+            return new Response(400, false, "Confirm password not match");
+        Optional<User> existUser = userService.getUserById(userId);
+        if (existUser.isEmpty()) return new Response(400, false, "ID not found");
+        User user = existUser.get();
+        VerificationCode verificationCode = verificationCodeService.getVerificationCodeById(userId).get();
+        if (!verificationCode.getConfirmed())
+            return new Response(403, false, "You haven't verify your email by verification code yet");
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        return new Response(200, true, "Change password successfully");
+
+
     }
 }

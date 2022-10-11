@@ -5,6 +5,7 @@ import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.User;
 import swp.medichor.model.request.CreateCampaignRequest;
+import swp.medichor.model.request.DonateRecordRequest;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.CampaignService;
 
@@ -85,5 +86,21 @@ public class CampaignController {
     @GetMapping("/getParticipatedDonor/{campaignId}")
     public Response getAllParticipatedDonor(@PathVariable("campaignId") Integer campaignId) {
         return campaignService.getAllParticipatedDonor(campaignId);
+    }
+
+    @GetMapping("/getTotalBloodAmount/{campaignId}")
+    public Response getTotalAmountOfBlood(@PathVariable Integer campaignId) {
+        return campaignService.getTotalAmountOfBlood(campaignId);
+    }
+
+    @PostMapping("/updateMedicalDocument")
+    public Response updateMedicalDocument(@RequestAttribute User user,
+                                          @RequestBody DonateRecordRequest request) {
+        return campaignService.updateMedicalDocument(user, request);
+    }
+
+    @GetMapping("/totalLike/{campaignId}")
+    public Response getTotalLike(@PathVariable Integer campaignId) {
+        return campaignService.getTotalLike(campaignId);
     }
 }

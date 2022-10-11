@@ -57,10 +57,6 @@ public class Campaign implements Serializable {
     @ToString.Exclude
     private Organization organization;
 
-    @ManyToMany(mappedBy = "likedCampaigns", cascade = CascadeType.MERGE)
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Set<Donor> likingDonors;
 
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude

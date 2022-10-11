@@ -5,7 +5,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public class UpdateInfoOrganizationRequest {
+public class UpdateOrganizationRequest {
     private String phone;
     private Integer districtId;
     private String addressDetails;

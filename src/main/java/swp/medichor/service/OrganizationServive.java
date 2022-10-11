@@ -5,8 +5,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.model.Organization;
+import swp.medichor.model.request.ChangePasswordRequest;
 import swp.medichor.model.request.UpdateAvatarRequest;
-import swp.medichor.model.request.UpdateInfoOrganizationRequest;
+import swp.medichor.model.request.UpdateOrganizationRequest;
 import swp.medichor.model.response.OrganizationResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.OrganizationRepository;
@@ -58,7 +59,7 @@ public class OrganizationServive {
     }
 
     @Transactional
-    public Response updateInfoOfOne(Integer organizationId, UpdateInfoOrganizationRequest request) {
+    public Response updateInfoOfOne(Integer organizationId, UpdateOrganizationRequest request) {
         Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
         if (isExistOrganization.isEmpty()) {
             return new Response(400, false, "ID not found");
@@ -94,18 +95,5 @@ public class OrganizationServive {
 //        organization.setAvatar(avatar);
 //        return new Response(200, true, "Update avatar successfully");
 //    }
-    @Transactional
-    public Response updateAvatar(Integer organizationId, UpdateAvatarRequest request) {
-        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
-        if (isExistOrganization.isEmpty()) {
-            return new Response(400, false, "ID not found");
-        }
-        Organization organization = isExistOrganization.get();
-        if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
-                || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-            return new Response(403, false, "The account is disabled or unverified");
-        }
-        organization.setAvatar(request.getAvatar());
-        return new Response(200, true, "Update avatar successfully");
-    }
+
 }

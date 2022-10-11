@@ -51,7 +51,8 @@ public class VerificationCodeService {
         while (verificationCodeRepository.findByCode(code).isPresent());
         verificationCode.setCode(code);
         verificationCode.setCreatedAt(LocalDateTime.now());
-        verificationCode.setCreatedAt(LocalDateTime.now().plusMinutes(15));
+        verificationCode.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+        verificationCode.setConfirmed(false);
         return code;
     }
 

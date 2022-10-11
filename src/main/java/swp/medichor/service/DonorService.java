@@ -8,16 +8,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import swp.medichor.enums.DonateRegistrationStatus;
-import swp.medichor.model.Campaign;
-import swp.medichor.model.District;
-import swp.medichor.model.DonateRecord;
-import swp.medichor.model.DonateRegistration;
-import swp.medichor.model.Donor;
+import swp.medichor.model.*;
 import swp.medichor.model.compositekey.DonateRegistrationKey;
+import swp.medichor.model.compositekey.LikeRecordKey;
 import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
 import swp.medichor.model.response.DonateRecordResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
+import swp.medichor.model.response.Response;
+import swp.medichor.repository.*;
 import swp.medichor.model.response.DonorResponse;
 import swp.medichor.repository.CampaignRepository;
 import swp.medichor.repository.DonateRecordRepository;
@@ -39,6 +38,8 @@ public class DonorService {
     private DonateRecordRepository donateRecordRepository;
     @Autowired
     private CampaignRepository campaignRepository;
+    @Autowired
+    private LikeRecordRepository likeRecordRepository;
 
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
@@ -127,5 +128,24 @@ public class DonorService {
     public int getTotalAmountOfBlood(int donorId) {
         Integer amount = donateRecordRepository.sumOfAmountByDonorId(donorId);
         return amount != null ? amount : 0;
+    }
+
+    public Response likeCampaign(User user, Integer campaignId) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+        if (isExistCampaign.isEmpty())
+            return new Response(400, false, "ID not found");
+        Optional<LikeRecord> isExistLikeRecord =
+                likeRecordRepository.findByCampaignIdAndDonorId(campaignId, user.getDonor().getUserId());
+        if (isExistLikeRecord.isPresent()) {
+            return new Response(400, false, "Already liked");
+        }
+        Campaign campaign = isExistCampaign.get();
+        LikeRecord likeRecord = LikeRecord.builder()
+                .id(new LikeRecordKey(null, null))
+                .campaign(campaign)
+                .donor(user.getDonor())
+                .build();
+        likeRecordRepository.save(likeRecord);
+        return new Response(200, true, "Like successfully");
     }
 }
