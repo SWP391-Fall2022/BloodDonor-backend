@@ -53,15 +53,6 @@ public class Donor implements Serializable {
     @ToString.Exclude
     private Set<EarnedReward> earnedRewards;
 
-    @ManyToMany(cascade = CascadeType.MERGE)
-    @JoinTable(
-            name = "LikeRecord",
-            joinColumns = @JoinColumn(name = "DonorId"),
-            inverseJoinColumns = @JoinColumn(name = "CampaignId")
-    )
-    @EqualsAndHashCode.Exclude
-    @ToString.Exclude
-    private Set<Campaign> likedCampaigns;
 
     @OneToMany(mappedBy = "donor", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude
