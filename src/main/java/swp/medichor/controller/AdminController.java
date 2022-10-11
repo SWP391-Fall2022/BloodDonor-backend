@@ -24,4 +24,14 @@ public class AdminController {
     public Response rejectOrganizationAccount(@PathVariable("organizationId") Integer id) {
         return adminService.rejectOrganizationAccount(id);
     }
+
+    @PutMapping("/lock/{userId}")
+    public Response lockUser(@PathVariable int userId) {
+        try {
+            adminService.lockUser(userId);
+            return new Response(200, true, null);
+        } catch (Exception ex) {
+            return new Response(400, false, ex.getLocalizedMessage());
+        }
+    }
 }
