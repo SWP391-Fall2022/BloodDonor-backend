@@ -16,9 +16,14 @@ public class OrganizationController {
     @Autowired
     private OrganizationServive organizationServive;
 
-    @GetMapping("/getInfo/{organizationId}")
-    public Response getInfoOfOneOrganization(@PathVariable("organizationId") Integer organizationId) {
-        return organizationServive.getInfoOfOne(organizationId);
+    @GetMapping
+    public Response getAllOrganization() {
+        return new Response(200, true, organizationServive.getAllOrganizations());
+    }
+
+    @GetMapping("/getInfo")
+    public Response getInfoOfOneOrganization(@RequestAttribute User user) {
+        return organizationServive.getInfoOfOne(user.getOrganization());
     }
 
     @PutMapping("/updateInfo")
@@ -26,5 +31,4 @@ public class OrganizationController {
                                                 @RequestBody UpdateOrganizationRequest request) {
         return organizationServive.updateInfoOfOne(user.getOrganization().getUserId(), request);
     }
-
 }

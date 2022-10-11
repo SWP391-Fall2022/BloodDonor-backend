@@ -1,5 +1,6 @@
 package swp.medichor.service;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
@@ -14,9 +15,11 @@ import swp.medichor.utils.Validator;
 
 import javax.transaction.Transactional;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class OrganizationServive {
+
     @Autowired
     private OrganizationRepository organizationRepository;
     @Autowired
@@ -27,12 +30,14 @@ public class OrganizationServive {
         return true;
     }
 
-    public Response getInfoOfOne(Integer organizationId) {
-        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
-        if (isExistOrganization.isEmpty()) {
-            return new Response(400, false, "ID not found");
-        }
-        Organization organization = isExistOrganization.get();
+    public List<OrganizationResponse> getAllOrganizations() {
+        return organizationRepository.findAll()
+                .stream()
+                .map(org -> new OrganizationResponse(org))
+                .collect(Collectors.toList());
+    }
+
+    public Response getInfoOfOne(Organization organization) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
@@ -56,15 +61,17 @@ public class OrganizationServive {
     @Transactional
     public Response updateInfoOfOne(Integer organizationId, UpdateOrganizationRequest request) {
         Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
-        if (isExistOrganization.isEmpty())
+        if (isExistOrganization.isEmpty()) {
             return new Response(400, false, "ID not found");
+        }
         Organization organization = isExistOrganization.get();
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
         }
-        if (!Validator.testPhoneNumber(request.getPhone()))
+        if (!Validator.testPhoneNumber(request.getPhone())) {
             return new Response(400, false, "Invalid phone number");
+        }
 
         organization.getUser().setPhone(request.getPhone());
         organization.getUser().setDistrict(addressService.getDistrictById(request.getDistrictId()));

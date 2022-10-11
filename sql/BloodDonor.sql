@@ -1,13 +1,11 @@
 USE [master]
 GO
-DROP DATABASE IF EXISTS [BloodDonorProject]
-GO
-/****** Object:  Database [BloodDonorProject]    Script Date: 9/25/2022 7:55:30 PM ******/
+/****** Object:  Database [BloodDonorProject]    Script Date: 10/10/2022 5:04:28 PM ******/
 CREATE DATABASE [BloodDonorProject]
 GO
 USE [BloodDonorProject]
 GO
-/****** Object:  Table [dbo].[Campaign]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[Campaign]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -24,13 +22,14 @@ CREATE TABLE [dbo].[Campaign](
 	[DistrictId] [int] NOT NULL,
 	[AddressDetails] [ntext] NULL,
 	[OrganizationId] [int] NOT NULL,
+	[BloodTypes] [varchar](50) NOT NULL,
  CONSTRAINT [PK__Campaign__3214EC078FC4A70B] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[District]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[District]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -46,7 +45,7 @@ CREATE TABLE [dbo].[District](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[DonateRecord]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[DonateRecord]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -68,7 +67,7 @@ CREATE TABLE [dbo].[DonateRecord](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[DonateRegistration]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[DonateRegistration]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -88,7 +87,7 @@ CREATE TABLE [dbo].[DonateRegistration](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Donor]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[Donor]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -108,7 +107,7 @@ CREATE TABLE [dbo].[Donor](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[EarnedReward]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[EarnedReward]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -124,7 +123,7 @@ CREATE TABLE [dbo].[EarnedReward](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[LikeRecord]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[LikeRecord]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -139,7 +138,7 @@ CREATE TABLE [dbo].[LikeRecord](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Message]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[Message]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -156,7 +155,7 @@ CREATE TABLE [dbo].[Message](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Organization]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[Organization]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -175,7 +174,7 @@ CREATE TABLE [dbo].[Organization](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Post]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[Post]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -189,13 +188,14 @@ CREATE TABLE [dbo].[Post](
 	[Images] [varchar](1000) NULL,
 	[Category] [int] NULL,
 	[UserId] [int] NOT NULL,
+	[Status] [bit] NOT NULL,
  CONSTRAINT [PK__Post__AA12601883A6D477] PRIMARY KEY CLUSTERED 
 (
 	[PostId] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Province]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[Province]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -210,7 +210,7 @@ CREATE TABLE [dbo].[Province](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Question]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[Question]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -229,7 +229,7 @@ CREATE TABLE [dbo].[Question](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[Reward]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[Reward]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -242,13 +242,14 @@ CREATE TABLE [dbo].[Reward](
 	[Code] [varchar](255) NOT NULL,
 	[Status] [bit] NOT NULL,
 	[Details] [ntext] NULL,
+	[Amount] [int] NOT NULL,
  CONSTRAINT [PK__Reward__3214EC07D05615D5] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[User]    Script Date: 9/25/2022 7:55:31 PM ******/
+/****** Object:  Table [dbo].[User]    Script Date: 10/10/2022 5:04:28 PM ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -270,6 +271,23 @@ CREATE TABLE [dbo].[User](
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
+/****** Object:  Table [dbo].[VerificationCode]    Script Date: 10/10/2022 5:04:28 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE TABLE [dbo].[VerificationCode](
+	[UserId] [int] NOT NULL,
+	[Code] [int] NOT NULL,
+	[createdAt] [datetime] NOT NULL,
+	[expiresAt] [datetime] NOT NULL,
+	[confirmed] [bit] NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[UserId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY]
+GO
 ALTER TABLE [dbo].[Campaign] ADD  CONSTRAINT [DF__Campaign__Images__3E52440B]  DEFAULT (NULL) FOR [Images]
 GO
 ALTER TABLE [dbo].[Campaign] ADD  CONSTRAINT [DF__Campaign__Descri__3F466844]  DEFAULT (NULL) FOR [Description]
@@ -277,6 +295,8 @@ GO
 ALTER TABLE [dbo].[Campaign] ADD  CONSTRAINT [DF_Campaign_Status]  DEFAULT ((1)) FOR [Status]
 GO
 ALTER TABLE [dbo].[Campaign] ADD  CONSTRAINT [DF__Campaign__Addres__412EB0B6]  DEFAULT (NULL) FOR [AddressDetails]
+GO
+ALTER TABLE [dbo].[Campaign] ADD  CONSTRAINT [DF_Campaign_BloodTypes]  DEFAULT ('A-B-AB-O') FOR [BloodTypes]
 GO
 ALTER TABLE [dbo].[District] ADD  CONSTRAINT [DF__District__Name__286302EC]  DEFAULT (NULL) FOR [Name]
 GO
@@ -295,6 +315,8 @@ GO
 ALTER TABLE [dbo].[Organization] ADD  CONSTRAINT [DF__Organizat__Intro__3B75D760]  DEFAULT (NULL) FOR [Introduction]
 GO
 ALTER TABLE [dbo].[Post] ADD  CONSTRAINT [DF__Post__Images__5FB337D6]  DEFAULT (NULL) FOR [Images]
+GO
+ALTER TABLE [dbo].[Post] ADD  CONSTRAINT [DF_Post_Status]  DEFAULT ((1)) FOR [Status]
 GO
 ALTER TABLE [dbo].[Province] ADD  CONSTRAINT [DF__Province__Name__24927208]  DEFAULT (NULL) FOR [Name]
 GO
@@ -315,6 +337,8 @@ GO
 ALTER TABLE [dbo].[User] ADD  CONSTRAINT [DF_Users_Status]  DEFAULT ((1)) FOR [Status]
 GO
 ALTER TABLE [dbo].[User] ADD  CONSTRAINT [DF_Users_Enabled]  DEFAULT ((0)) FOR [Enabled]
+GO
+ALTER TABLE [dbo].[VerificationCode] ADD  DEFAULT ((0)) FOR [confirmed]
 GO
 ALTER TABLE [dbo].[Campaign]  WITH CHECK ADD  CONSTRAINT [FK__Campaign__Distri__403A8C7D] FOREIGN KEY([DistrictId])
 REFERENCES [dbo].[District] ([Id])
@@ -411,15 +435,10 @@ REFERENCES [dbo].[District] ([Id])
 GO
 ALTER TABLE [dbo].[User] CHECK CONSTRAINT [FK__Users__DistrictI__2F10007B]
 GO
+ALTER TABLE [dbo].[VerificationCode]  WITH CHECK ADD FOREIGN KEY([UserId])
+REFERENCES [dbo].[User] ([Id])
+GO
 USE [master]
 GO
 ALTER DATABASE [BloodDonorProject] SET  READ_WRITE 
 GO
-
-create table VerificationCode(
-    UserId int not null primary key foreign key references [dbo].[User]([Id]),
-    Code int not null,
-    createdAt datetime not null,
-    expiresAt datetime not null,
-    confirmed bit default 0
-)
