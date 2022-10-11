@@ -9,8 +9,6 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
-import javax.persistence.ManyToMany;
 import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
@@ -52,7 +50,6 @@ public class Donor implements Serializable {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<EarnedReward> earnedRewards;
-
 
     @OneToMany(mappedBy = "donor", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude

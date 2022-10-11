@@ -36,7 +36,9 @@ public class Post implements Serializable {
     private String content;
     private String images;
     private Integer category;
-    private Boolean status;
+    
+    @Builder.Default
+    private Boolean status = true;
 
     @ManyToOne
     @JoinColumn(name = "UserId")

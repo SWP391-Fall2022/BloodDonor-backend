@@ -17,7 +17,8 @@ public class CampaignResponse {
     private LocalDate startDate;
     private LocalDate endDate;
     private Boolean emergency;
-    private int districtId;
+    private String bloodTypes;
+    private Integer districtId;
     private String addressDetails;
     private String organizationName;
 }

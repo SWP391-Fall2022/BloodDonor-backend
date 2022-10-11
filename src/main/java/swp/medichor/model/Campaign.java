@@ -1,7 +1,6 @@
 package swp.medichor.model;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Set;
 import javax.persistence.CascadeType;
@@ -10,7 +9,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -41,6 +39,9 @@ public class Campaign implements Serializable {
     private Boolean emergency;
 
     @Builder.Default
+    private String bloodTypes = "A-B-AB-O";
+
+    @Builder.Default
     private Boolean status = true;
 
     @ManyToOne
@@ -56,7 +57,6 @@ public class Campaign implements Serializable {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Organization organization;
-
 
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
     @EqualsAndHashCode.Exclude

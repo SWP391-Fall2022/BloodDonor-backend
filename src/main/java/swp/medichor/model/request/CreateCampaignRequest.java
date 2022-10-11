@@ -14,6 +14,7 @@ public class CreateCampaignRequest {
     private LocalDate startDate;
     private LocalDate endDate;
     private boolean emergency;
+    private String bloodTypes;
     private Integer districtId;
     private String addressDetails;
 }

@@ -38,6 +38,7 @@ public class Reward implements Serializable {
     private Boolean status = true;
 
     private String details;
+    private Integer amount;
 
     @OneToMany(mappedBy = "reward", cascade = CascadeType.MERGE)
     @EqualsAndHashCode.Exclude

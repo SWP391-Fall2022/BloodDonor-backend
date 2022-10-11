@@ -62,6 +62,7 @@ public class CampaignService {
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .emergency(request.isEmergency())
+                .bloodTypes(request.getBloodTypes())
                 .status(true)
                 .district(District.builder().id(request.getDistrictId()).build())
                 .addressDetails(request.getAddressDetails())
@@ -101,6 +102,7 @@ public class CampaignService {
         campaign.setStartDate(request.getStartDate());
         campaign.setEndDate(request.getEndDate());
         campaign.setEmergency(request.isEmergency());
+        campaign.setBloodTypes(request.getBloodTypes());
         campaign.setDistrict(District.builder().id(request.getDistrictId()).build());
         campaign.setAddressDetails(request.getAddressDetails());
         return new Response(200, true, "Update successfully");
@@ -119,6 +121,7 @@ public class CampaignService {
                 campaign.getStartDate(),
                 campaign.getEndDate(),
                 campaign.getEmergency(),
+                campaign.getBloodTypes(),
                 campaign.getDistrict().getId(),
                 campaign.getAddressDetails(),
                 campaign.getOrganization().getName()
@@ -178,6 +181,7 @@ public class CampaignService {
                     campaign.getStartDate(),
                     campaign.getEndDate(),
                     campaign.getEmergency(),
+                    campaign.getBloodTypes(),
                     campaign.getDistrict().getId(),
                     campaign.getAddressDetails(),
                     campaign.getOrganization().getName()
@@ -206,6 +210,7 @@ public class CampaignService {
                     campaign.getStartDate(),
                     campaign.getEndDate(),
                     campaign.getEmergency(),
+                    campaign.getBloodTypes(),
                     campaign.getDistrict().getId(),
                     campaign.getAddressDetails(),
                     campaign.getOrganization().getName()
@@ -216,9 +221,8 @@ public class CampaignService {
     }
 
     public Response getAllCampaigns() {
-        List<Campaign> listCampaigns = new ArrayList<>();
+        List<Campaign> listCampaigns = campaignRepository.findAllCampaigns();
         List<CampaignResponse> listCampaignsInfo = new ArrayList<>();
-        listCampaigns = campaignRepository.findAllCampaigns();
         for (Campaign campaign : listCampaigns) {
             CampaignResponse campaignInfo = new CampaignResponse(
                     campaign.getId(),
@@ -228,6 +232,7 @@ public class CampaignService {
                     campaign.getStartDate(),
                     campaign.getEndDate(),
                     campaign.getEmergency(),
+                    campaign.getBloodTypes(),
                     campaign.getDistrict().getId(),
                     campaign.getAddressDetails(),
                     campaign.getOrganization().getName()
@@ -243,9 +248,8 @@ public class CampaignService {
             return new Response(403, false, "The account is disabled or unverified");
         }
 
-        List<Campaign> listCampaigns = new ArrayList<>();
+        List<Campaign> listCampaigns = campaignRepository.findAllCampaignsByOrganizationId(organization.getUserId());
         List<CampaignResponse> listCampaignsInfo = new ArrayList<>();
-        listCampaigns = campaignRepository.findAllCampaignsByOrganizationId(organization.getUserId());
         for (Campaign campaign : listCampaigns) {
             CampaignResponse campaignInfo = new CampaignResponse(
                     campaign.getId(),
@@ -255,6 +259,7 @@ public class CampaignService {
                     campaign.getStartDate(),
                     campaign.getEndDate(),
                     campaign.getEmergency(),
+                    campaign.getBloodTypes(),
                     campaign.getDistrict().getId(),
                     campaign.getAddressDetails(),
                     campaign.getOrganization().getName()
