@@ -8,6 +8,7 @@ import swp.medichor.model.request.UpdateDonorRequest;
 import swp.medichor.model.response.DonorResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.DonorService;
+import swp.medichor.service.RewardService;
 
 @RestController
 @RequestMapping("/v1/donors/me")
@@ -15,6 +16,8 @@ public class CurrentDonorController {
 
     @Autowired
     private DonorService donorService;
+    @Autowired
+    private RewardService rewardService;
 
     @GetMapping
     public Response getProfile(@RequestAttribute User user) {
@@ -63,7 +66,34 @@ public class CurrentDonorController {
 
     @PostMapping("/campaign-interest/{campaignId}")
     public Response likeCampaign(@RequestAttribute User user,
-                                 @PathVariable Integer campaignId) {
+            @PathVariable Integer campaignId) {
         return donorService.likeCampaign(user, campaignId);
+    }
+
+    @GetMapping("/points")
+    public Response getPoints(@RequestAttribute User user) {
+        try {
+            return new Response(200, true, donorService.getPoints(user.getId()));
+        } catch (Exception ex) {
+            return new Response(400, false, ex.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/rewards")
+    public Response getEarnedRewards(@RequestAttribute User user) {
+        try {
+            return new Response(200, true, rewardService.getEarned(user.getId()));
+        } catch (Exception ex) {
+            return new Response(400, false, ex.getLocalizedMessage());
+        }
+    }
+
+    @GetMapping("/rewards/available")
+    public Response getAvailableRewards(@RequestAttribute User user) {
+        try {
+            return new Response(200, true, rewardService.getAllAvailable(user.getId()));
+        } catch (Exception ex) {
+            return new Response(400, false, ex.getLocalizedMessage());
+        }
     }
 }

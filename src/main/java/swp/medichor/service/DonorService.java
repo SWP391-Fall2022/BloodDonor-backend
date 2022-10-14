@@ -40,12 +40,14 @@ public class DonorService {
     private CampaignRepository campaignRepository;
     @Autowired
     private LikeRecordRepository likeRecordRepository;
+    @Autowired
+    private EarnedRewardRepository earnedRewardRepository;
 
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
         return true;
     }
-    
+
     public List<DonorResponse> getAll() {
         return donorRepository.findAll()
                 .stream()
@@ -132,10 +134,11 @@ public class DonorService {
 
     public Response likeCampaign(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
-        if (isExistCampaign.isEmpty())
+        if (isExistCampaign.isEmpty()) {
             return new Response(400, false, "ID not found");
-        Optional<LikeRecord> isExistLikeRecord =
-                likeRecordRepository.findByCampaignIdAndDonorId(campaignId, user.getDonor().getUserId());
+        }
+        Optional<LikeRecord> isExistLikeRecord
+                = likeRecordRepository.findByCampaignIdAndDonorId(campaignId, user.getDonor().getUserId());
         if (isExistLikeRecord.isPresent()) {
             return new Response(400, false, "Already liked");
         }
@@ -147,5 +150,19 @@ public class DonorService {
                 .build();
         likeRecordRepository.save(likeRecord);
         return new Response(200, true, "Like successfully");
+    }
+
+    public int getPoints(int donorId) {
+        int amountDonated = getTotalAmountOfBlood(donorId);
+
+        List<EarnedReward> earned = earnedRewardRepository.findAllById_DonorId(donorId);
+
+        // get used points for exchanging rewards
+        int usedPoints = 0;
+        for (EarnedReward reward : earned) {
+            usedPoints += reward.getReward().getLevel();
+        }
+
+        return amountDonated - usedPoints;
     }
 }
