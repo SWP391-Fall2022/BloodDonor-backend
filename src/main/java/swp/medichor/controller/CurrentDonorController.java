@@ -96,4 +96,14 @@ public class CurrentDonorController {
             return new Response(400, false, ex.getLocalizedMessage());
         }
     }
+
+    @PutMapping("/rewards/{rewardId}")
+    public Response claimReward(@RequestAttribute User user, @PathVariable int rewardId) {
+        try {
+            donorService.claimReward(user.getId(), rewardId);
+            return new Response(200, true, null);
+        } catch (Exception ex) {
+            return new Response(400, false, ex.getLocalizedMessage());
+        }
+    }
 }
