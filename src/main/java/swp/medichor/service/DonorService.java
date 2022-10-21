@@ -1,6 +1,9 @@
 package swp.medichor.service;
 
+
 import java.sql.Timestamp;
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -11,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import swp.medichor.enums.DonateRegistrationStatus;
 import swp.medichor.model.*;
 import swp.medichor.model.compositekey.DonateRegistrationKey;
+import swp.medichor.model.compositekey.EarnedRewardKey;
 import swp.medichor.model.compositekey.LikeRecordKey;
 import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.QuestionRequest;
@@ -44,12 +48,16 @@ public class DonorService {
     private LikeRecordRepository likeRecordRepository;
     @Autowired
     private QuestionRepository questionRepository;
+    @Autowired
+    private RewardRepository rewardRepository;
+    @Autowired
+    private EarnedRewardRepository earnedRewardRepository;
 
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
         return true;
     }
-    
+
     public List<DonorResponse> getAll() {
         return donorRepository.findAll()
                 .stream()
@@ -136,10 +144,11 @@ public class DonorService {
 
     public Response likeCampaign(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
-        if (isExistCampaign.isEmpty())
+        if (isExistCampaign.isEmpty()) {
             return new Response(400, false, "ID not found");
-        Optional<LikeRecord> isExistLikeRecord =
-                likeRecordRepository.findByCampaignIdAndDonorId(campaignId, user.getDonor().getUserId());
+        }
+        Optional<LikeRecord> isExistLikeRecord
+                = likeRecordRepository.findByCampaignIdAndDonorId(campaignId, user.getDonor().getUserId());
         if (isExistLikeRecord.isPresent()) {
             return new Response(400, false, "Already liked");
         }
@@ -167,5 +176,45 @@ public class DonorService {
                 .build();
         questionRepository.save(question);
         return new Response(200, true, "Add question successfully");
+    }
+
+    public int getPoints(int donorId) {
+        int amountDonated = getTotalAmountOfBlood(donorId);
+
+        List<EarnedReward> earned = earnedRewardRepository.findAllById_DonorId(donorId);
+
+        // get used points for exchanging rewards
+        int usedPoints = 0;
+        for (EarnedReward reward : earned) {
+            usedPoints += reward.getReward().getLevel();
+        }
+
+        return amountDonated - usedPoints;
+    }
+
+    public void claimReward(int donorId, int rewardId) {
+        EarnedRewardKey id = new EarnedRewardKey(donorId, rewardId);
+        rewardRepository.findById(rewardId).ifPresentOrElse(reward -> {
+            donorRepository.findById(donorId).ifPresentOrElse(donor -> {
+                if (reward.getStatus() == true
+                        && reward.getAmount() > 0
+                        && reward.getExpiredDate().compareTo(new Date(LocalDate.now().toEpochDay())) >= 0
+                        && reward.getLevel() <= getPoints(donorId)
+                        && !earnedRewardRepository.existsById(id)) {
+                    earnedRewardRepository.save(EarnedReward.builder()
+                            .id(id)
+                            .donor(donor)
+                            .reward(reward)
+                            .receiveDate(new Date(System.currentTimeMillis()))
+                            .build());
+                } else {
+                    throw new RuntimeException("Cannot claim the reward");
+                }
+            }, () -> {
+                throw new RuntimeException("Donor ID does not exist");
+            });
+        }, () -> {
+            throw new RuntimeException("Reward ID does not exist");
+        });
     }
 }
