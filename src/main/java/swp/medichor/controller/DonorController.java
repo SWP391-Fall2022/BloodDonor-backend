@@ -2,11 +2,10 @@ package swp.medichor.controller;
 
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.Donor;
+import swp.medichor.model.User;
+import swp.medichor.model.request.QuestionRequest;
 import swp.medichor.model.response.DonorResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.DonorService;
@@ -45,5 +44,12 @@ public class DonorController {
     @GetMapping("/{id}/bloodAmount")
     public Response getTotalAmountOfBlood(@PathVariable int id) {
         return new Response(200, true, donorService.getTotalAmountOfBlood(id));
+    }
+
+    @PostMapping("/question/{campaignId}")
+    public Response addQuestion(@RequestAttribute User user,
+                                @PathVariable("campaignId") Integer campaignId,
+                                @RequestBody QuestionRequest request) {
+        return donorService.addQuestion(user, campaignId, request);
     }
 }

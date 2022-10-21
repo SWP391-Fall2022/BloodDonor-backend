@@ -1,5 +1,6 @@
 package swp.medichor.service;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -12,6 +13,7 @@ import swp.medichor.model.*;
 import swp.medichor.model.compositekey.DonateRegistrationKey;
 import swp.medichor.model.compositekey.LikeRecordKey;
 import swp.medichor.model.request.DonateRegistrationRequest;
+import swp.medichor.model.request.QuestionRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
 import swp.medichor.model.response.DonateRecordResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
@@ -40,6 +42,8 @@ public class DonorService {
     private CampaignRepository campaignRepository;
     @Autowired
     private LikeRecordRepository likeRecordRepository;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
@@ -147,5 +151,21 @@ public class DonorService {
                 .build();
         likeRecordRepository.save(likeRecord);
         return new Response(200, true, "Like successfully");
+    }
+
+    public Response addQuestion(User user, Integer campaignId, QuestionRequest request) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+        if (isExistCampaign.isEmpty())
+            return new Response(400, false, "ID not found");
+        Campaign campaign = isExistCampaign.get();
+        Question question = Question.builder()
+                .donor(user.getDonor())
+                .campaign(campaign)
+                .askTime(new Timestamp(System.currentTimeMillis()))
+                .question(request.getQuestion())
+                .answer(null)
+                .build();
+        questionRepository.save(question);
+        return new Response(200, true, "Add question successfully");
     }
 }
