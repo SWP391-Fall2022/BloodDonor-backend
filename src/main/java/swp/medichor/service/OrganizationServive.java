@@ -37,7 +37,12 @@ public class OrganizationServive {
                 .collect(Collectors.toList());
     }
 
-    public Response getInfoOfOne(Organization organization) {
+    public Response getInfoOfOne(Integer organizationId) {
+        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
+        if (isExistOrganization.isEmpty()) {
+            return new Response(400, false, "ID not found");
+        }
+        Organization organization = isExistOrganization.get();
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");

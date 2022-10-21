@@ -21,9 +21,9 @@ public class OrganizationController {
         return new Response(200, true, organizationServive.getAllOrganizations());
     }
 
-    @GetMapping("/getInfo")
-    public Response getInfoOfOneOrganization(@RequestAttribute User user) {
-        return organizationServive.getInfoOfOne(user.getOrganization());
+    @GetMapping("/getInfo/{organizationId}")
+    public Response getInfoOfOneOrganization(@PathVariable("organizationId") Integer organizationId) {
+        return organizationServive.getInfoOfOne(organizationId);
     }
 
     @PutMapping("/updateInfo")
