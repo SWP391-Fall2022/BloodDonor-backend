@@ -19,4 +19,7 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String email);
     @Query("SELECT u FROM User u WHERE u.district.id = ?1 AND u.role = ?2 AND u.status = true AND u.enabled = true")
     List<User> findByDistrictId(Integer districtId, Role role);
+    @Query("SELECT u FROM User u WHERE u.district.id = ?1 AND u.role = ?2 AND u.status = true " +
+            "AND u.enabled = true AND u.donor.bloodType = ?3")
+    List<User> findByDistrictIdAndBloodType(Integer districtId, Role role, String bloodType);
 }

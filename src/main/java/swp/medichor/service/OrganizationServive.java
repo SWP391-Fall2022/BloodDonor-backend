@@ -5,12 +5,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.model.Organization;
+import swp.medichor.model.Question;
+import swp.medichor.model.User;
+import swp.medichor.model.request.AnswerRequest;
 import swp.medichor.model.request.ChangePasswordRequest;
 import swp.medichor.model.request.UpdateAvatarRequest;
 import swp.medichor.model.request.UpdateOrganizationRequest;
 import swp.medichor.model.response.OrganizationResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.OrganizationRepository;
+import swp.medichor.repository.QuestionRepository;
 import swp.medichor.utils.Validator;
 
 import javax.transaction.Transactional;
@@ -24,6 +28,8 @@ public class OrganizationServive {
     private OrganizationRepository organizationRepository;
     @Autowired
     private AddressService addressService;
+    @Autowired
+    private QuestionRepository questionRepository;
 
     public boolean registerOrganization(Organization organization) {
         organizationRepository.save(organization);
@@ -37,7 +43,12 @@ public class OrganizationServive {
                 .collect(Collectors.toList());
     }
 
-    public Response getInfoOfOne(Organization organization) {
+    public Response getInfoOfOne(Integer organizationId) {
+        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
+        if (isExistOrganization.isEmpty()) {
+            return new Response(400, false, "ID not found");
+        }
+        Organization organization = isExistOrganization.get();
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
@@ -82,18 +93,19 @@ public class OrganizationServive {
         return new Response(200, true, "Update info successfully");
     }
 
-//    @Transactional
-//    public Response updateAvatar(Integer organizationId, String avatar) {
-//        Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
-//        if (isExistOrganization.isEmpty())
-//            return new Response(400, false, "ID not found");
-//        Organization organization = isExistOrganization.get();
-//        if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
-//                || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-//            return new Response(403, false, "The account is disabled or unverified");
-//        }
-//        organization.setAvatar(avatar);
-//        return new Response(200, true, "Update avatar successfully");
-//    }
+    @Transactional
+    public Response answerQuestion(User user, Integer questionId, AnswerRequest request) {
+        Optional<Question> isExistQuestion = questionRepository.findById(questionId);
+        if (isExistQuestion.isEmpty())
+            return new Response(400, false, "ID not found");
+        Question question = isExistQuestion.get();
+        if (!user.getId().equals(question.getCampaign().getOrganization().getUserId()))
+            return new Response(403, false, "You have no right to answer question of campaign hosted by other org");
+        if (request.getAnswer() == null || request.getAnswer().equals(""))
+            return new Response(400, false, "Answer must contain something");
+        question.setAnswer(request.getAnswer());
+        question.setStatus(true);
+        return new Response(200, true, "Answer question successfully");
+    }
 
 }

@@ -106,6 +106,10 @@ public class RegisterService {
         if (request.getBirthday().isAfter(LocalDate.now())) {
             return new Response(400, false, "Invalid birthday");
         }
+        LocalDate now = LocalDate.now();
+        if (now.getYear() - request.getBirthday().getYear() < 18 || now.getYear() - request.getBirthday().getYear() > 60)
+            return new Response(400, false, "The age must be between 18 and 60.");
+
         Optional<User> user = userService.getUserByEmailAndUsername(request.getUsername(), request.getEmail());
         if (user.isPresent() && user.get().getVerificationCode().getConfirmed()) {
             return new Response(400, false, "Account already registered");

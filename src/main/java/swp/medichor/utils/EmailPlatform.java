@@ -147,4 +147,18 @@ public class EmailPlatform {
                 + campaignName + " for more information. Thank you !";
         return content;
     }
+
+    public static String buildChangeCampaignEmail(String donorName, String campaignName) {
+        String content = "Hi " + donorName + ", it seems that a campaign has changed the taking-place time. Click " +
+                "here: link/"
+                + campaignName + " to register for a new schedule due to the time you have picked was outdated. " +
+                "Thank you!";
+        return content;
+    }
+
+    public static String buildCloseCampaignEmail(String donorName, String campaignName) {
+        String content = "Hi " + donorName + ", it seems that a campaign has been closed. We're sorry to inform that " +
+                "your schedule has been cancelled. Hope you please to look for another campaign. Thank you!";
+        return content;
+    }
 }

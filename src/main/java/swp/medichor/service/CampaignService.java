@@ -10,6 +10,7 @@ import swp.medichor.model.*;
 import swp.medichor.model.compositekey.DonateRecordKey;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.request.DonateRecordRequest;
+import swp.medichor.model.request.NumberOfRegistrationRequest;
 import swp.medichor.model.response.CampaignResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
 import swp.medichor.model.response.ParticipatedDonorResponse;
@@ -18,6 +19,7 @@ import swp.medichor.repository.*;
 import swp.medichor.utils.EmailPlatform;
 
 import javax.transaction.Transactional;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,10 +52,20 @@ public class CampaignService {
             return new Response(403, false, "The account is disabled or unverified");
         }
 
-        if (request.getStartDate().isAfter(request.getEndDate()))
-            return new Response(400, false, "Start date can not be after end date");
-        if (request.getEndDate().isBefore(LocalDate.now()))
-            return new Response(400, false, "End date can not be before today");
+        if (request.isEmergency()) {
+            request.setStartDate(LocalDate.now());
+            request.setEndDate(null);
+        }
+        else {
+            if (request.getEndDate() == null)
+                return new Response(400, false, "Normal campaign requires end date.");
+            if (request.getStartDate().isAfter(request.getEndDate()))
+                return new Response(400, false, "Start date can not be after end date");
+            if (request.getEndDate().isBefore(LocalDate.now()))
+                return new Response(400, false, "End date can not be before today");
+            if (request.getEndDate().minusDays(84).compareTo(request.getStartDate()) > 0)
+                return new Response(400, false, "Normal campaign can not last for more than 12 weeks");
+        }
 
         Campaign campaign = Campaign.builder()
                 .name(request.getName())
@@ -69,15 +81,18 @@ public class CampaignService {
                 .organization(organization)
                 .build();
         campaign = campaignRepository.save(campaign);
-        //send email to all donors in the same district
-        List<User> listOfDonors = userService.getAllDonorsByDistrictId(request.getDistrictId());
 
-        for (User user : listOfDonors) {
-            emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildJoinInCampaignEmail(
-                    user.getDonor().getName(),
-                    campaign.getName()
-            ));
+        //send email to all donors in the same district
+        if (request.isSendMail()) {
+            List<User> listOfDonors = userService.getAllDonorsByDistrictId(request.getDistrictId());
+            for (User user : listOfDonors) {
+                emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildJoinInCampaignEmail(
+                        user.getDonor().getName(),
+                        campaign.getName()
+                ));
+            }
         }
+
         return new Response(200, true, "Create campaign successfully");
     }
 
@@ -91,10 +106,20 @@ public class CampaignService {
             return new Response(403, false, "You have no right to update other org's campaign");
         }
 
-        if (request.getStartDate().isAfter(request.getEndDate()))
-            return new Response(400, false, "Start date can not be after end date");
-        if (request.getEndDate().isBefore(LocalDate.now()))
-            return new Response(400, false, "End date can not be before today");
+        if (request.isEmergency()) {
+            request.setStartDate(LocalDate.now());
+            request.setEndDate(null);
+        }
+        else {
+            if (request.getEndDate() == null)
+                return new Response(400, false, "Normal campaign requires end date.");
+            if (request.getStartDate().isAfter(request.getEndDate()))
+                return new Response(400, false, "Start date can not be after end date");
+            if (request.getEndDate().isBefore(LocalDate.now()))
+                return new Response(400, false, "End date can not be before today");
+            if (request.getEndDate().minusDays(84).compareTo(request.getStartDate()) > 0)
+                return new Response(400, false, "Normal campaign can not last for more than 12 weeks");
+        }
 
         campaign.setName(request.getName());
         campaign.setImages(request.getImages());
@@ -105,6 +130,32 @@ public class CampaignService {
         campaign.setBloodTypes(request.getBloodTypes());
         campaign.setDistrict(District.builder().id(request.getDistrictId()).build());
         campaign.setAddressDetails(request.getAddressDetails());
+
+        List<DonateRegistration> listOfOutdatedRegistration = new ArrayList<>();
+        if (request.isEmergency()) {
+            listOfOutdatedRegistration = donateRegistrationRepository.findUrgentByCampaignIdAndOutDate(
+                    campaignId,
+                    Date.valueOf(request.getStartDate()),
+                    DonateRegistrationStatus.NOT_CHECKED_IN
+            );
+        }
+        else {
+            listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutDate(
+                    campaignId,
+                    Date.valueOf(request.getStartDate()),
+                    Date.valueOf(request.getEndDate()),
+                    DonateRegistrationStatus.NOT_CHECKED_IN
+            );
+        }
+        for (DonateRegistration outDatedRegistration : listOfOutdatedRegistration) {
+            outDatedRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
+            emailService.send(FROM, outDatedRegistration.getDonor().getUser().getEmail(), SUBJECT,
+                    EmailPlatform.buildChangeCampaignEmail(
+                    outDatedRegistration.getDonor().getName(),
+                    campaign.getName()
+            ));
+        }
+
         return new Response(200, true, "Update successfully");
     }
 
@@ -131,23 +182,44 @@ public class CampaignService {
 
     @Transactional
     public Response deleteCampaign(User user, Integer campaignId) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+        if (isExistCampaign.isEmpty())
+            return new Response(400, false, "ID not found");
+        Campaign campaign = isExistCampaign.get();
         if (user.getRole().equals(Role.ADMIN)) {
-            Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
-            if (isExistCampaign.isEmpty())
-                return new Response(400, false, "ID not found");
-            Campaign campaign = isExistCampaign.get();
             campaign.setStatus(false);
         }
         else if (user.getRole().equals(Role.ORGANIZATION)) {
-            Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
-            if (isExistCampaign.isEmpty())
-                return new Response(400, false, "ID not found");
-            Campaign campaign = isExistCampaign.get();
             if (!campaign.getOrganization().getUserId().equals(user.getId())) {
                 return new Response(403, false, "You have no right to delete other org's campaign");
             }
             campaign.setStatus(false);
         }
+        List<DonateRegistration> listOfOutdatedRegistration = new ArrayList<>();
+        if (campaign.getStartDate().compareTo(LocalDate.now()) >= 0) {
+            listOfOutdatedRegistration = donateRegistrationRepository.findAllRegistration(
+                    campaignId,
+                    DonateRegistrationStatus.CANCELLED
+            );
+        }
+        else {
+            listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutDate(
+                    campaignId,
+                    Date.valueOf(campaign.getStartDate()),
+                    Date.valueOf(LocalDate.now().minusDays(1)),
+                    DonateRegistrationStatus.NOT_CHECKED_IN
+            );
+        }
+        //send emails
+        for (DonateRegistration outDatedRegistration : listOfOutdatedRegistration) {
+            outDatedRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
+            emailService.send(FROM, outDatedRegistration.getDonor().getUser().getEmail(), SUBJECT,
+                    EmailPlatform.buildCloseCampaignEmail(
+                            outDatedRegistration.getDonor().getName(),
+                            campaign.getName()
+                    ));
+        }
+
         return new Response(200, true, "Delete successfully");
     }
 
@@ -160,11 +232,34 @@ public class CampaignService {
         if (!campaign.getOrganization().getUserId().equals(user.getId())) {
             return new Response(403, false, "You have no right to close other org's campaign");
         }
-        if (campaign.getStartDate().compareTo(LocalDate.now()) >= 0)
-            campaign.setEndDate(campaign.getStartDate());
+
+        List<DonateRegistration> listOfOutdatedRegistration = new ArrayList<>();
+        if (campaign.getStartDate().compareTo(LocalDate.now()) >= 0) {
+            campaign.setEndDate(campaign.getStartDate().minusDays(1));
+            listOfOutdatedRegistration = donateRegistrationRepository.findAllRegistration(
+                    campaignId,
+                    DonateRegistrationStatus.CANCELLED
+            );
+        }
         else {
             campaign.setEndDate(LocalDate.now().minusDays(1));
+            listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutDate(
+                    campaignId,
+                    Date.valueOf(campaign.getStartDate()),
+                    Date.valueOf(campaign.getEndDate()),
+                    DonateRegistrationStatus.NOT_CHECKED_IN
+            );
         }
+        //send emails
+        for (DonateRegistration outDatedRegistration : listOfOutdatedRegistration) {
+            outDatedRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
+            emailService.send(FROM, outDatedRegistration.getDonor().getUser().getEmail(), SUBJECT,
+                    EmailPlatform.buildCloseCampaignEmail(
+                            outDatedRegistration.getDonor().getName(),
+                            campaign.getName()
+                    ));
+        }
+
         return new Response(200, true, "Close successfully");
     }
 
@@ -270,26 +365,34 @@ public class CampaignService {
     }
 
 
-    public Response getNumberOfRegistrationAllDay(Integer campaignId) {
-        List<DonateRegistration> list = donateRegistrationRepository.findAllRegistrationAllDay(campaignId,
+    public Response getAllNumberOfRegistration(Integer campaignId) {
+        List<DonateRegistration> list = donateRegistrationRepository.findAllRegistration(campaignId,
                 DonateRegistrationStatus.CANCELLED);
         return new Response(200, true, list.size());
     }
 
-    public Response getNumberOfRegistrationMorning(Integer campaignId) {
-        List<DonateRegistration> list = donateRegistrationRepository.findAllRegistrationByPeriod(campaignId,
-                DonateRegistrationStatus.CANCELLED, Period.MORNING);
-        return new Response(200, true, list.size());
-    }
-
-    public Response getNumberOfRegistrationAfternoon(Integer campaignId) {
-        List<DonateRegistration> list = donateRegistrationRepository.findAllRegistrationByPeriod(campaignId,
-                DonateRegistrationStatus.CANCELLED, Period.AFTERNOON);
+    public Response getNumberOfRegistrationPerDay(Integer campaignId, NumberOfRegistrationRequest request) {
+        List<DonateRegistration> list = new ArrayList<>();
+        if (request.getPeriod() == null) {
+            list = donateRegistrationRepository.findAllRegistrationAllDay(
+                    campaignId,
+                    DonateRegistrationStatus.CANCELLED,
+                    request.getRegisteredDate()
+            );
+        }
+        else {
+            list = donateRegistrationRepository.findAllRegistrationByPeriod(
+                    campaignId,
+                    DonateRegistrationStatus.CANCELLED,
+                    request.getRegisteredDate(),
+                    request.getPeriod()
+            );
+        }
         return new Response(200, true, list.size());
     }
 
     public Response getAllParticipatedDonor(Integer campaignId) {
-        List<DonateRegistration> listOfRegistration = donateRegistrationRepository.findAllRegistrationAllDay(
+        List<DonateRegistration> listOfRegistration = donateRegistrationRepository.findAllRegistration(
                 campaignId,
                 DonateRegistrationStatus.CANCELLED
         );
@@ -305,7 +408,37 @@ public class CampaignService {
             ));
         }
         return new Response(200, true, listOfParticipatedDonor);
+    }
 
+    public Response getAllParticipatedDonorPerDay(Integer campaignId, NumberOfRegistrationRequest request) {
+        List<DonateRegistration> listOfRegistration = new ArrayList<>();
+        if (request.getPeriod() == null) {
+            listOfRegistration = donateRegistrationRepository.findAllRegistrationAllDay(
+                    campaignId,
+                    DonateRegistrationStatus.CANCELLED,
+                    request.getRegisteredDate()
+            );
+        }
+        else {
+            listOfRegistration = donateRegistrationRepository.findAllRegistrationByPeriod(
+                    campaignId,
+                    DonateRegistrationStatus.CANCELLED,
+                    request.getRegisteredDate(),
+                    request.getPeriod()
+            );
+        }
+        List<ParticipatedDonorResponse> listOfParticipatedDonor = new ArrayList<>();
+        for (DonateRegistration registration : listOfRegistration) {
+            listOfParticipatedDonor.add(new ParticipatedDonorResponse(
+                    registration.getDonor().getName(),
+                    registration.getDonor().getIdentityNum(),
+                    registration.getDonor().getSex(),
+                    registration.getDonor().getBloodType(),
+                    registration.getDonor().getAnamnesis(),
+                    new DonateRegistrationResponse(registration)
+            ));
+        }
+        return new Response(200, true, listOfParticipatedDonor);
     }
 
     public Response getTotalAmountOfBlood(Integer campaignId) {
