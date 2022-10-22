@@ -4,7 +4,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.enums.DonateRegistrationStatus;
-import swp.medichor.enums.Period;
 import swp.medichor.enums.Role;
 import swp.medichor.model.*;
 import swp.medichor.model.compositekey.DonateRecordKey;
@@ -19,7 +18,6 @@ import swp.medichor.repository.*;
 import swp.medichor.utils.EmailPlatform;
 
 import javax.transaction.Transactional;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -135,7 +133,7 @@ public class CampaignService {
         if (request.isEmergency()) {
             listOfOutdatedRegistration = donateRegistrationRepository.findUrgentByCampaignIdAndOutDate(
                     campaignId,
-                    Date.valueOf(request.getStartDate()),
+                    request.getStartDate(),
                     DonateRegistrationStatus.NOT_CHECKED_IN
             );
         }
@@ -377,14 +375,14 @@ public class CampaignService {
             list = donateRegistrationRepository.findAllRegistrationAllDay(
                     campaignId,
                     DonateRegistrationStatus.CANCELLED,
-                    request.getRegisteredDate()
+                    request.getRegisteredDate().toLocalDate()
             );
         }
         else {
             list = donateRegistrationRepository.findAllRegistrationByPeriod(
                     campaignId,
                     DonateRegistrationStatus.CANCELLED,
-                    request.getRegisteredDate(),
+                    request.getRegisteredDate().toLocalDate(),
                     request.getPeriod()
             );
         }
@@ -416,14 +414,14 @@ public class CampaignService {
             listOfRegistration = donateRegistrationRepository.findAllRegistrationAllDay(
                     campaignId,
                     DonateRegistrationStatus.CANCELLED,
-                    request.getRegisteredDate()
+                    request.getRegisteredDate().toLocalDate()
             );
         }
         else {
             listOfRegistration = donateRegistrationRepository.findAllRegistrationByPeriod(
                     campaignId,
                     DonateRegistrationStatus.CANCELLED,
-                    request.getRegisteredDate(),
+                    request.getRegisteredDate().toLocalDate(),
                     request.getPeriod()
             );
         }
