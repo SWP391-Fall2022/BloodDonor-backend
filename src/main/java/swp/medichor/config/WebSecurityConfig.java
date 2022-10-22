@@ -66,7 +66,7 @@ public class WebSecurityConfig {
                 .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/medichorApi.html").permitAll()
 //                .antMatchers("/v1/admin/**").hasAuthority(Role.ADMIN.toString())
 //                .antMatchers("/v1/donors/me/**").hasAuthority(Role.DONOR.toString())
-                .anyRequest().authenticated()
+//                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

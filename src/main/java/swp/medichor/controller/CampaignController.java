@@ -3,9 +3,11 @@ package swp.medichor.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
+import swp.medichor.enums.Period;
 import swp.medichor.model.User;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.request.DonateRecordRequest;
+import swp.medichor.model.request.NumberOfRegistrationRequest;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.CampaignService;
 
@@ -68,24 +70,26 @@ public class CampaignController {
         return campaignService.getAllCampaignsByOrganizationId(user.getOrganization());
     }
 
-    @GetMapping("/getNumberOfRegistration/allDay/{campaignId}")
-    public Response getNumberOfRegistrationAllDay(@PathVariable("campaignId") Integer campaignId) {
-        return campaignService.getNumberOfRegistrationAllDay(campaignId);
+    @GetMapping("/getNumberOfRegistration/{campaignId}")
+    public Response getAllNumberOfRegistration(@PathVariable("campaignId") Integer campaignId) {
+        return campaignService.getAllNumberOfRegistration(campaignId);
     }
 
-    @GetMapping("/getNumberOfRegistration/morning/{campaignId}")
-    public Response getNumberOfRegistrationMorning(@PathVariable("campaignId") Integer campaignId) {
-        return campaignService.getNumberOfRegistrationMorning(campaignId);
-    }
-
-    @GetMapping("/getNumberOfRegistration/afternoon/{campaignId}")
-    public Response getNumberOfRegistrationAfternoon(@PathVariable("campaignId") Integer campaignId) {
-        return campaignService.getNumberOfRegistrationAfternoon(campaignId);
+    @GetMapping("/getNumberOfRegistrationPerDay/{campaignId}")
+    public Response getNumberOfRegistrationPerDay(@PathVariable("campaignId") Integer campaignId,
+                                                  @RequestBody NumberOfRegistrationRequest request) {
+        return campaignService.getNumberOfRegistrationPerDay(campaignId, request);
     }
 
     @GetMapping("/getParticipatedDonor/{campaignId}")
     public Response getAllParticipatedDonor(@PathVariable("campaignId") Integer campaignId) {
         return campaignService.getAllParticipatedDonor(campaignId);
+    }
+
+    @GetMapping("/getParticipatedDonorPerDay/{campaignId}")
+    public Response getAllParticipatedDonorPerDay(@PathVariable("campaignId") Integer campaignId,
+                                                  @RequestBody NumberOfRegistrationRequest request) {
+        return campaignService.getAllParticipatedDonorPerDay(campaignId, request);
     }
 
     @GetMapping("/getTotalBloodAmount/{campaignId}")

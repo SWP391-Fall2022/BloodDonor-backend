@@ -75,6 +75,12 @@ public class UserService implements UserDetailsService {
         return list;
     }
 
+    public List<User> getAllDonorsByDistrictIdByBloodType(Integer districtId, String bloodType) {
+        List<User> list = new ArrayList<>();
+        list = userRepository.findByDistrictIdAndBloodType(districtId, Role.DONOR, bloodType);
+        return list;
+    }
+
     @Transactional
     public Response updateAvatar(Integer userId, UpdateAvatarRequest request) {
         Optional<User> isExistUser = userRepository.findById(userId);
