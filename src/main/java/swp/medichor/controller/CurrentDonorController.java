@@ -38,7 +38,22 @@ public class CurrentDonorController {
                 return new Response(200, true, null);
             }
             return new Response(403, false, "Current user is not a donor");
-        } catch (IllegalArgumentException e) {
+        } catch (Exception e) {
+            return new Response(400, false, e.getLocalizedMessage());
+        }
+    }
+
+    @PutMapping("/registered/{registrationId}")
+    public Response updateRegistration(@RequestAttribute User user,
+            @RequestBody DonateRegistrationRequest registration,
+            @PathVariable int registrationId) {
+        try {
+            if (user.getDonor() != null) {
+                donorService.updateDonateRegistration(user.getId(), registrationId, registration);
+                return new Response(200, true, null);
+            }
+            return new Response(403, false, "Current user is not a donor");
+        } catch (Exception e) {
             return new Response(400, false, e.getLocalizedMessage());
         }
     }

@@ -24,6 +24,7 @@ import swp.medichor.repository.DonateRegistrationRepository;
 import swp.medichor.repository.DonorRepository;
 import swp.medichor.repository.UserRepository;
 import swp.medichor.utils.Random;
+import swp.medichor.utils.Validator;
 
 @Service
 public class DonorService {
@@ -45,7 +46,7 @@ public class DonorService {
         donorRepository.save(donor);
         return true;
     }
-    
+
     public List<DonorResponse> getAll() {
         return donorRepository.findAll()
                 .stream()
@@ -83,21 +84,54 @@ public class DonorService {
     public void registerDonor(Donor donor, DonateRegistrationRequest registrationReq) {
         Optional<Campaign> campaign = campaignRepository.findById(registrationReq.getCampaignId());
         campaign.ifPresentOrElse(c -> {
-            DonateRegistration registration = DonateRegistration.builder()
-                    .id(new DonateRegistrationKey(
-                            null,
-                            null,
-                            registrationReq.getRegisterDate()))
-                    .donor(donor)
-                    .campaign(c)
-                    .status(DonateRegistrationStatus.NOT_CHECKED_IN)
-                    .period(registrationReq.getPeriod())
-                    .code(Integer.toString(Random.randomCode(100000000, 999999999)))
-                    .build();
-            c.getRegistrations().add(registration);
-            campaignRepository.save(c);
+            if (Validator.canCampaignRegistered(c, registrationReq.getRegisterDate())) {
+                // Delete cancelled campaign
+                Optional<DonateRegistration> oldRegistration
+                        = donateRegistrationRepository.findById_DonorIdAndId_CampaignId(donor.getUserId(), c.getId());
+                oldRegistration.ifPresent(r -> {
+                    if (r.getStatus() != DonateRegistrationStatus.CANCELLED) {
+                        throw new RuntimeException("The user has registered the campaign");
+                    } else {
+                        donateRegistrationRepository.delete(r);
+                    }
+                });
+
+                // Add
+                DonateRegistration registration = DonateRegistration.builder()
+                        .id(new DonateRegistrationKey(
+                                null,
+                                null,
+                                registrationReq.getRegisterDate()))
+                        .donor(donor)
+                        .campaign(c)
+                        .status(DonateRegistrationStatus.NOT_CHECKED_IN)
+                        .period(registrationReq.getPeriod())
+                        .code(Integer.toString(Random.randomCode(100000000, 999999999)))
+                        .build();
+                donateRegistrationRepository.save(registration);
+            } else {
+                throw new RuntimeException("Registration is not valid");
+            }
         }, () -> {
             throw new IllegalArgumentException("Campaign not found");
+        });
+    }
+
+    @Transactional
+    public void updateDonateRegistration(int donorId, int campaignId, DonateRegistrationRequest req) {
+        campaignRepository.findById(campaignId).ifPresentOrElse(campaign -> {
+            if (Validator.canCampaignRegistered(campaign, req.getRegisterDate())) {
+                if (donateRegistrationRepository.updateDonateRegistration(req.getRegisterDate(),
+                        req.getPeriod(),
+                        donorId,
+                        campaignId) == 0) {
+                    throw new RuntimeException("Cannot update the registration");
+                }
+            } else {
+                throw new RuntimeException("Registration is not valid");
+            }
+        }, () -> {
+            throw new RuntimeException("Campaign does not exist");
         });
     }
 
@@ -132,10 +166,11 @@ public class DonorService {
 
     public Response likeCampaign(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
-        if (isExistCampaign.isEmpty())
+        if (isExistCampaign.isEmpty()) {
             return new Response(400, false, "ID not found");
-        Optional<LikeRecord> isExistLikeRecord =
-                likeRecordRepository.findByCampaignIdAndDonorId(campaignId, user.getDonor().getUserId());
+        }
+        Optional<LikeRecord> isExistLikeRecord
+                = likeRecordRepository.findByCampaignIdAndDonorId(campaignId, user.getDonor().getUserId());
         if (isExistLikeRecord.isPresent()) {
             return new Response(400, false, "Already liked");
         }

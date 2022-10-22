@@ -1,6 +1,6 @@
 package swp.medichor.model.response;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import lombok.Getter;
 import swp.medichor.enums.DonateRegistrationStatus;
 import swp.medichor.enums.Period;
@@ -11,7 +11,7 @@ public class DonateRegistrationResponse {
 
     private Integer donorId;
     private Integer campaignId;
-    private Date registeredDate;
+    private LocalDate registeredDate;
     private DonateRegistrationStatus status;
     private Period period;
     private String code;
