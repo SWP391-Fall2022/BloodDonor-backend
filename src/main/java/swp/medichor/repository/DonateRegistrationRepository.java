@@ -48,8 +48,8 @@ public interface DonateRegistrationRepository extends JpaRepository<DonateRegist
 
     @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and (r.id.registeredDate < ?2 or r.id"
             + ".registeredDate > ?3) and r.status = ?4")
-    List<DonateRegistration> findNormalByCampaignIdAndOutDate(Integer campaignId, Date StartDate,
-            Date endDate, DonateRegistrationStatus status);
+    List<DonateRegistration> findNormalByCampaignIdAndOutDate(Integer campaignId, LocalDate StartDate,
+            LocalDate endDate, DonateRegistrationStatus status);
 
     @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and r.id.registeredDate < ?2 and r.status ="
             + " ?3")

@@ -142,8 +142,8 @@ public class CampaignService {
         else {
             listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutDate(
                     campaignId,
-                    Date.valueOf(request.getStartDate()),
-                    Date.valueOf(request.getEndDate()),
+                    request.getStartDate(),
+                    request.getEndDate(),
                     DonateRegistrationStatus.NOT_CHECKED_IN
             );
         }
@@ -205,8 +205,8 @@ public class CampaignService {
         else {
             listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutDate(
                     campaignId,
-                    Date.valueOf(campaign.getStartDate()),
-                    Date.valueOf(LocalDate.now().minusDays(1)),
+                    campaign.getStartDate(),
+                    LocalDate.now().minusDays(1),
                     DonateRegistrationStatus.NOT_CHECKED_IN
             );
         }
@@ -245,8 +245,8 @@ public class CampaignService {
             campaign.setEndDate(LocalDate.now().minusDays(1));
             listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutDate(
                     campaignId,
-                    Date.valueOf(campaign.getStartDate()),
-                    Date.valueOf(campaign.getEndDate()),
+                    campaign.getStartDate(),
+                    campaign.getEndDate(),
                     DonateRegistrationStatus.NOT_CHECKED_IN
             );
         }
