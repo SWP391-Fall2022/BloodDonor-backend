@@ -1,6 +1,5 @@
 package swp.medichor.service;
 
-
 import java.sql.Timestamp;
 import java.sql.Date;
 import java.time.LocalDate;
@@ -159,6 +158,20 @@ public class DonorService {
         throw new IllegalArgumentException("Donor not found");
     }
 
+    public void cancelRegistration(int donorId, int campaignId) {
+        donateRegistrationRepository.findById_DonorIdAndId_CampaignId(donorId, campaignId)
+                .ifPresentOrElse(r -> {
+                    if (r.getStatus() == DonateRegistrationStatus.NOT_CHECKED_IN) {
+                        r.setStatus(DonateRegistrationStatus.CANCELLED);
+                        donateRegistrationRepository.save(r);
+                    } else {
+                        throw new RuntimeException("Cannot cancel the registration");
+                    }
+                }, () -> {
+                    throw new RuntimeException("Campaign does not exist");
+                });
+    }
+
     @Transactional
     public Set<DonateRecordResponse> getAllDonations(int donorId) {
         Optional<Donor> donor = donorRepository.findById(donorId);
@@ -198,8 +211,9 @@ public class DonorService {
 
     public Response addQuestion(User user, Integer campaignId, QuestionRequest request) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
-        if (isExistCampaign.isEmpty())
+        if (isExistCampaign.isEmpty()) {
             return new Response(400, false, "ID not found");
+        }
         Campaign campaign = isExistCampaign.get();
         Question question = Question.builder()
                 .donor(user.getDonor())

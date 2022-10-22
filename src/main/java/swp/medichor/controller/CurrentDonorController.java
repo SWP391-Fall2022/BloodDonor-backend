@@ -70,6 +70,20 @@ public class CurrentDonorController {
         }
     }
 
+    @DeleteMapping("/registered/{campaignId}")
+    public Response cancelRegistration(@RequestAttribute User user, @PathVariable int campaignId) {
+        try {
+            if (user.getDonor() != null) {
+                donorService.cancelRegistration(user.getId(), campaignId);
+                return new Response(200, true, null);
+            } else {
+                return new Response(403, false, "Current user is not a donor");
+            }
+        } catch (Exception ex) {
+            return new Response(400, false, ex.getLocalizedMessage());
+        }
+    }
+
     @GetMapping("/donated")
     public Response getDonations(@RequestAttribute User user) {
         if (user.getDonor() != null) {
