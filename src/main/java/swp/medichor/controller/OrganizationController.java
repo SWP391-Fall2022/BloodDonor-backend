@@ -27,6 +27,10 @@ public class OrganizationController {
         return organizationServive.getInfoOfOne(organizationId);
     }
 
+    @GetMapping("/getInfo")
+    public Response getInfoOfOrganization(@RequestAttribute User user) {
+        return organizationServive.getInfo(user.getOrganization());
+    }
     @PutMapping("/updateInfo")
     public Response updateInfoOfOneOrganization(@RequestAttribute User user,
                                                 @RequestBody UpdateOrganizationRequest request) {

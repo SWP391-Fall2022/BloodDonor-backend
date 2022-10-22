@@ -69,6 +69,27 @@ public class OrganizationServive {
         return new Response(200, true, organizationInfo);
     }
 
+    public Response getInfo(Organization organization) {
+        if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
+                || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
+            return new Response(403, false, "The account is disabled or unverified");
+        }
+        OrganizationResponse organizationInfo = new OrganizationResponse(
+                organization.getUserId(),
+                organization.getUser().getUsername(),
+                organization.getUser().getPhone(),
+                organization.getUser().getEmail(),
+                organization.getUser().getDistrict().getId(),
+                organization.getUser().getAddressDetails(),
+                organization.getName(),
+                organization.getTaxCode(),
+                organization.getAvatar(),
+                organization.getWebsite(),
+                organization.getIntroduction()
+        );
+        return new Response(200, true, organizationInfo);
+    }
+
     @Transactional
     public Response updateInfoOfOne(Integer organizationId, UpdateOrganizationRequest request) {
         Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
