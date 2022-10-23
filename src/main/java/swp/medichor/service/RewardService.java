@@ -48,7 +48,7 @@ public class RewardService {
                 .stream()
                 .filter(reward -> reward.getStatus() == true
                 && reward.getAmount() > 0
-                && reward.getExpiredDate().compareTo(new Date(LocalDate.now().toEpochDay())) >= 0
+                && reward.getExpiredDate().compareTo(Date.valueOf(LocalDate.now())) >= 0
                 && reward.getLevel() <= donorService.getPoints(donorId)
                 && !earned.contains(reward))
                 .map(reward -> new RewardResponse(reward))

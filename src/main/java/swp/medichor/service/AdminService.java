@@ -1,14 +1,14 @@
 package swp.medichor.service;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import swp.medichor.enums.Approve;
+import swp.medichor.enums.Role;
 import swp.medichor.model.Organization;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.OrganizationRepository;
-import javax.transaction.Transactional;
-import java.util.Optional;
-import swp.medichor.enums.Role;
 import swp.medichor.repository.UserRepository;
 
 @Service
@@ -18,6 +18,8 @@ public class AdminService {
     private OrganizationRepository organizationRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private CampaignService campaignService;
 
     @Transactional
     public Response verifyOrganizationAccount(Integer id) {
@@ -42,12 +44,17 @@ public class AdminService {
         return new Response(200, true, "Reject successfully");
     }
 
+    @Transactional
     public void lockUser(int userId) {
         userRepository.findById(userId)
                 .ifPresentOrElse(user -> {
                     if (user.getRole() != Role.ADMIN) {
                         user.setStatus(false);
-                        userRepository.save(user);
+                        if (user.getRole() == Role.ORGANIZATION) {
+                            user.getOrganization().getCampaigns().forEach(c -> {
+                                campaignService.closeCampaign(user, c.getId());
+                            });
+                        }
                     } else {
                         throw new RuntimeException("Cannot lock user with role ADMIN");
                     }

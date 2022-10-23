@@ -1,6 +1,6 @@
 package swp.medichor.model.request;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import lombok.Getter;
 import swp.medichor.enums.Period;
 
@@ -8,6 +8,6 @@ import swp.medichor.enums.Period;
 public class DonateRegistrationRequest {
 
     private int campaignId;
-    private Date registerDate;
+    private LocalDate registerDate;
     private Period period;
 }
