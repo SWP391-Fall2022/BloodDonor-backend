@@ -1,5 +1,7 @@
 USE [master]
 GO
+DROP DATABASE IF EXISTS [BloodDonorProject]
+GO
 /****** Object:  Database [BloodDonorProject]    Script Date: 10/10/2022 5:04:28 PM ******/
 CREATE DATABASE [BloodDonorProject]
 GO
