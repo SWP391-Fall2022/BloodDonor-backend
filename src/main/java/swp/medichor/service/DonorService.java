@@ -236,22 +236,6 @@ public class DonorService {
         return new Response(200, true, "Like successfully");
     }
 
-    public Response addQuestion(User user, Integer campaignId, QuestionRequest request) {
-        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
-        if (isExistCampaign.isEmpty()) {
-            return new Response(400, false, "ID not found");
-        }
-        Campaign campaign = isExistCampaign.get();
-        Question question = Question.builder()
-                .donor(user.getDonor())
-                .campaign(campaign)
-                .askTime(new Timestamp(System.currentTimeMillis()))
-                .question(request.getQuestion())
-                .answer(null)
-                .build();
-        questionRepository.save(question);
-        return new Response(200, true, "Add question successfully");
-    }
 
     public int getPoints(int donorId) {
         int amountDonated = getTotalAmountOfBlood(donorId);

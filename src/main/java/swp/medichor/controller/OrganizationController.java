@@ -37,10 +37,4 @@ public class OrganizationController {
         return organizationServive.updateInfoOfOne(user.getOrganization().getUserId(), request);
     }
 
-    @PutMapping("/answer-question/{questionId}")
-    public Response answerQuestion(@RequestAttribute User user,
-                                   @PathVariable("questionId") Integer questionId,
-                                   @RequestBody AnswerRequest request) {
-        return organizationServive.answerQuestion(user, questionId, request);
-    }
 }
