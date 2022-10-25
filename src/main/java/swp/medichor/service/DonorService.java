@@ -16,6 +16,7 @@ import swp.medichor.model.compositekey.DonateRegistrationKey;
 import swp.medichor.model.compositekey.EarnedRewardKey;
 import swp.medichor.model.compositekey.LikeRecordKey;
 import swp.medichor.model.request.DonateRegistrationRequest;
+import swp.medichor.model.request.NumberOfRegistrationRequest;
 import swp.medichor.model.request.QuestionRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
 import swp.medichor.model.response.DonateRecordResponse;
@@ -28,6 +29,7 @@ import swp.medichor.repository.DonateRecordRepository;
 import swp.medichor.repository.DonateRegistrationRepository;
 import swp.medichor.repository.DonorRepository;
 import swp.medichor.repository.UserRepository;
+import swp.medichor.utils.EmailPlatform;
 import swp.medichor.utils.Random;
 import swp.medichor.utils.Validator;
 
@@ -52,6 +54,15 @@ public class DonorService {
     private RewardRepository rewardRepository;
     @Autowired
     private EarnedRewardRepository earnedRewardRepository;
+    @Autowired
+    private CampaignService campaignService;
+    @Autowired
+    private EmailService emailService;
+
+    private static final int LIMIT_REGISTRATION = 100;
+    private final String FROM = "medichorvn@gmail.com";
+    private final String SUBJECT = "BLOOD DONATION CAMPAIGN CHECK-IN VERIFICATION CODE";
+
 
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
@@ -96,6 +107,16 @@ public class DonorService {
         Optional<Campaign> campaign = campaignRepository.findById(registrationReq.getCampaignId());
         campaign.ifPresentOrElse(c -> {
             if (Validator.canCampaignRegistered(c, registrationReq.getRegisterDate())) {
+
+                //Checking the number of registration of the time submitted
+                if ((int)campaignService.getNumberOfRegistrationPerDay(
+                        registrationReq.getCampaignId(),
+                        new NumberOfRegistrationRequest(
+                                registrationReq.getPeriod(),
+                                registrationReq.getRegisterDate()
+                        )).getBody() >= LIMIT_REGISTRATION)
+                    throw new RuntimeException("Registration of this time has been full");
+
                 // Delete cancelled campaign
                 Optional<DonateRegistration> oldRegistration
                         = donateRegistrationRepository.findById_DonorIdAndId_CampaignId(donor.getUserId(), c.getId());
@@ -120,6 +141,12 @@ public class DonorService {
                         .code(Integer.toString(Random.randomCode(100000000, 999999999)))
                         .build();
                 donateRegistrationRepository.save(registration);
+
+                //send mail the code to donor
+                emailService.send(FROM, donor.getUser().getEmail(), SUBJECT, EmailPlatform.buildCheckinCodeEmail(
+                        registration
+                ));
+
             } else {
                 throw new RuntimeException("Registration is not valid");
             }
