@@ -50,6 +50,8 @@ public class CampaignService {
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
         }
+        if (!campaignRepository.findByOrganizationIdAndCampaignName(organization.getUserId(), request.getName()).isEmpty())
+            return new Response(400, false, "Campaign can not have duplicate name.");
 
         if (request.isEmergency()) {
             request.setStartDate(LocalDate.now());
