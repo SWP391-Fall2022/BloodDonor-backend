@@ -1,6 +1,8 @@
 package swp.medichor.utils;
 
 import swp.medichor.model.Campaign;
+import swp.medichor.model.DonateRecord;
+import swp.medichor.model.DonateRegistration;
 
 public class EmailPlatform {
     public static String buildConfirmCodeEmail(String name, int code) {
@@ -157,8 +159,31 @@ public class EmailPlatform {
     }
 
     public static String buildCloseCampaignEmail(String donorName, String campaignName) {
-        String content = "Hi " + donorName + ", it seems that a campaign has been closed. We're sorry to inform that " +
-                "your schedule has been cancelled. Hope you please to look for another campaign. Thank you!";
+        String content = "Hi " + donorName + ", it seems that campaign named " + campaignName + " has been closed. " +
+                "We're sorry to inform that your schedule has been cancelled. Hope you please to look for another " +
+                "campaign. Thank you!";
+        return content;
+    }
+
+    public static String buildMedicalDocumentEmail(DonateRecord donateRecord) {
+        String content =
+                "Hi " + donateRecord.getDonor().getName() + ", after the blood donation campaign named "
+                + donateRecord.getCampaign().getName() + " you have attended. Let's have a look at your medical " +
+                        "document: \n" +
+                        "- Health Check details: " + donateRecord.getDetails() +"\n" +
+                        "- Qualified to donate blood: " + donateRecord.getStatus() + "\n" +
+                        "- Your blood type: " + donateRecord.getBloodType() + "\n" +
+                        "- The amount of blood donated: " + donateRecord.getAmount() + "ml\n" +
+                        "Thank you!";
+        return content;
+    }
+
+    public static String buildCheckinCodeEmail(DonateRegistration donateRegistration) {
+        String content =
+                "Thank you " + donateRegistration.getDonor().getName() + " for registering campaign \""
+                        + donateRegistration.getCampaign().getName() + "\". Your check-in code will be " +
+                        donateRegistration.getCode() + ".\n" +
+                        "Please attend at the right time you have reserved. Thank you!";
         return content;
     }
 }

@@ -46,10 +46,4 @@ public class DonorController {
         return new Response(200, true, donorService.getTotalAmountOfBlood(id));
     }
 
-    @PostMapping("/question/{campaignId}")
-    public Response addQuestion(@RequestAttribute User user,
-                                @PathVariable("campaignId") Integer campaignId,
-                                @RequestBody QuestionRequest request) {
-        return donorService.addQuestion(user, campaignId, request);
-    }
 }

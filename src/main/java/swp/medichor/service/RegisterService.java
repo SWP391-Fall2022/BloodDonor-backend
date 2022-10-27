@@ -21,7 +21,7 @@ import java.util.Optional;
 
 @Service
 public class RegisterService {
-    private final String FROM = "nvtien1602.forwork@gmail.com";
+    private final String FROM = "medichorvn@gmail.com";
     private final String SUBJECT = "CONFIRM YOUR CODE";
 
     private final Argon2PasswordEncoder passwordEncoder =  new Argon2PasswordEncoder();

@@ -41,14 +41,17 @@ public class CampaignService {
     private UserService userService;
     @Autowired
     private EmailService emailService;
-    private final String FROM = "nvtien1602.forwork@gmail.com";
+    private final String FROM = "medichorvn@gmail.com";
     private final String SUBJECT = "PLEASE JOIN IN THE BLOOD DONATION CAMPAIGN IF POSSIBLE";
+    private final String MEDICAL_DOCUMENT_SUBJECT = "HAVE A LOOK AT YOUR MEDICAL DOCUMENT";
 
     public Response createCampaign(Organization organization, CreateCampaignRequest request) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
         }
+        if (!campaignRepository.findByOrganizationIdAndCampaignName(organization.getUserId(), request.getName()).isEmpty())
+            return new Response(400, false, "Campaign can not have duplicate name.");
 
         if (request.isEmergency()) {
             request.setStartDate(LocalDate.now());
@@ -375,14 +378,14 @@ public class CampaignService {
             list = donateRegistrationRepository.findAllRegistrationAllDay(
                     campaignId,
                     DonateRegistrationStatus.CANCELLED,
-                    request.getRegisteredDate().toLocalDate()
+                    request.getRegisteredDate()
             );
         }
         else {
             list = donateRegistrationRepository.findAllRegistrationByPeriod(
                     campaignId,
                     DonateRegistrationStatus.CANCELLED,
-                    request.getRegisteredDate().toLocalDate(),
+                    request.getRegisteredDate(),
                     request.getPeriod()
             );
         }
@@ -414,14 +417,14 @@ public class CampaignService {
             listOfRegistration = donateRegistrationRepository.findAllRegistrationAllDay(
                     campaignId,
                     DonateRegistrationStatus.CANCELLED,
-                    request.getRegisteredDate().toLocalDate()
+                    request.getRegisteredDate()
             );
         }
         else {
             listOfRegistration = donateRegistrationRepository.findAllRegistrationByPeriod(
                     campaignId,
                     DonateRegistrationStatus.CANCELLED,
-                    request.getRegisteredDate().toLocalDate(),
+                    request.getRegisteredDate(),
                     request.getPeriod()
             );
         }
@@ -466,10 +469,11 @@ public class CampaignService {
         Campaign campaign = isExistCampaign.get();
         Donor donor = isExistDonor.get();
         DonateRegistration donateRegistration = isExistDonateRegistration.get();
+        DonateRecord donateRecord;
         if (donateRegistration.getStatus().equals(DonateRegistrationStatus.NOT_CHECKED_IN)) {
             donateRegistration.setStatus(DonateRegistrationStatus.CHECKED_IN);
             donor.setBloodType(request.getBloodType());
-            DonateRecord donateRecord = DonateRecord.builder()
+            donateRecord = DonateRecord.builder()
                     .id(new DonateRecordKey(
                             null,
                             null,
@@ -487,7 +491,7 @@ public class CampaignService {
         }
         else {
             donor.setBloodType(request.getBloodType());
-            DonateRecord donateRecord = donateRecordRepository.findByCampaignIdAndDonorId(
+            donateRecord = donateRecordRepository.findByCampaignIdAndDonorId(
                     request.getCampaignId(),
                     request.getDonorId()
             ).get();
@@ -497,6 +501,11 @@ public class CampaignService {
             donateRecord.setAmount(request.getAmount());
             donateRecord.setWeight(request.getWeight());
         }
+
+        //send mail
+        emailService.send(FROM, donor.getUser().getEmail(), MEDICAL_DOCUMENT_SUBJECT, EmailPlatform.buildMedicalDocumentEmail(
+                donateRecord
+        ));
         return new Response(200, true, "Update medical history successfully");
     }
 
