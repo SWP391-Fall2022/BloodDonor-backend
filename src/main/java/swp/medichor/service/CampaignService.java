@@ -94,7 +94,20 @@ public class CampaignService {
             }
         }
 
-        return new Response(200, true, "Create campaign successfully");
+        CampaignResponse campaignInfo = new CampaignResponse(
+                campaign.getId(),
+                campaign.getName(),
+                campaign.getImages(),
+                campaign.getDescription(),
+                campaign.getStartDate(),
+                campaign.getEndDate(),
+                campaign.getEmergency(),
+                campaign.getBloodTypes(),
+                campaign.getDistrict().getId(),
+                campaign.getAddressDetails(),
+                campaign.getOrganization().getName()
+        );
+        return new Response(200, true, campaignInfo);
     }
 
     @Transactional
