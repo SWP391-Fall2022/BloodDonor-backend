@@ -302,4 +302,8 @@ public class DonorService {
             throw new RuntimeException("Donor does not exist");
         }
     }
+    
+    public List<Map<Integer, Integer>> getTop5Donor() {
+        return donorRepository.getTop5Donor();
+    }
 }
