@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CampaignService {
@@ -327,6 +328,15 @@ public class CampaignService {
             listActiveCampaignsInfo.add(campaignInfo);
         }
         return new Response(200, true, listActiveCampaignsInfo);
+    }
+    
+    public List<CampaignResponse> getAllByOrgIdAndDayRange(int orgId, LocalDate from, LocalDate to){
+        return campaignRepository.findAllActiveCampaignsByOrganizationId(orgId, LocalDate.now())
+                .stream()
+                .filter(c -> c.getEndDate() == null
+                        || (!c.getEndDate().isBefore(from) && !c.getEndDate().isAfter(to)))
+                .map(c -> new CampaignResponse(c))
+                .collect(Collectors.toList());
     }
 
     public Response getAllCampaigns() {

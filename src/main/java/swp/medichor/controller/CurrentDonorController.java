@@ -135,4 +135,17 @@ public class CurrentDonorController {
             return new Response(400, false, ex.getLocalizedMessage());
         }
     }
+
+    @GetMapping("/campaigns/{campaignId}/status")
+    public Response getRegistrationStatus(@RequestAttribute User user, @PathVariable int campaignId) {
+        try {
+            if (user.getDonor() != null) {
+                return new Response(200, true, donorService.getRegistrationStatus(user.getId(), campaignId));
+            } else {
+                throw new RuntimeException("Current user is not a donor");
+            }
+        } catch (Exception ex) {
+            return new Response(400, false, ex.getLocalizedMessage());
+        }
+    }
 }

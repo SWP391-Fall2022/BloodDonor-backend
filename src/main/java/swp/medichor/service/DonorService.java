@@ -1,9 +1,10 @@
 package swp.medichor.service;
 
-import java.sql.Timestamp;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,7 +18,6 @@ import swp.medichor.model.compositekey.EarnedRewardKey;
 import swp.medichor.model.compositekey.LikeRecordKey;
 import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.NumberOfRegistrationRequest;
-import swp.medichor.model.request.QuestionRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
 import swp.medichor.model.response.DonateRecordResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
@@ -62,7 +62,6 @@ public class DonorService {
     private static final int LIMIT_REGISTRATION = 100;
     private final String FROM = "medichorvn@gmail.com";
     private final String SUBJECT = "BLOOD DONATION CAMPAIGN CHECK-IN VERIFICATION CODE";
-
 
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
@@ -109,13 +108,14 @@ public class DonorService {
             if (Validator.canCampaignRegistered(c, registrationReq.getRegisterDate())) {
 
                 //Checking the number of registration of the time submitted
-                if ((int)campaignService.getNumberOfRegistrationPerDay(
+                if ((int) campaignService.getNumberOfRegistrationPerDay(
                         registrationReq.getCampaignId(),
                         new NumberOfRegistrationRequest(
                                 registrationReq.getPeriod(),
                                 registrationReq.getRegisterDate()
-                        )).getBody() >= LIMIT_REGISTRATION)
+                        )).getBody() >= LIMIT_REGISTRATION) {
                     throw new RuntimeException("Registration of this time has been full");
+                }
 
                 // Delete cancelled campaign
                 Optional<DonateRegistration> oldRegistration
@@ -236,7 +236,6 @@ public class DonorService {
         return new Response(200, true, "Like successfully");
     }
 
-
     public int getPoints(int donorId) {
         int amountDonated = getTotalAmountOfBlood(donorId);
 
@@ -275,5 +274,36 @@ public class DonorService {
         }, () -> {
             throw new RuntimeException("Reward ID does not exist");
         });
+    }
+
+    public Map<String, Object> getRegistrationStatus(int donorId, int campaignId) {
+        Optional<Donor> donor = donorRepository.findById(donorId);
+        if (donor.isPresent()) {
+            Optional<Campaign> campaignOptional = campaignRepository.findById(campaignId);
+            if (campaignOptional.isPresent()) {
+                Campaign campaign = campaignOptional.get();
+                Optional<DonateRegistration> registration = donateRegistrationRepository.findById_DonorIdAndId_CampaignId(donorId, campaignId);
+                boolean canRegister = campaign.getStatus() == true
+                        && (campaign.getEndDate() == null
+                        || (!campaign.getEndDate().isBefore(LocalDate.now())
+                        && !campaign.getEndDate().isBefore(campaign.getStartDate())));
+                boolean hasRegistered = registration.isPresent();
+                String status = !hasRegistered ? null : registration.get().getStatus().toString();
+
+                Map<String, Object> res = new HashMap<>(3);
+                res.put("canRegister", canRegister);
+                res.put("hasRegistered", hasRegistered);
+                res.put("status", status);
+                return res;
+            } else {
+                throw new RuntimeException("Campaign does not exist");
+            }
+        } else {
+            throw new RuntimeException("Donor does not exist");
+        }
+    }
+    
+    public List<Map<Integer, Integer>> getTop5Donor() {
+        return donorRepository.getTop5Donor();
     }
 }

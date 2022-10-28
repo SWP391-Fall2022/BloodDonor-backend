@@ -1,9 +1,9 @@
 package swp.medichor.controller;
 
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.parameters.P;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import swp.medichor.enums.Period;
 import swp.medichor.model.User;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.request.DonateRecordRequest;
@@ -20,14 +20,14 @@ public class CampaignController {
 
     @PostMapping("/create")
     public Response createCampaign(@RequestAttribute User user,
-                                @RequestBody CreateCampaignRequest request) {
+            @RequestBody CreateCampaignRequest request) {
         return campaignService.createCampaign(user.getOrganization(), request);
     }
 
     @PutMapping("/update/{campaignId}")
     public Response updateCampaign(@RequestAttribute User user,
-                                   @PathVariable("campaignId") Integer campaignId,
-                                   @RequestBody CreateCampaignRequest request) {
+            @PathVariable("campaignId") Integer campaignId,
+            @RequestBody CreateCampaignRequest request) {
         return campaignService.updateCampaign(user, campaignId, request);
     }
 
@@ -38,13 +38,13 @@ public class CampaignController {
 
     @DeleteMapping("/delete/{campaignId}")
     public Response deleteCampaign(@RequestAttribute User user,
-                                   @PathVariable("campaignId") Integer campaignId) {
+            @PathVariable("campaignId") Integer campaignId) {
         return campaignService.deleteCampaign(user, campaignId);
     }
 
     @PutMapping("/close/{campaignId}")
     public Response closeCampaign(@RequestAttribute User user,
-                                  @PathVariable("campaignId") Integer campaignId) {
+            @PathVariable("campaignId") Integer campaignId) {
         return campaignService.closeCampaign(user, campaignId);
     }
 
@@ -65,6 +65,17 @@ public class CampaignController {
         return campaignService.getAllActiveCampaignsByOrganizationId(user.getOrganization());
     }
 
+    @GetMapping("/active")
+    public Response getActiveInDayRange(@RequestAttribute User user,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate to) {
+        if (user.getOrganization() != null) {
+            return new Response(200, true, campaignService.getAllByOrgIdAndDayRange(user.getId(), from, to));
+        } else {
+            return new Response(403, false, "Current user is not an orrganization");
+        }
+    }
+
     @GetMapping("/getAllByOrganization")
     public Response getAllCampaigns(@RequestAttribute User user) {
         return campaignService.getAllCampaignsByOrganizationId(user.getOrganization());
@@ -77,7 +88,7 @@ public class CampaignController {
 
     @GetMapping("/getNumberOfRegistrationPerDay/{campaignId}")
     public Response getNumberOfRegistrationPerDay(@PathVariable("campaignId") Integer campaignId,
-                                                  @RequestBody NumberOfRegistrationRequest request) {
+            @RequestBody NumberOfRegistrationRequest request) {
         return campaignService.getNumberOfRegistrationPerDay(campaignId, request);
     }
 
@@ -88,7 +99,7 @@ public class CampaignController {
 
     @GetMapping("/getParticipatedDonorPerDay/{campaignId}")
     public Response getAllParticipatedDonorPerDay(@PathVariable("campaignId") Integer campaignId,
-                                                  @RequestBody NumberOfRegistrationRequest request) {
+            @RequestBody NumberOfRegistrationRequest request) {
         return campaignService.getAllParticipatedDonorPerDay(campaignId, request);
     }
 
@@ -99,7 +110,7 @@ public class CampaignController {
 
     @PostMapping("/updateMedicalDocument")
     public Response updateMedicalDocument(@RequestAttribute User user,
-                                          @RequestBody DonateRecordRequest request) {
+            @RequestBody DonateRecordRequest request) {
         return campaignService.updateMedicalDocument(user, request);
     }
 

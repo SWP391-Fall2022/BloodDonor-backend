@@ -4,8 +4,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.Donor;
-import swp.medichor.model.User;
-import swp.medichor.model.request.QuestionRequest;
 import swp.medichor.model.response.DonorResponse;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.DonorService;
@@ -46,4 +44,8 @@ public class DonorController {
         return new Response(200, true, donorService.getTotalAmountOfBlood(id));
     }
 
+    @GetMapping("/top5")
+    public Response getTop5Donation() {
+        return new Response(200, true, donorService.getTop5Donor());
+    }
 }
