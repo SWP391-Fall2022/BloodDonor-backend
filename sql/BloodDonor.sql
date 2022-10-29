@@ -25,6 +25,7 @@ CREATE TABLE [dbo].[Campaign](
 	[AddressDetails] [ntext] NULL,
 	[OrganizationId] [int] NOT NULL,
 	[BloodTypes] [varchar](50) NOT NULL,
+    [OnSiteDates] [varchar](5000) NULL
  CONSTRAINT [PK__Campaign__3214EC078FC4A70B] PRIMARY KEY CLUSTERED 
 (
 	[Id] ASC

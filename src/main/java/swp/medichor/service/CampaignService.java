@@ -68,8 +68,6 @@ public class CampaignService {
                 return new Response(400, false, "Start date can not be after end date");
             if (request.getEndDate().isBefore(LocalDate.now()))
                 return new Response(400, false, "End date can not be before today");
-            if (request.getEndDate().minusDays(84).compareTo(request.getStartDate()) > 0)
-                return new Response(400, false, "Normal campaign can not last for more than 12 weeks");
         }
 
         List<LocalDate> onSiteDatesList = new ArrayList<>();
@@ -175,8 +173,6 @@ public class CampaignService {
                 return new Response(400, false, "Start date can not be after end date");
             if (request.getEndDate().isBefore(LocalDate.now()))
                 return new Response(400, false, "End date can not be before today");
-            if (request.getEndDate().minusDays(84).compareTo(request.getStartDate()) > 0)
-                return new Response(400, false, "Normal campaign can not last for more than 12 weeks");
         }
 
         List<LocalDate> onSiteDatesList = new ArrayList<>();
