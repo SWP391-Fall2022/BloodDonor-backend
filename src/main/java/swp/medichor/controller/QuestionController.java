@@ -39,4 +39,9 @@ public class QuestionController {
     public Response getAllQuestionsOfDonor(@RequestAttribute User user) {
         return questionService.getAllQuestionsOfDonor(user.getDonor().getUserId());
     }
+
+    @GetMapping("/get-by-organization")
+    public Response getAllQuestionsOfOrganization(@RequestAttribute User user) {
+        return questionService.getAllQuestionsOfOrganization(user.getOrganization().getUserId());
+    }
 }

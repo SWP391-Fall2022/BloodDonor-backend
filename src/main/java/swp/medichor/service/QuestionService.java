@@ -104,5 +104,23 @@ public class QuestionService {
         return new Response(200, true, listOfQuestionResponse);
     }
 
+    public Response getAllQuestionsOfOrganization(Integer organizationId) {
+        List<Question> listOfQuestions = questionRepository.findByOrganizationId(organizationId);
+        List<QuestionResponse> listOfQuestionResponse = new ArrayList<>();
+        for (Question question : listOfQuestions) {
+            listOfQuestionResponse.add(new QuestionResponse(
+                    question.getId(),
+                    question.getDonor().getUserId(),
+                    question.getDonor().getName(),
+                    question.getCampaign().getId(),
+                    question.getCampaign().getName(),
+                    question.getAskTime(),
+                    question.getQuestion(),
+                    question.getAnswer(),
+                    question.getStatus()
+            ));
+        }
+        return new Response(200, true, listOfQuestionResponse);
+    }
 
 }
