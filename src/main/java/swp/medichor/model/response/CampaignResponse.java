@@ -23,6 +23,7 @@ public class CampaignResponse {
     private Integer districtId;
     private String addressDetails;
     private String organizationName;
+    private boolean status;
 
     public CampaignResponse(Campaign campaign) {
         id = campaign.getId();
@@ -36,5 +37,6 @@ public class CampaignResponse {
         districtId = campaign.getDistrict().getId();
         addressDetails = campaign.getAddressDetails();
         organizationName = campaign.getOrganization().getName();
+        status = campaign.getStatus();
     }
 }

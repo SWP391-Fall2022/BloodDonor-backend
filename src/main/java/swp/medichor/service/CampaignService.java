@@ -106,7 +106,8 @@ public class CampaignService {
                 campaign.getBloodTypes(),
                 campaign.getDistrict().getId(),
                 campaign.getAddressDetails(),
-                campaign.getOrganization().getName()
+                campaign.getOrganization().getName(),
+                campaign.getStatus()
         );
         return new Response(200, true, campaignInfo);
     }
@@ -190,7 +191,8 @@ public class CampaignService {
                 campaign.getBloodTypes(),
                 campaign.getDistrict().getId(),
                 campaign.getAddressDetails(),
-                campaign.getOrganization().getName()
+                campaign.getOrganization().getName(),
+                campaign.getStatus()
         );
         return new Response(200, true, campaignInfo);
     }
@@ -294,7 +296,8 @@ public class CampaignService {
                     campaign.getBloodTypes(),
                     campaign.getDistrict().getId(),
                     campaign.getAddressDetails(),
-                    campaign.getOrganization().getName()
+                    campaign.getOrganization().getName(),
+                    campaign.getStatus()
             );
             listActiveCampaignsInfo.add(campaignInfo);
         }
@@ -323,7 +326,8 @@ public class CampaignService {
                     campaign.getBloodTypes(),
                     campaign.getDistrict().getId(),
                     campaign.getAddressDetails(),
-                    campaign.getOrganization().getName()
+                    campaign.getOrganization().getName(),
+                    campaign.getStatus()
             );
             listActiveCampaignsInfo.add(campaignInfo);
         }
@@ -354,7 +358,8 @@ public class CampaignService {
                     campaign.getBloodTypes(),
                     campaign.getDistrict().getId(),
                     campaign.getAddressDetails(),
-                    campaign.getOrganization().getName()
+                    campaign.getOrganization().getName(),
+                    campaign.getStatus()
             );
             listCampaignsInfo.add(campaignInfo);
         }
@@ -381,7 +386,8 @@ public class CampaignService {
                     campaign.getBloodTypes(),
                     campaign.getDistrict().getId(),
                     campaign.getAddressDetails(),
-                    campaign.getOrganization().getName()
+                    campaign.getOrganization().getName(),
+                    campaign.getStatus()
             );
             listCampaignsInfo.add(campaignInfo);
         }
