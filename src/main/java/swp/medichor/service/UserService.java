@@ -70,15 +70,11 @@ public class UserService implements UserDetailsService {
     }
 
     public List<User> getAllDonorsByDistrictId(Integer districtId) {
-        List<User> list = new ArrayList<>();
-        list = userRepository.findByDistrictId(districtId, Role.DONOR);
-        return list;
+        return userRepository.findByDistrictId(districtId, Role.DONOR);
     }
 
     public List<User> getAllDonorsByDistrictIdByBloodType(Integer districtId, String bloodType) {
-        List<User> list = new ArrayList<>();
-        list = userRepository.findByDistrictIdAndBloodType(districtId, Role.DONOR, bloodType);
-        return list;
+        return userRepository.findByDistrictIdAndBloodType(districtId, Role.DONOR, bloodType);
     }
 
     @Transactional

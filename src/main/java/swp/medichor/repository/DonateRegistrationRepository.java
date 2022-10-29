@@ -35,9 +35,10 @@ public interface DonateRegistrationRepository extends JpaRepository<DonateRegist
 //    @Query("SELECT count(d) FROM DonateRegistration d WHERE d.id.donorId = ?1")
     long countById_DonorId(int donorId);
 
-    @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and r.id.donorId = ?2 and r.status <> ?3")
+    @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and r.id.donorId = ?2 and r.status <> ?3 " +
+            "and r.id.registeredDate = ?4")
     Optional<DonateRegistration> findByCampaignIdAndDonorId(Integer campaignId, Integer donorId,
-            DonateRegistrationStatus status);
+            DonateRegistrationStatus status, LocalDate registeredDate);
 
     Optional<DonateRegistration> findById_DonorIdAndId_CampaignId(int donorId, int campaignId);
 
@@ -54,4 +55,9 @@ public interface DonateRegistrationRepository extends JpaRepository<DonateRegist
             + " ?3")
     List<DonateRegistration> findUrgentByCampaignIdAndOutDate(Integer campaignId, LocalDate StartDate,
             DonateRegistrationStatus status);
+
+    @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and r.id.registeredDate not in ?2 and r" +
+            ".status = ?3")
+    List<DonateRegistration> findNormalByCampaignIdAndOutOnsiteDate(Integer campaignId, List<LocalDate> onSiteDates,
+                                                              DonateRegistrationStatus status);
 }

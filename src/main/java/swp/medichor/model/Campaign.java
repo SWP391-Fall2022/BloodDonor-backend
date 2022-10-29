@@ -42,6 +42,9 @@ public class Campaign implements Serializable {
     private String bloodTypes = "A-B-AB-O";
 
     @Builder.Default
+    private String onSiteDates = null;
+
+    @Builder.Default
     private Boolean status = true;
 
     @ManyToOne

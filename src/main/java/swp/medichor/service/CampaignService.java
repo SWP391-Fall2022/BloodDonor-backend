@@ -18,7 +18,10 @@ import swp.medichor.repository.*;
 import swp.medichor.utils.EmailPlatform;
 
 import javax.transaction.Transactional;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.temporal.TemporalField;
+import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +72,57 @@ public class CampaignService {
                 return new Response(400, false, "Normal campaign can not last for more than 12 weeks");
         }
 
+        List<LocalDate> onSiteDatesList = new ArrayList<>();
+        String onSiteDates = null;
+        if (!request.isEmergency()) {
+            if (request.getOnSiteDates() != null) {
+                for (LocalDate date : request.getOnSiteDates()) {
+                    if (date.compareTo(request.getStartDate()) < 0 || date.compareTo(request.getEndDate()) > 0)
+                        return new Response(400, false, "On-site dates must be between start date and end date.");
+                }
+                request.getOnSiteDates().sort((d1, d2) -> {
+                    return Integer.compare(d1.compareTo(d2), 0);
+                });
+                onSiteDatesList = request.getOnSiteDates();
+            }
+            //weekRepetition = true
+            //daysOfWeek = ["MONDAY", "FRIDAY"]
+            else if (request.isWeekRepetition()) {
+                for (LocalDate date = request.getStartDate(); date.compareTo(request.getEndDate()) <= 0; date =
+                        date.plusDays(1)) {
+                    if (request.getDaysOfWeek().contains(date.getDayOfWeek()))
+                        onSiteDatesList.add(date);
+                }
+            }
+            //monthRepetition = true
+            //daysOfMonth = [1, 15, 20]
+            //or
+            //weekNumber = 4
+            //daysOfWeek = ["MONDAY", "FRIDAY"]
+            else if (request.isMonthRepetition()) {
+                if (request.getDaysOfMonth() != null) {
+                    for (LocalDate date = request.getStartDate(); date.compareTo(request.getEndDate()) <= 0; date =
+                            date.plusDays(1)) {
+                        if (request.getDaysOfMonth().contains(date.getDayOfMonth()))
+                            onSiteDatesList.add(date);
+                    }
+                }
+                else if (request.getDaysOfWeek() != null && request.getWeekNumber() != null) {
+                    WeekFields weekFields = WeekFields.of(DayOfWeek.MONDAY, 1);
+                    TemporalField weekOfMonth = weekFields.weekOfMonth();
+                    for (LocalDate date = request.getStartDate(); date.compareTo(request.getEndDate()) <= 0; date =
+                            date.plusDays(1)) {
+                        if (date.get(weekOfMonth) == request.getWeekNumber() && request.getDaysOfWeek().contains(date.getDayOfWeek()))
+                            onSiteDatesList.add(date);
+                    }
+                }
+            }
+        }
+
+
+        if (onSiteDatesList.size() > 0)
+            onSiteDates = onSiteDatesList.stream().map(LocalDate::toString).collect(Collectors.joining(" "));
+
         Campaign campaign = Campaign.builder()
                 .name(request.getName())
                 .images(request.getImages())
@@ -81,6 +135,7 @@ public class CampaignService {
                 .district(District.builder().id(request.getDistrictId()).build())
                 .addressDetails(request.getAddressDetails())
                 .organization(organization)
+                .onSiteDates(onSiteDates)
                 .build();
         campaign = campaignRepository.save(campaign);
 
@@ -95,20 +150,7 @@ public class CampaignService {
             }
         }
 
-        CampaignResponse campaignInfo = new CampaignResponse(
-                campaign.getId(),
-                campaign.getName(),
-                campaign.getImages(),
-                campaign.getDescription(),
-                campaign.getStartDate(),
-                campaign.getEndDate(),
-                campaign.getEmergency(),
-                campaign.getBloodTypes(),
-                campaign.getDistrict().getId(),
-                campaign.getAddressDetails(),
-                campaign.getOrganization().getName(),
-                campaign.getStatus()
-        );
+        CampaignResponse campaignInfo = new CampaignResponse(campaign);
         return new Response(200, true, campaignInfo);
     }
 
@@ -137,6 +179,57 @@ public class CampaignService {
                 return new Response(400, false, "Normal campaign can not last for more than 12 weeks");
         }
 
+        List<LocalDate> onSiteDatesList = new ArrayList<>();
+        String onSiteDates = null;
+        if (!request.isEmergency()) {
+            if (request.getOnSiteDates() != null) {
+                for (LocalDate date : request.getOnSiteDates()) {
+                    if (date.compareTo(request.getStartDate()) < 0 || date.compareTo(request.getEndDate()) > 0)
+                        return new Response(400, false, "On-site dates must be between start date and end date.");
+                }
+                request.getOnSiteDates().sort((d1, d2) -> {
+                    return Integer.compare(d1.compareTo(d2), 0);
+                });
+                onSiteDatesList = request.getOnSiteDates();
+            }
+            //weekRepetition = true
+            //daysOfWeek = ["MONDAY", "FRIDAY"]
+            else if (request.isWeekRepetition()) {
+                for (LocalDate date = request.getStartDate(); date.compareTo(request.getEndDate()) <= 0; date =
+                        date.plusDays(1)) {
+                    if (request.getDaysOfWeek().contains(date.getDayOfWeek()))
+                        onSiteDatesList.add(date);
+                }
+            }
+            //monthRepetition = true
+            //daysOfMonth = [1, 15, 20]
+            //or
+            //weekNumber = 4
+            //daysOfWeek = ["MONDAY", "FRIDAY"]
+            else if (request.isMonthRepetition()) {
+                if (request.getDaysOfMonth() != null) {
+                    for (LocalDate date = request.getStartDate(); date.compareTo(request.getEndDate()) <= 0; date =
+                            date.plusDays(1)) {
+                        if (request.getDaysOfMonth().contains(date.getDayOfMonth()))
+                            onSiteDatesList.add(date);
+                    }
+                }
+                else if (request.getDaysOfWeek() != null && request.getWeekNumber() != null) {
+                    WeekFields weekFields = WeekFields.of(DayOfWeek.MONDAY, 1);
+                    TemporalField weekOfMonth = weekFields.weekOfMonth();
+                    for (LocalDate date = request.getStartDate(); date.compareTo(request.getEndDate()) <= 0; date =
+                            date.plusDays(1)) {
+                        if (date.get(weekOfMonth) == request.getWeekNumber() && request.getDaysOfWeek().contains(date.getDayOfWeek()))
+                            onSiteDatesList.add(date);
+                    }
+                }
+            }
+        }
+
+
+        if (onSiteDatesList.size() > 0)
+            onSiteDates = onSiteDatesList.stream().map(LocalDate::toString).collect(Collectors.joining(" "));
+
         campaign.setName(request.getName());
         campaign.setImages(request.getImages());
         campaign.setDescription(request.getDescription());
@@ -146,6 +239,7 @@ public class CampaignService {
         campaign.setBloodTypes(request.getBloodTypes());
         campaign.setDistrict(District.builder().id(request.getDistrictId()).build());
         campaign.setAddressDetails(request.getAddressDetails());
+        campaign.setOnSiteDates(onSiteDates);
 
         List<DonateRegistration> listOfOutdatedRegistration = new ArrayList<>();
         if (request.isEmergency()) {
@@ -156,12 +250,22 @@ public class CampaignService {
             );
         }
         else {
-            listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutDate(
-                    campaignId,
-                    request.getStartDate(),
-                    request.getEndDate(),
-                    DonateRegistrationStatus.NOT_CHECKED_IN
-            );
+            if (onSiteDatesList.size() == 0) {
+                listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutDate(
+                        campaignId,
+                        request.getStartDate(),
+                        request.getEndDate(),
+                        DonateRegistrationStatus.NOT_CHECKED_IN
+                );
+            }
+            else {
+                listOfOutdatedRegistration = donateRegistrationRepository.findNormalByCampaignIdAndOutOnsiteDate(
+                        campaignId,
+                        onSiteDatesList,
+                        DonateRegistrationStatus.NOT_CHECKED_IN
+                );
+            }
+
         }
         for (DonateRegistration outDatedRegistration : listOfOutdatedRegistration) {
             outDatedRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
@@ -172,7 +276,8 @@ public class CampaignService {
             ));
         }
 
-        return new Response(200, true, "Update successfully");
+        CampaignResponse campaignInfo = new CampaignResponse(campaign);
+        return new Response(200, true, campaignInfo);
     }
 
     public Response readOneCampaign(Integer campaignId) {
@@ -180,20 +285,7 @@ public class CampaignService {
         if (isExistCampaign.isEmpty())
             return new Response(400, false, "ID not found");
         Campaign campaign = isExistCampaign.get();
-        CampaignResponse campaignInfo = new CampaignResponse(
-                campaign.getId(),
-                campaign.getName(),
-                campaign.getImages(),
-                campaign.getDescription(),
-                campaign.getStartDate(),
-                campaign.getEndDate(),
-                campaign.getEmergency(),
-                campaign.getBloodTypes(),
-                campaign.getDistrict().getId(),
-                campaign.getAddressDetails(),
-                campaign.getOrganization().getName(),
-                campaign.getStatus()
-        );
+        CampaignResponse campaignInfo = new CampaignResponse(campaign);
         return new Response(200, true, campaignInfo);
     }
 
@@ -285,20 +377,7 @@ public class CampaignService {
         List<CampaignResponse> listActiveCampaignsInfo = new ArrayList<>();
         listActiveCampaigns = campaignRepository.findAllActiveCampaigns(LocalDate.now());
         for (Campaign campaign : listActiveCampaigns) {
-            CampaignResponse campaignInfo = new CampaignResponse(
-                    campaign.getId(),
-                    campaign.getName(),
-                    campaign.getImages(),
-                    campaign.getDescription(),
-                    campaign.getStartDate(),
-                    campaign.getEndDate(),
-                    campaign.getEmergency(),
-                    campaign.getBloodTypes(),
-                    campaign.getDistrict().getId(),
-                    campaign.getAddressDetails(),
-                    campaign.getOrganization().getName(),
-                    campaign.getStatus()
-            );
+            CampaignResponse campaignInfo = new CampaignResponse(campaign);
             listActiveCampaignsInfo.add(campaignInfo);
         }
         return new Response(200, true, listActiveCampaignsInfo);
@@ -315,20 +394,7 @@ public class CampaignService {
         listActiveCampaigns = campaignRepository.findAllActiveCampaignsByOrganizationId(organization.getUserId(),
                 LocalDate.now());
         for (Campaign campaign : listActiveCampaigns) {
-            CampaignResponse campaignInfo = new CampaignResponse(
-                    campaign.getId(),
-                    campaign.getName(),
-                    campaign.getImages(),
-                    campaign.getDescription(),
-                    campaign.getStartDate(),
-                    campaign.getEndDate(),
-                    campaign.getEmergency(),
-                    campaign.getBloodTypes(),
-                    campaign.getDistrict().getId(),
-                    campaign.getAddressDetails(),
-                    campaign.getOrganization().getName(),
-                    campaign.getStatus()
-            );
+            CampaignResponse campaignInfo = new CampaignResponse(campaign);
             listActiveCampaignsInfo.add(campaignInfo);
         }
         return new Response(200, true, listActiveCampaignsInfo);
@@ -347,20 +413,7 @@ public class CampaignService {
         List<Campaign> listCampaigns = campaignRepository.findAllCampaigns();
         List<CampaignResponse> listCampaignsInfo = new ArrayList<>();
         for (Campaign campaign : listCampaigns) {
-            CampaignResponse campaignInfo = new CampaignResponse(
-                    campaign.getId(),
-                    campaign.getName(),
-                    campaign.getImages(),
-                    campaign.getDescription(),
-                    campaign.getStartDate(),
-                    campaign.getEndDate(),
-                    campaign.getEmergency(),
-                    campaign.getBloodTypes(),
-                    campaign.getDistrict().getId(),
-                    campaign.getAddressDetails(),
-                    campaign.getOrganization().getName(),
-                    campaign.getStatus()
-            );
+            CampaignResponse campaignInfo = new CampaignResponse(campaign);
             listCampaignsInfo.add(campaignInfo);
         }
         return new Response(200, true, listCampaignsInfo);
@@ -375,20 +428,7 @@ public class CampaignService {
         List<Campaign> listCampaigns = campaignRepository.findAllCampaignsByOrganizationId(organization.getUserId());
         List<CampaignResponse> listCampaignsInfo = new ArrayList<>();
         for (Campaign campaign : listCampaigns) {
-            CampaignResponse campaignInfo = new CampaignResponse(
-                    campaign.getId(),
-                    campaign.getName(),
-                    campaign.getImages(),
-                    campaign.getDescription(),
-                    campaign.getStartDate(),
-                    campaign.getEndDate(),
-                    campaign.getEmergency(),
-                    campaign.getBloodTypes(),
-                    campaign.getDistrict().getId(),
-                    campaign.getAddressDetails(),
-                    campaign.getOrganization().getName(),
-                    campaign.getStatus()
-            );
+            CampaignResponse campaignInfo = new CampaignResponse(campaign);
             listCampaignsInfo.add(campaignInfo);
         }
         return new Response(200, true, listCampaignsInfo);
@@ -488,7 +528,8 @@ public class CampaignService {
         Optional<DonateRegistration> isExistDonateRegistration = donateRegistrationRepository.findByCampaignIdAndDonorId(
                 request.getCampaignId(),
                 request.getDonorId(),
-                DonateRegistrationStatus.CANCELLED
+                DonateRegistrationStatus.CANCELLED,
+                request.getRegisteredDate().toLocalDate()
         );
         if (isExistDonateRegistration.isEmpty())
             return new Response(400, false, "Donor haven't register for a campaign yet");
@@ -522,7 +563,8 @@ public class CampaignService {
             donor.setBloodType(request.getBloodType());
             donateRecord = donateRecordRepository.findByCampaignIdAndDonorId(
                     request.getCampaignId(),
-                    request.getDonorId()
+                    request.getDonorId(),
+                    request.getRegisteredDate()
             ).get();
             donateRecord.setDetails(request.getDetails());
             donateRecord.setStatus(request.getStatus());
