@@ -210,6 +210,11 @@ public class DonorService {
         }
         throw new IllegalArgumentException("Donor not found");
     }
+    
+    public Optional<DonateRecordResponse> getLatestonation(int donorId) {
+        return donateRecordRepository.findTopById_DonorIdOrderById_RegisteredDateDesc(donorId)
+                .map(r -> new DonateRecordResponse(r));
+    }
 
     public int getTotalAmountOfBlood(int donorId) {
         Integer amount = donateRecordRepository.sumOfAmountByDonorId(donorId);
