@@ -49,6 +49,12 @@ public class CampaignController {
         return campaignService.closeCampaign(user, campaignId);
     }
 
+    @PutMapping("/cancel-outdated-registration/{campaignId}")
+    public Response cancelOutdatedDonateRegistration(@RequestAttribute User user,
+                                                     @PathVariable Integer campaignId) {
+        return campaignService.cancelOutdatedDonateRegistration(user, campaignId);
+    }
+
     //Get all active campaigns of all organizations
     @GetMapping("/getAllActive")
     public Response getAllActiveCampaigns() {

@@ -366,6 +366,26 @@ public class CampaignService {
         return new Response(200, true, "Close successfully");
     }
 
+    @Transactional
+    public Response cancelOutdatedDonateRegistration(User user, Integer campaignId) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+        if (isExistCampaign.isEmpty())
+            return new Response(400, false, "ID not found");
+        Campaign campaign = isExistCampaign.get();
+        if (!campaign.getOrganization().getUserId().equals(user.getId())) {
+            return new Response(403, false, "You have no right to edit other org's campaign");
+        }
+        List<DonateRegistration> donateRegistrationList = donateRegistrationRepository.findUrgentByCampaignIdAndOutDate(
+                campaignId,
+                LocalDate.now(),
+                DonateRegistrationStatus.NOT_CHECKED_IN
+        );
+        for (DonateRegistration donateRegistration : donateRegistrationList) {
+            donateRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
+        }
+        return new Response(200, true, "Cancel outdated donate registrations successfully");
+    }
+
     public Response getAllActiveCampaigns() {
         List<Campaign> listActiveCampaigns = new ArrayList<>();
         List<CampaignResponse> listActiveCampaignsInfo = new ArrayList<>();
@@ -609,4 +629,6 @@ public class CampaignService {
         Integer totalLike = likeRecordRepository.countTotalLikeByCampaignId(campaignId);
         return new Response(200, true, totalLike == null ? 0 : totalLike);
     }
+
+
 }
