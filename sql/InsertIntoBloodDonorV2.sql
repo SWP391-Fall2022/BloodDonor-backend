@@ -64,71 +64,77 @@ values (1, '363651', '2022-10-03 10:37:58.160', '2022-10-03 10:52:58.160', 1)
 --insert into campaign
 DBCC CHECKIDENT ('Campaign', RESEED, 0);
 insert into Campaign
-values ('Campaign 1 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 1', '2022-10-23', '2022-11-20', 0, 1, 1, 'This is the address details', 1, 'A-B-AB-O')
-    insert into Campaign
-values ('Campaign 2 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 2', '2022-11-30', '2022-12-20', 0, 1, 1, 'This is the address details', 1, 'A-B-AB-O')
+values ('Campaign 1 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 1',
+        '2022-10-23', '2022-11-20', 0, 1, 1, 'This is the address details', 1, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
-values ('Campaign 3 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 3', '2022-10-25', '2022-11-12', 0, 1, 2, 'This is the address details', 1, 'A-B-AB-O')
+values ('Campaign 2 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 2',
+    '2022-11-30', '2022-12-20', 0, 1, 1, 'This is the address details', 1, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
-values ('Campaign 4 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 4', '2022-11-20', '2022-12-20', 0, 1, 2, 'This is the address details', 1, 'A-B-AB-O')
+values ('Campaign 3 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 3',
+    '2022-10-25', '2022-11-12', 0, 1, 2, 'This is the address details', 1, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
-values ('Campaign 5 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 5', '2022-10-23', '2022-11-20', 0, 1, 3, 'This is the address details', 1, 'A-B-AB-O')
+values ('Campaign 4 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 4',
+    '2022-11-20', '2022-12-20', 0, 1, 2, 'This is the address details', 1, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
-values ('Campaign 6 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 6', '2022-10-23', null, 1, 1, 3, 'This is the address details', 1, 'A-B')
+values ('Campaign 5 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 5',
+    '2022-10-23', '2022-11-20', 0, 1, 3, 'This is the address details', 1, 'A-B-AB-O', '2022-10-30 2022-11-10')
+insert into Campaign
+values ('Campaign 6 of benh vien Ngo Viet Tien Main', null, 'This is the description of the campaign 6',
+    '2022-10-23', null, 1, 1, 3, 'This is the address details', 1, 'A-B', null)
 insert into Campaign
 values ('Normal Campaign demo 1', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 2, 'A-B-AB-O')
+    1, 4, 'This is the address details', 2, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Normal Campaign demo 2', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 3, 'A-B-AB-O')
+    1, 4, 'This is the address details', 3, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Normal Campaign demo 3', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 4, 'A-B-AB-O')
+    1, 4, 'This is the address details', 4, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Normal Campaign demo 4', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 5, 'A-B-AB-O')
+    1, 4, 'This is the address details', 5, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Normal Campaign demo 5', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 6, 'A-B-AB-O')
+    1, 4, 'This is the address details', 6, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Normal Campaign demo 6', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 7, 'A-B-AB-O')
+    1, 4, 'This is the address details', 7, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Normal Campaign demo 7', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 8, 'A-B-AB-O')
+    1, 4, 'This is the address details', 8, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Normal Campaign demo 8', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 9, 'A-B-AB-O')
+    1, 4, 'This is the address details', 9, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Normal Campaign demo 9', null, 'This is the description of the campaign demo', '2022-10-23', '2022-11-20', 0,
-    1, 4, 'This is the address details', 10, 'A-B-AB-O')
+    1, 4, 'This is the address details', 10, 'A-B-AB-O', '2022-10-30 2022-11-10')
 insert into Campaign
 values ('Urgent Campaign demo 1', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 2, 'AB-O')
+    1, 5, 'This is the address details', 2, 'AB-O', NULL)
 insert into Campaign
 values ('Urgent Campaign demo 2', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 3, 'AB-O')
+    1, 5, 'This is the address details', 3, 'AB-O', NULL)
 insert into Campaign
 values ('Urgent Campaign demo 3', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 4, 'AB-O')
+    1, 5, 'This is the address details', 4, 'AB-O', NULL)
 insert into Campaign
 values ('Urgent Campaign demo 4', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 5, 'AB-O')
+    1, 5, 'This is the address details', 5, 'AB-O', NULL)
 insert into Campaign
 values ('Urgent Campaign demo 5', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 6, 'AB-O')
+    1, 5, 'This is the address details', 6, 'AB-O', NULL)
 insert into Campaign
 values ('Urgent Campaign demo 6', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 7, 'AB-O')
+    1, 5, 'This is the address details', 7, 'AB-O', NULL)
 insert into Campaign
 values ('Urgent Campaign demo 7', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 8, 'AB-O')
+    1, 5, 'This is the address details', 8, 'AB-O', NULL)
 insert into Campaign
 values ('Urgent Campaign demo 8', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 9, 'AB-O')
+    1, 5, 'This is the address details', 9, 'AB-O', NULL)
 insert into Campaign
 values ('Urgent Campaign demo 9', null, 'This is the description of the urgent campaign demo', '2022-10-23', null, 0,
-    1, 5, 'This is the address details', 10, 'AB-O')
+    1, 5, 'This is the address details', 10, 'AB-O', NULL)
 
 
 --insert into post

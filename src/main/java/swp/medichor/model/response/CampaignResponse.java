@@ -5,6 +5,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import swp.medichor.model.Campaign;
 
 @Getter
@@ -23,6 +28,9 @@ public class CampaignResponse {
     private Integer districtId;
     private String addressDetails;
     private String organizationName;
+    private List<LocalDate> onSiteDates = new ArrayList<>();
+    private boolean status;
+
 
     public CampaignResponse(Campaign campaign) {
         id = campaign.getId();
@@ -36,5 +44,8 @@ public class CampaignResponse {
         districtId = campaign.getDistrict().getId();
         addressDetails = campaign.getAddressDetails();
         organizationName = campaign.getOrganization().getName();
+        status = campaign.getStatus();
+        if (campaign.getOnSiteDates() != null)
+            onSiteDates = Stream.of(campaign.getOnSiteDates().split(" ")).map(LocalDate::parse).collect(Collectors.toList());
     }
 }

@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.User;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.request.DonateRecordRequest;
+import swp.medichor.model.request.GetDonateRecordRequest;
 import swp.medichor.model.request.NumberOfRegistrationRequest;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.CampaignService;
@@ -46,6 +47,12 @@ public class CampaignController {
     public Response closeCampaign(@RequestAttribute User user,
             @PathVariable("campaignId") Integer campaignId) {
         return campaignService.closeCampaign(user, campaignId);
+    }
+
+    @PutMapping("/cancel-outdated-registration/{campaignId}")
+    public Response cancelOutdatedDonateRegistration(@RequestAttribute User user,
+                                                     @PathVariable Integer campaignId) {
+        return campaignService.cancelOutdatedDonateRegistration(user, campaignId);
     }
 
     //Get all active campaigns of all organizations
@@ -112,6 +119,17 @@ public class CampaignController {
     public Response updateMedicalDocument(@RequestAttribute User user,
             @RequestBody DonateRecordRequest request) {
         return campaignService.updateMedicalDocument(user, request);
+    }
+
+    @GetMapping("/medicalDocument/getAll/{campaignId}")
+    public Response getAllMedicalDocuments(@PathVariable Integer campaignId) {
+        return campaignService.getAllMedicalDocuments(campaignId);
+    }
+
+    @GetMapping("medicalDocument/getByDonor")
+    public Response getMedicalDocumentByDonor(@RequestAttribute User user,
+                                              @RequestBody GetDonateRecordRequest request) {
+        return campaignService.getMedicalDocumentByDonor(user.getDonor().getUserId(), request);
     }
 
     @GetMapping("/totalLike/{campaignId}")
