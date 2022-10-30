@@ -9,11 +9,9 @@ import swp.medichor.model.*;
 import swp.medichor.model.compositekey.DonateRecordKey;
 import swp.medichor.model.request.CreateCampaignRequest;
 import swp.medichor.model.request.DonateRecordRequest;
+import swp.medichor.model.request.GetDonateRecordRequest;
 import swp.medichor.model.request.NumberOfRegistrationRequest;
-import swp.medichor.model.response.CampaignResponse;
-import swp.medichor.model.response.DonateRegistrationResponse;
-import swp.medichor.model.response.ParticipatedDonorResponse;
-import swp.medichor.model.response.Response;
+import swp.medichor.model.response.*;
 import swp.medichor.repository.*;
 import swp.medichor.utils.EmailPlatform;
 
@@ -573,7 +571,35 @@ public class CampaignService {
         emailService.send(FROM, donor.getUser().getEmail(), MEDICAL_DOCUMENT_SUBJECT, EmailPlatform.buildMedicalDocumentEmail(
                 donateRecord
         ));
-        return new Response(200, true, "Update medical history successfully");
+        DonateRecordResponse donateRecordResponse = new DonateRecordResponse(donateRecord);
+        return new Response(200, true, donateRecordResponse);
+    }
+
+    public Response getAllMedicalDocuments(Integer campaignId) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+        if (isExistCampaign.isEmpty())
+            return new Response(400, false, "Campaign Id not found");
+        List<DonateRecord> listOfDonateRecord = donateRecordRepository.findByCampaignId(campaignId);
+        List<DonateRecordResponse> response = new ArrayList<>();
+        for (DonateRecord donateRecord : listOfDonateRecord) {
+            response.add(new DonateRecordResponse(donateRecord));
+        }
+        return new Response(200, true, response);
+    }
+
+    public Response getMedicalDocumentByDonor(Integer userID, GetDonateRecordRequest request) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(request.getCampaignId());
+        if (isExistCampaign.isEmpty())
+            return new Response(400, false, "Campaign Id not found");
+        Optional<DonateRecord> isExistDonateRecord = donateRecordRepository.findByCampaignIdAndDonorId(
+                request.getCampaignId(),
+                userID,
+                request.getRegisteredDate()
+        );
+        if (isExistDonateRecord.isEmpty())
+            return new Response(400, false, "Donor haven't donated blood on this date yet");
+        DonateRecordResponse donateRecordResponse = new DonateRecordResponse(isExistDonateRecord.get());
+        return new Response(200, true, donateRecordResponse);
     }
 
     public Response getTotalLike(Integer campaignId) {
