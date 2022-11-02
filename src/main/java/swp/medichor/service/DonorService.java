@@ -2,6 +2,7 @@ package swp.medichor.service;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +107,6 @@ public class DonorService {
         Optional<Campaign> campaign = campaignRepository.findById(registrationReq.getCampaignId());
         campaign.ifPresentOrElse(c -> {
             if (Validator.canCampaignRegistered(c, registrationReq.getRegisterDate())) {
-
                 //Checking the number of registration of the time submitted
                 if ((int) campaignService.getNumberOfRegistrationPerDay(
                         registrationReq.getCampaignId(),
@@ -117,16 +117,35 @@ public class DonorService {
                     throw new RuntimeException("Registration of this time has been full");
                 }
 
-                // Delete cancelled campaign
-                Optional<DonateRegistration> oldRegistration
-                        = donateRegistrationRepository.findById_DonorIdAndId_CampaignId(donor.getUserId(), c.getId());
-                oldRegistration.ifPresent(r -> {
-                    if (r.getStatus() != DonateRegistrationStatus.CANCELLED) {
-                        throw new RuntimeException("The user has registered the campaign");
-                    } else {
-                        donateRegistrationRepository.delete(r);
-                    }
-                });
+                // The time between donations must be at least 12 weeks
+                donateRecordRepository.findTopById_DonorIdAndStatusTrueOrderById_RegisteredDateDesc(donor.getUserId())
+                        .ifPresent(r -> {
+                            if (ChronoUnit.WEEKS.between(r.getId().getRegisteredDate().toLocalDate(), registrationReq.getRegisterDate()) < 12) {
+                                throw new RuntimeException("The time between donations must be at least 12 weeks");
+                            }
+                        });
+
+                // There is no not_check_in registration
+                if (!donateRegistrationRepository.findById_DonorIdAndId_CampaignIdAndStatus(donor.getUserId(),
+                        c.getId(),
+                        DonateRegistrationStatus.NOT_CHECKED_IN)
+                        .isEmpty()) {
+                    throw new RuntimeException("The user has registered the campaign");
+                }
+
+                donateRegistrationRepository.findById(new DonateRegistrationKey(
+                        donor.getUserId(),
+                        c.getId(),
+                        registrationReq.getRegisterDate()))
+                        .ifPresent(r -> {
+                            // Cannot register the same day as checked_in
+                            if (r.getStatus() == DonateRegistrationStatus.CHECKED_IN) {
+                                throw new RuntimeException("The user has registered the campaign on this day");
+                            } // Is canceled, delete to insert the new one
+                            else {
+                                donateRegistrationRepository.delete(r);
+                            }
+                        });
 
                 // Add
                 DonateRegistration registration = DonateRegistration.builder()
@@ -138,7 +157,7 @@ public class DonorService {
                         .campaign(c)
                         .status(DonateRegistrationStatus.NOT_CHECKED_IN)
                         .period(registrationReq.getPeriod())
-                        .code(Integer.toString(Random.randomCode(100000000, 999999999)))
+                        .code(Integer.toString(Random.randomCode(100000, 999999)))
                         .build();
                 donateRegistrationRepository.save(registration);
 
@@ -156,21 +175,45 @@ public class DonorService {
     }
 
     @Transactional
-    public void updateDonateRegistration(int donorId, int campaignId, DonateRegistrationRequest req) {
-        campaignRepository.findById(campaignId).ifPresentOrElse(campaign -> {
-            if (Validator.canCampaignRegistered(campaign, req.getRegisterDate())) {
-                if (donateRegistrationRepository.updateDonateRegistration(req.getRegisterDate(),
-                        req.getPeriod(),
-                        donorId,
-                        campaignId) == 0) {
-                    throw new RuntimeException("Cannot update the registration");
-                }
-            } else {
-                throw new RuntimeException("Registration is not valid");
-            }
-        }, () -> {
-            throw new RuntimeException("Campaign does not exist");
-        });
+    public void updateDonateRegistration(int donorId, int campaignId, LocalDate oldDate, DonateRegistrationRequest req) {
+        donateRegistrationRepository.findById(new DonateRegistrationKey(
+                donorId,
+                campaignId,
+                oldDate))
+                .ifPresentOrElse(r -> {
+                    if (Validator.canCampaignRegistered(r.getCampaign(), req.getRegisterDate())) {
+                        // The time between donations must be at least 12 weeks
+                        donateRecordRepository.findTopById_DonorIdAndStatusTrueOrderById_RegisteredDateDesc(donorId)
+                                .ifPresent(record -> {
+                                    if (ChronoUnit.WEEKS.between(record.getId().getRegisteredDate().toLocalDate(), req.getRegisterDate()) < 12) {
+                                        throw new RuntimeException("The time between donations must be at least 12 weeks");
+                                    }
+                                });
+
+                        // If registerDate is edited
+                        if (!oldDate.equals(req.getRegisterDate())) {
+                            Optional<DonateRegistration> oldReg = donateRegistrationRepository.findById(new DonateRegistrationKey(donorId, campaignId, req.getRegisterDate()));
+                            if (oldReg.isPresent()) {
+                                if (oldReg.get().getStatus() != DonateRegistrationStatus.CANCELLED) {
+                                    throw new RuntimeException("The day has been registered");
+                                }
+                                // Delete canceled registration to edit
+                                donateRegistrationRepository.delete(oldReg.get());
+                            }
+                        }
+
+                        if (donateRegistrationRepository.updateDonateRegistration(req.getRegisterDate(),
+                                req.getPeriod(),
+                                donorId,
+                                campaignId) == 0) {
+                            throw new RuntimeException("Cannot update the registration");
+                        }
+                    } else {
+                        throw new RuntimeException("Registration is not valid");
+                    }
+                }, () -> {
+                    throw new RuntimeException("Registration does not exist");
+                });
     }
 
     @Transactional
@@ -186,17 +229,14 @@ public class DonorService {
     }
 
     public void cancelRegistration(int donorId, int campaignId) {
-        donateRegistrationRepository.findById_DonorIdAndId_CampaignId(donorId, campaignId)
-                .ifPresentOrElse(r -> {
-                    if (r.getStatus() == DonateRegistrationStatus.NOT_CHECKED_IN) {
-                        r.setStatus(DonateRegistrationStatus.CANCELLED);
-                        donateRegistrationRepository.save(r);
-                    } else {
-                        throw new RuntimeException("Cannot cancel the registration");
-                    }
-                }, () -> {
-                    throw new RuntimeException("Campaign does not exist");
-                });
+        List<DonateRegistration> regs = donateRegistrationRepository.findById_DonorIdAndId_CampaignIdAndStatus(donorId, campaignId, DonateRegistrationStatus.NOT_CHECKED_IN);
+        if (!regs.isEmpty()) {
+            DonateRegistration reg = regs.get(0);
+            reg.setStatus(DonateRegistrationStatus.CANCELLED);
+            donateRegistrationRepository.save(reg);
+        } else {
+            throw new RuntimeException("Campaign does not exist");
+        }
     }
 
     @Transactional
@@ -210,7 +250,7 @@ public class DonorService {
         }
         throw new IllegalArgumentException("Donor not found");
     }
-    
+
     public Optional<DonateRecordResponse> getLatestonation(int donorId) {
         return donateRecordRepository.findTopById_DonorIdOrderById_RegisteredDateDesc(donorId)
                 .map(r -> new DonateRecordResponse(r));
@@ -287,18 +327,17 @@ public class DonorService {
             Optional<Campaign> campaignOptional = campaignRepository.findById(campaignId);
             if (campaignOptional.isPresent()) {
                 Campaign campaign = campaignOptional.get();
-                Optional<DonateRegistration> registration = donateRegistrationRepository.findById_DonorIdAndId_CampaignId(donorId, campaignId);
+                List<DonateRegistration> registration = donateRegistrationRepository.findById_DonorIdAndId_CampaignIdAndStatus(donorId, campaignId, DonateRegistrationStatus.NOT_CHECKED_IN);
                 boolean canRegister = campaign.getStatus() == true
                         && (campaign.getEndDate() == null
                         || (!campaign.getEndDate().isBefore(LocalDate.now())
                         && !campaign.getEndDate().isBefore(campaign.getStartDate())));
-                boolean hasRegistered = registration.isPresent();
-                String status = !hasRegistered ? null : registration.get().getStatus().toString();
+                boolean hasRegistered = !registration.isEmpty();
 
+                // return: can campain be registered, is there any not_check_in registration
                 Map<String, Object> res = new HashMap<>(3);
                 res.put("canRegister", canRegister);
                 res.put("hasRegistered", hasRegistered);
-                res.put("status", status);
                 return res;
             } else {
                 throw new RuntimeException("Campaign does not exist");
@@ -307,7 +346,7 @@ public class DonorService {
             throw new RuntimeException("Donor does not exist");
         }
     }
-    
+
     public List<Map<Integer, Integer>> getTop5Donor() {
         return donorRepository.getTop5Donor();
     }

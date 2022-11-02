@@ -28,4 +28,6 @@ public interface DonateRecordRepository extends JpaRepository<DonateRecord, Dona
     List<DonateRecord> findByCampaignId(Integer campaignId);
 
     Optional<DonateRecord> findTopById_DonorIdOrderById_RegisteredDateDesc(int id);
+
+    Optional<DonateRecord> findTopById_DonorIdAndStatusTrueOrderById_RegisteredDateDesc(int donorId);
 }
