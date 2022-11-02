@@ -1,5 +1,6 @@
 package swp.medichor.repository;
 
+import java.sql.Date;
 import java.util.List;
 import java.util.Map;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -11,7 +12,8 @@ import swp.medichor.model.Donor;
 public interface DonorRepository extends JpaRepository<Donor, Integer> {
 
     @Query(value = "SELECT TOP 5 tbl.DonorId, COUNT(tbl.DonorId) AS Number, SUM(tbl.Amount) AS TotalAmount\n"
-            + "FROM (SELECT DonorId, Amount FROM DonateRecord WHERE status=1) AS tbl\n"
+            + "FROM (SELECT DonorId, Amount FROM DonateRecord\n"
+            + "WHERE status=1 AND RegisteredDate BETWEEN ?1 AND ?2) AS tbl\n"
             + "GROUP BY tbl.DonorId ORDER BY Number DESC, TotalAmount DESC", nativeQuery = true)
-    List<Map<Integer, Integer>> getTop5Donor();
+    List<Map<Integer, Integer>> getTop5Donor(Date from, Date to);
 }

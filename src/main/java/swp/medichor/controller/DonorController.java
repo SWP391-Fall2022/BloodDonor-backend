@@ -1,5 +1,6 @@
 package swp.medichor.controller;
 
+import java.sql.Date;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -56,7 +57,7 @@ public class DonorController {
     }
 
     @GetMapping("/top5")
-    public Response getTop5Donation() {
-        return new Response(200, true, donorService.getTop5Donor());
+    public Response getTop5Donation(@RequestParam Date from, @RequestParam Date to) {
+        return new Response(200, true, donorService.getTop5Donor(from, to));
     }
 }
