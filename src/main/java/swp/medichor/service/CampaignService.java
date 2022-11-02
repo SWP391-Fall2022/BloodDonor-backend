@@ -339,6 +339,7 @@ public class CampaignService {
         }
 
         List<DonateRegistration> listOfOutdatedRegistration = new ArrayList<>();
+        // If campaign has not started
         if (campaign.getStartDate().compareTo(LocalDate.now()) >= 0) {
             campaign.setEndDate(campaign.getStartDate().minusDays(1));
             listOfOutdatedRegistration = donateRegistrationRepository.findAllRegistration(
@@ -634,5 +635,9 @@ public class CampaignService {
 
     public List<Map<String, Object>> getTop5Provinces(Date from, Date to) {
         return campaignRepository.findTop5Provinces(from, to);
+    }
+
+    public List<Map<String, Object>> getTop5Orgs(Date from, Date to) {
+        return campaignRepository.findTop5Orgs(from, to);
     }
 }

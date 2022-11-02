@@ -35,6 +35,17 @@ public interface CampaignRepository extends JpaRepository<Campaign, Integer> {
             + "INNER JOIN Campaign cam ON dis.Id = cam.DistrictId\n"
             + "INNER JOIN DonateRecord dr ON cam.Id = dr.CampaignId\n"
             + "WHERE dr.[Status] = 1 AND dr.RegisteredDate BETWEEN ?1 AND ?2\n"
-            + "GROUP BY pro.Id, pro.Name, pro.Code ORDER BY Donations DESC", nativeQuery = true)
+            + "GROUP BY pro.Id, pro.Name, pro.Code ORDER BY Donations DESC",
+            nativeQuery = true)
     List<Map<String, Object>> findTop5Provinces(Date from, Date to);
+
+    @Query(value = "SELECT TOP 5 org.UserId, org.Name, COUNT(*) AS Campaigns FROM Organization org\n"
+            + "INNER JOIN Campaign cam ON org.UserId = cam.OrganizationId\n"
+            + "WHERE cam.EndDate < GETDATE()\n"
+            + "AND cam.[Status] = 1\n"
+            + "AND (SELECT COUNT(*) FROM DonateRecord dr WHERE dr.CampaignId = cam.Id) >= 100\n"
+            + "AND cam.EndDate BETWEEN ?1 AND ?2\n"
+            + "GROUP BY org.UserId, org.Name ORDER BY Campaigns DESC",
+            nativeQuery = true)
+    List<Map<String, Object>> findTop5Orgs(Date from, Date to);
 }
