@@ -1,5 +1,6 @@
 package swp.medichor.controller;
 
+import java.sql.Date;
 import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -51,7 +52,7 @@ public class CampaignController {
 
     @PutMapping("/cancel-outdated-registration/{campaignId}")
     public Response cancelOutdatedDonateRegistration(@RequestAttribute User user,
-                                                     @PathVariable Integer campaignId) {
+            @PathVariable Integer campaignId) {
         return campaignService.cancelOutdatedDonateRegistration(user, campaignId);
     }
 
@@ -128,12 +129,17 @@ public class CampaignController {
 
     @GetMapping("medicalDocument/getByDonor")
     public Response getMedicalDocumentByDonor(@RequestAttribute User user,
-                                              @RequestBody GetDonateRecordRequest request) {
+            @RequestBody GetDonateRecordRequest request) {
         return campaignService.getMedicalDocumentByDonor(user.getDonor().getUserId(), request);
     }
 
     @GetMapping("/totalLike/{campaignId}")
     public Response getTotalLike(@PathVariable Integer campaignId) {
         return campaignService.getTotalLike(campaignId);
+    }
+
+    @GetMapping("/top5Provinces")
+    public Response getTop5Provinces(@RequestParam Date from, @RequestParam Date to) {
+        return new Response(200, true, campaignService.getTop5Provinces(from, to));
     }
 }

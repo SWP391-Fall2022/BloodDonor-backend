@@ -15,5 +15,5 @@ public interface DonorRepository extends JpaRepository<Donor, Integer> {
             + "FROM (SELECT DonorId, Amount FROM DonateRecord\n"
             + "WHERE status=1 AND RegisteredDate BETWEEN ?1 AND ?2) AS tbl\n"
             + "GROUP BY tbl.DonorId ORDER BY Number DESC, TotalAmount DESC", nativeQuery = true)
-    List<Map<Integer, Integer>> getTop5Donor(Date from, Date to);
+    List<Map<String, Integer>> getTop5Donor(Date from, Date to);
 }

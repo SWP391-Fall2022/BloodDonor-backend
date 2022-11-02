@@ -347,7 +347,7 @@ public class DonorService {
         }
     }
 
-    public List<Map<Integer, Integer>> getTop5Donor(Date from, Date to) {
+    public List<Map<String, Integer>> getTop5Donor(Date from, Date to) {
         return donorRepository.getTop5Donor(from, to);
     }
 }
