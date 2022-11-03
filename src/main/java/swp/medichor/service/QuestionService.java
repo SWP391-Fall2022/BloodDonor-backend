@@ -61,6 +61,19 @@ public class QuestionService {
         return new Response(200, true, "Answer question successfully");
     }
 
+    @Transactional
+    public Response refuseQuestion(User user, Integer questionId) {
+        Optional<Question> isExistQuestion = questionRepository.findById(questionId);
+        if (isExistQuestion.isEmpty())
+            return new Response(400, false, "ID not found");
+        Question question = isExistQuestion.get();
+        if (!user.getId().equals(question.getCampaign().getOrganization().getUserId()))
+            return new Response(403, false, "You have no right to answer question of campaign hosted by other org");
+        question.setAnswer("REFUSED");
+        question.setStatus(false);
+        return new Response(200, true, "Refuse question successfully");
+    }
+
 
     public Response getAllQuestionsOfCampaign(Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);

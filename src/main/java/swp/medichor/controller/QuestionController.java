@@ -30,6 +30,12 @@ public class QuestionController {
         return questionService.answerQuestion(user, questionId, request);
     }
 
+    @PutMapping("/refuse/{questionId}")
+    public Response answerQuestion(@RequestAttribute User user,
+                                   @PathVariable("questionId") Integer questionId) {
+        return questionService.refuseQuestion(user, questionId);
+    }
+
     @GetMapping("/get-by-campaign/{campaignId}")
     public Response getAllQuestionsOfCampaign(@PathVariable("campaignId") Integer campaignId) {
         return questionService.getAllQuestionsOfCampaign(campaignId);

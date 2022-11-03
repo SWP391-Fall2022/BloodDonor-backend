@@ -45,6 +45,9 @@ public class CampaignService {
     private UserService userService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private AddressService addressService;
+
     private final String FROM = "medichorvn@gmail.com";
     private final String SUBJECT = "PLEASE JOIN IN THE BLOOD DONATION CAMPAIGN IF POSSIBLE";
     private final String MEDICAL_DOCUMENT_SUBJECT = "HAVE A LOOK AT YOUR MEDICAL DOCUMENT";
@@ -130,22 +133,33 @@ public class CampaignService {
                 .emergency(request.isEmergency())
                 .bloodTypes(request.getBloodTypes())
                 .status(true)
-                .district(District.builder().id(request.getDistrictId()).build())
+                .district(addressService.getDistrictById(request.getDistrictId()))
                 .addressDetails(request.getAddressDetails())
                 .organization(organization)
                 .onSiteDates(onSiteDates)
                 .build();
         campaign = campaignRepository.save(campaign);
-
         //send email to all donors in the same district
         if (request.isSendMail()) {
             List<User> listOfDonors = userService.getAllDonorsByDistrictId(request.getDistrictId());
-            for (User user : listOfDonors) {
-                emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildJoinInCampaignEmail(
-                        user.getDonor().getName(),
-                        campaign.getName()
-                ));
+            if (campaign.getEmergency()) {
+                for (User user : listOfDonors) {
+                    emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildUrgentCampaignNotiEmail(
+                            user,
+                            campaign
+                    ));
+                }
+
             }
+            else {
+                for (User user : listOfDonors) {
+                    emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildNormalCampaignNotiEmail(
+                            user,
+                            campaign
+                    ));
+                }
+            }
+
         }
 
         CampaignResponse campaignInfo = new CampaignResponse(campaign);
@@ -233,7 +247,7 @@ public class CampaignService {
         campaign.setEndDate(request.getEndDate());
         campaign.setEmergency(request.isEmergency());
         campaign.setBloodTypes(request.getBloodTypes());
-        campaign.setDistrict(District.builder().id(request.getDistrictId()).build());
+        campaign.setDistrict(addressService.getDistrictById(request.getDistrictId()));
         campaign.setAddressDetails(request.getAddressDetails());
         campaign.setOnSiteDates(onSiteDates);
 
@@ -267,8 +281,8 @@ public class CampaignService {
             outDatedRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
             emailService.send(FROM, outDatedRegistration.getDonor().getUser().getEmail(), SUBJECT,
                     EmailPlatform.buildChangeCampaignEmail(
-                    outDatedRegistration.getDonor().getName(),
-                    campaign.getName()
+                    outDatedRegistration.getDonor().getUser(),
+                    campaign
             ));
         }
 
@@ -320,8 +334,8 @@ public class CampaignService {
             outDatedRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
             emailService.send(FROM, outDatedRegistration.getDonor().getUser().getEmail(), SUBJECT,
                     EmailPlatform.buildCloseCampaignEmail(
-                            outDatedRegistration.getDonor().getName(),
-                            campaign.getName()
+                            outDatedRegistration.getDonor().getUser(),
+                            campaign
                     ));
         }
 
@@ -361,8 +375,8 @@ public class CampaignService {
             outDatedRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
             emailService.send(FROM, outDatedRegistration.getDonor().getUser().getEmail(), SUBJECT,
                     EmailPlatform.buildCloseCampaignEmail(
-                            outDatedRegistration.getDonor().getName(),
-                            campaign.getName()
+                            outDatedRegistration.getDonor().getUser(),
+                            campaign
                     ));
         }
 
