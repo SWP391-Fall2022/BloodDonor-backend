@@ -34,7 +34,7 @@ public class VerificationCodeService {
                 user,
                 code,
                 LocalDateTime.now(),
-                LocalDateTime.now().plusMinutes(15),
+                LocalDateTime.now().plusSeconds(300),
                 false
         );
         verificationCodeRepository.save(verificationCode);
@@ -51,7 +51,7 @@ public class VerificationCodeService {
         while (verificationCodeRepository.findByCode(code).isPresent());
         verificationCode.setCode(code);
         verificationCode.setCreatedAt(LocalDateTime.now());
-        verificationCode.setExpiresAt(LocalDateTime.now().plusMinutes(15));
+        verificationCode.setExpiresAt(LocalDateTime.now().plusSeconds(300));
         verificationCode.setConfirmed(false);
         return code;
     }

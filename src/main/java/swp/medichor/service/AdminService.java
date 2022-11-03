@@ -7,9 +7,11 @@ import org.springframework.transaction.annotation.Transactional;
 import swp.medichor.enums.Approve;
 import swp.medichor.enums.Role;
 import swp.medichor.model.Organization;
+import swp.medichor.model.VerificationCode;
 import swp.medichor.model.response.Response;
 import swp.medichor.repository.OrganizationRepository;
 import swp.medichor.repository.UserRepository;
+import swp.medichor.repository.VerificationCodeRepository;
 
 @Service
 public class AdminService {
@@ -18,6 +20,8 @@ public class AdminService {
     private OrganizationRepository organizationRepository;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private VerificationCodeRepository verificationCodeRepository;
     @Autowired
     private CampaignService campaignService;
 
@@ -28,8 +32,9 @@ public class AdminService {
             return new Response(400, false, "ID not found");
         }
         Organization organization = existOrganization.get();
+        VerificationCode code = verificationCodeRepository.findByUserId(organization.getUserId()).get();
         organization.setApprove(Approve.APPROVED);
-        organization.getUser().setEnabled(true);
+        if (code.getConfirmed()) organization.getUser().setEnabled(true);
         return new Response(200, true, "Verify successfully");
     }
 

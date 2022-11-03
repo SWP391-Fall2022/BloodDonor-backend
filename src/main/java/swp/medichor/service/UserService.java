@@ -51,7 +51,9 @@ public class UserService implements UserDetailsService {
     }
 
     public void enableUser(User user) {
-        if (user.getRole().equals(Role.ORGANIZATION) && user.getOrganization().getApprove().equals(Approve.PENDING)) {
+        if (user.getRole().equals(Role.ORGANIZATION) &&
+                (user.getOrganization().getApprove().equals(Approve.PENDING) ||
+                user.getOrganization().getApprove().equals(Approve.REJECTED))) {
             user.setEnabled(false);
         }
         else user.setEnabled(true);
