@@ -1,5 +1,6 @@
 package swp.medichor.service;
 
+import java.sql.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
@@ -22,6 +23,7 @@ import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -337,6 +339,7 @@ public class CampaignService {
         }
 
         List<DonateRegistration> listOfOutdatedRegistration = new ArrayList<>();
+        // If campaign has not started
         if (campaign.getStartDate().compareTo(LocalDate.now()) >= 0) {
             campaign.setEndDate(campaign.getStartDate().minusDays(1));
             listOfOutdatedRegistration = donateRegistrationRepository.findAllRegistration(
@@ -630,5 +633,11 @@ public class CampaignService {
         return new Response(200, true, totalLike == null ? 0 : totalLike);
     }
 
+    public List<Map<String, Object>> getTop5Provinces(Date from, Date to) {
+        return campaignRepository.findTop5Provinces(from, to);
+    }
 
+    public List<Map<String, Object>> getTop5Orgs(Date from, Date to) {
+        return campaignRepository.findTop5Orgs(from, to);
+    }
 }

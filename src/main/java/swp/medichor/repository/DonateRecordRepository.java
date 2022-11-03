@@ -26,4 +26,8 @@ public interface DonateRecordRepository extends JpaRepository<DonateRecord, Dona
 
     @Query("select d from DonateRecord d where d.id.campaignId = ?1")
     List<DonateRecord> findByCampaignId(Integer campaignId);
+
+    Optional<DonateRecord> findTopById_DonorIdOrderById_RegisteredDateDesc(int id);
+
+    Optional<DonateRecord> findTopById_DonorIdAndStatusTrueOrderById_RegisteredDateDesc(int donorId);
 }

@@ -1,6 +1,8 @@
 package swp.medichor.controller;
 
+import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.User;
 import swp.medichor.model.request.DonateRegistrationRequest;
@@ -46,13 +48,14 @@ public class CurrentDonorController {
         }
     }
 
-    @PutMapping("/registered/{registrationId}")
+    @PutMapping("/registered/{campaignId}")
     public Response updateRegistration(@RequestAttribute User user,
             @RequestBody DonateRegistrationRequest registration,
-            @PathVariable int registrationId) {
+            @PathVariable int campaignId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate oldDate) {
         try {
             if (user.getDonor() != null) {
-                donorService.updateDonateRegistration(user.getId(), registrationId, registration);
+                donorService.updateDonateRegistration(user.getId(), campaignId, oldDate, registration);
                 return new Response(200, true, null);
             }
             return new Response(403, false, "Current user is not a donor");

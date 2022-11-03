@@ -35,12 +35,12 @@ public interface DonateRegistrationRepository extends JpaRepository<DonateRegist
 //    @Query("SELECT count(d) FROM DonateRegistration d WHERE d.id.donorId = ?1")
     long countById_DonorId(int donorId);
 
-    @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and r.id.donorId = ?2 and r.status <> ?3 " +
-            "and r.id.registeredDate = ?4")
+    @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and r.id.donorId = ?2 and r.status <> ?3 "
+            + "and r.id.registeredDate = ?4")
     Optional<DonateRegistration> findByCampaignIdAndDonorId(Integer campaignId, Integer donorId,
             DonateRegistrationStatus status, LocalDate registeredDate);
 
-    Optional<DonateRegistration> findById_DonorIdAndId_CampaignId(int donorId, int campaignId);
+    List<DonateRegistration> findById_DonorIdAndId_CampaignIdAndStatus(int donorId, int campaignId, DonateRegistrationStatus status);
 
     @Modifying
     @Query("UPDATE DonateRegistration r SET r.id.registeredDate=?1, r.period=?2 WHERE r.id.donorId=?3 AND r.id.campaignId=?4 AND r.status='NOT_CHECKED_IN'")
@@ -56,8 +56,8 @@ public interface DonateRegistrationRepository extends JpaRepository<DonateRegist
     List<DonateRegistration> findUrgentByCampaignIdAndOutDate(Integer campaignId, LocalDate StartDate,
             DonateRegistrationStatus status);
 
-    @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and r.id.registeredDate not in ?2 and r" +
-            ".status = ?3")
+    @Query("select r from DonateRegistration r where r.id.campaignId = ?1 and r.id.registeredDate not in ?2 and r"
+            + ".status = ?3")
     List<DonateRegistration> findNormalByCampaignIdAndOutOnsiteDate(Integer campaignId, List<LocalDate> onSiteDates,
-                                                              DonateRegistrationStatus status);
+            DonateRegistrationStatus status);
 }
