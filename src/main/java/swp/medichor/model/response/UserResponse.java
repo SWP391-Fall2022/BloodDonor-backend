@@ -14,6 +14,8 @@ public class UserResponse {
     private Integer districtId;
     private String addressDetails;
     private Role role;
+    private Boolean status;
+    private Boolean enabled;
 
     public UserResponse(User user) {
         this.id = user.getId();
@@ -23,5 +25,7 @@ public class UserResponse {
         this.districtId = user.getDistrict().getId();
         this.addressDetails = user.getAddressDetails();
         this.role = user.getRole();
+        this.status = user.getStatus();
+        this.enabled = user.getEnabled();
     }
 }
