@@ -18,8 +18,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import swp.medichor.enums.Role;
 import swp.medichor.jwt.JwtTokenProvider;
 import swp.medichor.model.CustomUserDetails;
+import swp.medichor.model.response.LoginResponse;
 import swp.medichor.model.response.Response;
 
 @Service
@@ -58,8 +60,10 @@ public class LoginService {
 
             // No exception means login request is valid
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = tokenProvider.generateToken((CustomUserDetails) authentication.getPrincipal());
-            return new Response(200, true, token);
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            String token = tokenProvider.generateToken(userDetails);
+            Role role = userDetails.getUser().getRole();
+            return new Response(200, true, new LoginResponse(token, role));
         } catch (BadCredentialsException ex) {
             return new Response(401, false, "Username or password is incorrect");
         } catch (LockedException ex) {
@@ -77,7 +81,7 @@ public class LoginService {
             String email = payload.getEmail();
 
             try {
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+                CustomUserDetails userDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(email);
 
                 // If email is valid, check account's status
                 if (userDetails.isAccountNonExpired() && userDetails.isAccountNonLocked()
@@ -86,8 +90,9 @@ public class LoginService {
                             = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     SecurityContextHolder.getContext().setAuthentication(authentication);
 
-                    String jwt = tokenProvider.generateToken(userDetails);
-                    return new Response(200, true, jwt);
+                    String token = tokenProvider.generateToken(userDetails);
+                    Role role = userDetails.getUser().getRole();
+                    return new Response(200, true, new LoginResponse(token, role));
                 }
 
                 // Account cannot be accessed
