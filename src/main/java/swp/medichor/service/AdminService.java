@@ -46,6 +46,7 @@ public class AdminService {
         }
         Organization organization = existOrganization.get();
         organization.setApprove(Approve.REJECTED);
+        organization.getUser().setEnabled(false);
         return new Response(200, true, "Reject successfully");
     }
 
