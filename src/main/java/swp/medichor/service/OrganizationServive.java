@@ -53,19 +53,7 @@ public class OrganizationServive {
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
         }
-        OrganizationResponse organizationInfo = new OrganizationResponse(
-                organization.getUserId(),
-                organization.getUser().getUsername(),
-                organization.getUser().getPhone(),
-                organization.getUser().getEmail(),
-                organization.getUser().getDistrict().getId(),
-                organization.getUser().getAddressDetails(),
-                organization.getName(),
-                organization.getTaxCode(),
-                organization.getAvatar(),
-                organization.getWebsite(),
-                organization.getIntroduction()
-        );
+        OrganizationResponse organizationInfo = new OrganizationResponse(organization);
         return new Response(200, true, organizationInfo);
     }
 
@@ -74,19 +62,7 @@ public class OrganizationServive {
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "The account is disabled or unverified");
         }
-        OrganizationResponse organizationInfo = new OrganizationResponse(
-                organization.getUserId(),
-                organization.getUser().getUsername(),
-                organization.getUser().getPhone(),
-                organization.getUser().getEmail(),
-                organization.getUser().getDistrict().getId(),
-                organization.getUser().getAddressDetails(),
-                organization.getName(),
-                organization.getTaxCode(),
-                organization.getAvatar(),
-                organization.getWebsite(),
-                organization.getIntroduction()
-        );
+        OrganizationResponse organizationInfo = new OrganizationResponse(organization);
         return new Response(200, true, organizationInfo);
     }
 

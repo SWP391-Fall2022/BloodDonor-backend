@@ -3,6 +3,7 @@ package swp.medichor.model.response;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
+import swp.medichor.enums.Approve;
 import swp.medichor.model.Organization;
 
 @Getter
@@ -18,6 +19,7 @@ public class OrganizationResponse {
     private String addressDetails;
     private String name;
     private String taxCode;
+    private Approve approve;
     private String avatar;
     private String website;
     private String introduction;
@@ -31,6 +33,7 @@ public class OrganizationResponse {
         addressDetails = org.getUser().getAddressDetails();
         name = org.getName();
         taxCode = org.getTaxCode();
+        approve = org.getApprove();
         avatar = org.getAvatar();
         website = org.getWebsite();
         introduction = org.getIntroduction();
