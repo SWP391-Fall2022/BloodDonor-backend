@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;
 import swp.medichor.enums.Approve;
+import swp.medichor.enums.Role;
 import swp.medichor.model.Organization;
 
 @Getter
@@ -17,6 +18,7 @@ public class OrganizationResponse {
     private String email;
     private Integer districtId;
     private String addressDetails;
+    private Role role;
     private String name;
     private String taxCode;
     private Approve approve;
@@ -31,6 +33,7 @@ public class OrganizationResponse {
         email = org.getUser().getEmail();
         districtId = org.getUser().getDistrict().getId();
         addressDetails = org.getUser().getAddressDetails();
+        role = org.getUser().getRole();
         name = org.getName();
         taxCode = org.getTaxCode();
         approve = org.getApprove();
