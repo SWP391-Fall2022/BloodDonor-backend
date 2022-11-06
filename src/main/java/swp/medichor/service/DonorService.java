@@ -217,13 +217,15 @@ public class DonorService {
     }
 
     @Transactional
-    public Set<DonateRegistrationResponse> getAllRegistrations(int donorId) {
+    public List<DonateRegistrationResponse> getAllRegistrations(int donorId) {
         Optional<Donor> donor = donorRepository.findById(donorId);
         if (donor.isPresent()) {
             Set<DonateRegistration> registrations = donor.get().getRegistrations();
             return registrations.stream()
+                    .sorted((r1, r2) -> r2.getId().getRegisteredDate()
+                            .compareTo(r1.getId().getRegisteredDate()))
                     .map(r -> new DonateRegistrationResponse(r))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
         }
         throw new IllegalArgumentException("Donor not found");
     }
@@ -240,13 +242,15 @@ public class DonorService {
     }
 
     @Transactional
-    public Set<DonateRecordResponse> getAllDonations(int donorId) {
+    public List<DonateRecordResponse> getAllDonations(int donorId) {
         Optional<Donor> donor = donorRepository.findById(donorId);
         if (donor.isPresent()) {
             Set<DonateRecord> records = donor.get().getRecord();
             return records.stream()
+                    .sorted((r1, r2) -> r2.getId().getRegisteredDate()
+                            .compareTo(r1.getId().getRegisteredDate()))
                     .map(r -> new DonateRecordResponse(r))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
         }
         throw new IllegalArgumentException("Donor not found");
     }

@@ -36,6 +36,11 @@ public class DonorController {
 //        return new Response(200, true, donorService.countRegisteredCampaigns(id));
 //    }
 
+    @GetMapping("/{id}/donated")
+    public Response getAllDonations(@PathVariable int id) {
+        return new Response(200, true, donorService.getAllDonations(id));
+    }
+    
     @GetMapping("/{id}/donated/count")
     public Response countParticipatedCampaigns(@PathVariable int id) {
         return new Response(200, true, donorService.countParticipatedCampaigns(id));
