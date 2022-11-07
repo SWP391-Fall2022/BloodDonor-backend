@@ -123,15 +123,18 @@ public class CampaignController {
     }
 
     @GetMapping("/medicalDocument/getAll/{campaignId}")
-    public Response getAllMedicalDocuments(@PathVariable Integer campaignId) {
-        return campaignService.getAllMedicalDocuments(campaignId);
+    public Response getAllMedicalDocuments(@RequestAttribute User user,
+                                           @PathVariable Integer campaignId) {
+        return campaignService.getAllMedicalDocuments(user, campaignId);
     }
 
     @PostMapping("medicalDocument/getByDonor")
     public Response getMedicalDocumentByDonor(@RequestAttribute User user,
             @RequestBody GetDonateRecordRequest request) {
-        return campaignService.getMedicalDocumentByDonor(user.getDonor().getUserId(), request);
+        return campaignService.getMedicalDocumentByDonor(user, request);
     }
+
+
 
     @GetMapping("/totalLike/{campaignId}")
     public Response getTotalLike(@PathVariable Integer campaignId) {
