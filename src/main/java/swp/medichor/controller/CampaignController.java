@@ -94,18 +94,18 @@ public class CampaignController {
         return campaignService.getAllNumberOfRegistration(campaignId);
     }
 
-    @GetMapping("/getNumberOfRegistrationPerDay/{campaignId}")
+    @PostMapping("/getNumberOfRegistrationPerDay/{campaignId}")
     public Response getNumberOfRegistrationPerDay(@PathVariable("campaignId") Integer campaignId,
             @RequestBody NumberOfRegistrationRequest request) {
         return campaignService.getNumberOfRegistrationPerDay(campaignId, request);
     }
 
-    @GetMapping("/getParticipatedDonor/{campaignId}")
+    @PostMapping("/getParticipatedDonor/{campaignId}")
     public Response getAllParticipatedDonor(@PathVariable("campaignId") Integer campaignId) {
         return campaignService.getAllParticipatedDonor(campaignId);
     }
 
-    @GetMapping("/getParticipatedDonorPerDay/{campaignId}")
+    @PostMapping("/getParticipatedDonorPerDay/{campaignId}")
     public Response getAllParticipatedDonorPerDay(@PathVariable("campaignId") Integer campaignId,
             @RequestBody NumberOfRegistrationRequest request) {
         return campaignService.getAllParticipatedDonorPerDay(campaignId, request);
@@ -127,7 +127,7 @@ public class CampaignController {
         return campaignService.getAllMedicalDocuments(campaignId);
     }
 
-    @GetMapping("medicalDocument/getByDonor")
+    @PostMapping("medicalDocument/getByDonor")
     public Response getMedicalDocumentByDonor(@RequestAttribute User user,
             @RequestBody GetDonateRecordRequest request) {
         return campaignService.getMedicalDocumentByDonor(user.getDonor().getUserId(), request);
