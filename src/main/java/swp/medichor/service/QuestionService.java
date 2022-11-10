@@ -32,7 +32,7 @@ public class QuestionService {
     public Response addQuestion(User user, Integer campaignId, QuestionRequest request) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty()) {
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         }
         Campaign campaign = isExistCampaign.get();
         Question question = Question.builder()
@@ -43,42 +43,42 @@ public class QuestionService {
                 .answer(null)
                 .build();
         questionRepository.save(question);
-        return new Response(200, true, "Add question successfully");
+        return new Response(200, true, "Đặt câu hỏi thành công");
     }
 
     @Transactional
     public Response answerQuestion(User user, Integer questionId, AnswerRequest request) {
         Optional<Question> isExistQuestion = questionRepository.findById(questionId);
         if (isExistQuestion.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         Question question = isExistQuestion.get();
         if (!user.getId().equals(question.getCampaign().getOrganization().getUserId()))
-            return new Response(403, false, "You have no right to answer question of campaign hosted by other org");
+            return new Response(403, false, "Bạn không có quyền trả lời câu hỏi từ chiến dịch của tổ chức khác");
         if (request.getAnswer() == null || request.getAnswer().equals(""))
-            return new Response(400, false, "Answer must contain something");
+            return new Response(400, false, "Câu trả lời không được bỏ trống");
         question.setAnswer(request.getAnswer());
         question.setStatus(true);
-        return new Response(200, true, "Answer question successfully");
+        return new Response(200, true, "Trả lời thành công");
     }
 
     @Transactional
     public Response refuseQuestion(User user, Integer questionId) {
         Optional<Question> isExistQuestion = questionRepository.findById(questionId);
         if (isExistQuestion.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         Question question = isExistQuestion.get();
         if (!user.getId().equals(question.getCampaign().getOrganization().getUserId()))
-            return new Response(403, false, "You have no right to answer question of campaign hosted by other org");
+            return new Response(403, false, "Bạn không có quyền từ chối câu hỏi từ chiến dịch của tổ chức khác");
         question.setAnswer("REFUSED");
         question.setStatus(false);
-        return new Response(200, true, "Refuse question successfully");
+        return new Response(200, true, "Từ chối trả lời thành công");
     }
 
 
     public Response getAllQuestionsOfCampaign(Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty()) {
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         }
         List<Question> listOfQuestions = questionRepository.findByCampaignId(campaignId);
         List<QuestionResponse> listOfQuestionResponse = new ArrayList<>();

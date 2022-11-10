@@ -38,10 +38,10 @@ public class UserService implements UserDetailsService {
 
     public User registerUser(User user) {
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new IllegalStateException("Username already exists");
+            throw new IllegalStateException("Tên đăng nhập đã tồn tại");
         }
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new IllegalStateException("Email already exists");
+            throw new IllegalStateException("Email đã tồn tại");
         }
         String encodedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(encodedPassword);
@@ -83,10 +83,10 @@ public class UserService implements UserDetailsService {
     public Response updateAvatar(Integer userId, UpdateAvatarRequest request) {
         Optional<User> isExistUser = userRepository.findById(userId);
         if (isExistUser.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         User user = isExistUser.get();
         if (!user.getStatus() || !user.getEnabled()) {
-            return new Response(403, false, "The account is disabled or unverified");
+            return new Response(403, false, "Tài khoản đã bị khóa hoặc chưa được xác nhận");
         }
 
         if (user.getRole().equals(Role.DONOR)) {
@@ -94,28 +94,28 @@ public class UserService implements UserDetailsService {
         }
         else if (user.getRole().equals(Role.ORGANIZATION)) {
             if (user.getOrganization().getApprove().equals(Approve.PENDING) || user.getOrganization().getApprove().equals(Approve.REJECTED))
-                return new Response(403, false, "The account is disabled or unverified");
+                return new Response(403, false, "Tài khoản chưa được xác minh hoặc bị từ chối bởi quản trị viên");
             user.getOrganization().setAvatar(request.getAvatar());
         }
-        return new Response(200, true, "Update avatar successfully");
+        return new Response(200, true, "Cập nhật ảnh đại diện thành công");
     }
 
     @Transactional
     public Response updatePassword(Integer userId, ChangePasswordRequest request) {
         Optional<User> isExistUser = userRepository.findById(userId);
         if (isExistUser.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         User user = isExistUser.get();
         if (!user.getStatus() || !user.getEnabled()) {
-            return new Response(403, false, "The account is disabled or unverified");
+            return new Response(403, false, "Tài khoản đã bị khóa hoặc chưa được xác nhận");
         }
         if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword()))
-            return new Response(400, false, "Old password is incorrect.");
+            return new Response(400, false, "Mật khẩu cũ không chính xác");
         if (!request.getNewPassword().equals(request.getConfirmNewPassword()))
-            return new Response(400, false, "Confirm password not match");
+            return new Response(400, false, "Mật khẩu nhập lại không khớp với mật khẩu gốc");
 
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        return new Response(200, true, "Update password successfully");
+        return new Response(200, true, "Thay đổi mật khẩu thành công");
     }
 
 }

@@ -54,7 +54,7 @@ public class PostService {
                     post.setCategory(postInfo.getCategory());
                     postRepository.save(post);
                 }, () -> {
-                    throw new RuntimeException("Post id not found");
+                    throw new RuntimeException("ID của bài đăng không tồn tại");
                 });
     }
 
@@ -64,7 +64,7 @@ public class PostService {
                     post.setStatus(false);
                     postRepository.save(post);
                 }, () -> {
-                    throw new RuntimeException("Post id not found");
+                    throw new RuntimeException("ID của bài đăng không tồn tại");
                 });
     }
 
@@ -74,7 +74,7 @@ public class PostService {
                     post.setStatus(true);
                     postRepository.save(post);
                 }, () -> {
-                    throw new RuntimeException("Post id not found");
+                    throw new RuntimeException("ID của bài đăng không tồn tại");
                 });
     }
 }
