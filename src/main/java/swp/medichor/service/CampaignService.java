@@ -49,8 +49,8 @@ public class CampaignService {
     private AddressService addressService;
 
     private final String FROM = "medichorvn@gmail.com";
-    private final String SUBJECT = "PLEASE JOIN IN THE BLOOD DONATION CAMPAIGN IF POSSIBLE";
-    private final String MEDICAL_DOCUMENT_SUBJECT = "HAVE A LOOK AT YOUR MEDICAL DOCUMENT";
+    private final String SUBJECT = "THÔNG TIN CHIẾN DỊCH HIẾN MÁU";
+    private final String MEDICAL_DOCUMENT_SUBJECT = "PHIẾU KHÁM SỨC KHỎE SAU ĐỢT HIẾN MÁU";
 
     public Response createCampaign(Organization organization, CreateCampaignRequest request) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
@@ -58,7 +58,7 @@ public class CampaignService {
             return new Response(403, false, "Tài khoản chưa được xác nhận hoặc không được chấp thuận");
         }
         if (!campaignRepository.findByOrganizationIdAndCampaignName(organization.getUserId(), request.getName()).isEmpty())
-            return new Response(400, false, "Không thể trùng tiên với chiến dịch khác");
+            return new Response(400, false, "Không thể trùng tên với chiến dịch khác");
 
         if (request.isEmergency()) {
             request.setStartDate(LocalDate.now());
@@ -79,7 +79,8 @@ public class CampaignService {
             if (request.getOnSiteDates() != null) {
                 for (LocalDate date : request.getOnSiteDates()) {
                     if (date.compareTo(request.getStartDate()) < 0 || date.compareTo(request.getEndDate()) > 0)
-                        return new Response(400, false, "On-site dates must be between start date and end date.");
+                        return new Response(400, false, "Ngày diễn ra chiến dịch phải trong khoảng ngày bắt đầu và " +
+                                "kết thúc");
                 }
                 request.getOnSiteDates().sort((d1, d2) -> {
                     return Integer.compare(d1.compareTo(d2), 0);
@@ -195,7 +196,8 @@ public class CampaignService {
             if (request.getOnSiteDates() != null) {
                 for (LocalDate date : request.getOnSiteDates()) {
                     if (date.compareTo(request.getStartDate()) < 0 || date.compareTo(request.getEndDate()) > 0)
-                        return new Response(400, false, "On-site dates must be between start date and end date.");
+                        return new Response(400, false, "Ngày diễn ra chiến dịch phải trong khoảng ngày bắt đầu và " +
+                                "kết thúc");
                 }
                 request.getOnSiteDates().sort((d1, d2) -> {
                     return Integer.compare(d1.compareTo(d2), 0);
@@ -293,7 +295,7 @@ public class CampaignService {
     public Response readOneCampaign(Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         Campaign campaign = isExistCampaign.get();
         CampaignResponse campaignInfo = new CampaignResponse(campaign);
         return new Response(200, true, campaignInfo);

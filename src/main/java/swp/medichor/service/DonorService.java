@@ -62,7 +62,7 @@ public class DonorService {
 
     private static final int LIMIT_REGISTRATION = 100;
     private final String FROM = "medichorvn@gmail.com";
-    private final String SUBJECT = "BLOOD DONATION CAMPAIGN CHECK-IN VERIFICATION CODE";
+    private final String SUBJECT = "MÃ ĐIỂM DANH KHI THAM GIA CHIẾN DỊCH HIẾN MÁU";
 
     public boolean registerDonor(Donor donor) {
         donorRepository.save(donor);
