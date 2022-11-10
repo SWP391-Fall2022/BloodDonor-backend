@@ -90,7 +90,7 @@ public class RewardService {
                     reward.setAmount(request.getAmount());
                     rewardRepository.save(reward);
                 }, () -> {
-                    throw new RuntimeException("Reward not found");
+                    throw new RuntimeException("Mã khuyến mãi không tồn tại");
                 });
     }
 
@@ -100,7 +100,7 @@ public class RewardService {
                     reward.setStatus(false);
                     rewardRepository.save(reward);
                 }, () -> {
-                    throw new RuntimeException("Reward not found");
+                    throw new RuntimeException("Mã khuyến mãi không tồn tại");
                 });
     }
 }

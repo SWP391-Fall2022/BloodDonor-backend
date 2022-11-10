@@ -46,12 +46,12 @@ public class OrganizationServive {
     public Response getInfoOfOne(Integer organizationId) {
         Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
         if (isExistOrganization.isEmpty()) {
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         }
         Organization organization = isExistOrganization.get();
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-            return new Response(403, false, "The account is disabled or unverified");
+            return new Response(403, false, "Tài khoản đã bị khóa hoặc chưa được xác minh");
         }
         OrganizationResponse organizationInfo = new OrganizationResponse(organization);
         return new Response(200, true, organizationInfo);
@@ -60,7 +60,7 @@ public class OrganizationServive {
     public Response getInfo(Organization organization) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-            return new Response(403, false, "The account is disabled or unverified");
+            return new Response(403, false, "Tài khoản đã bị khóa hoặc chưa được xác minh");
         }
         OrganizationResponse organizationInfo = new OrganizationResponse(organization);
         return new Response(200, true, organizationInfo);
@@ -70,15 +70,15 @@ public class OrganizationServive {
     public Response updateInfoOfOne(Integer organizationId, UpdateOrganizationRequest request) {
         Optional<Organization> isExistOrganization = organizationRepository.findById(organizationId);
         if (isExistOrganization.isEmpty()) {
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "ID không tồn tại");
         }
         Organization organization = isExistOrganization.get();
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-            return new Response(403, false, "The account is disabled or unverified");
+            return new Response(403, false, "Tài khoản đã bị khóa hoặc chưa được xác minh");
         }
         if (!Validator.testPhoneNumber(request.getPhone())) {
-            return new Response(400, false, "Invalid phone number");
+            return new Response(400, false, "Số điện thoại không hợp lệ");
         }
 
         organization.getUser().setPhone(request.getPhone());
@@ -87,7 +87,7 @@ public class OrganizationServive {
         organization.setName(request.getName());
         organization.setWebsite(request.getWebsite());
         organization.setIntroduction(request.getIntroduction());
-        return new Response(200, true, "Update info successfully");
+        return new Response(200, true, "Cập nhật thông tin bệnh viện thành công");
     }
 
 

@@ -22,7 +22,7 @@ import java.util.Optional;
 @Service
 public class RegisterService {
     private final String FROM = "medichorvn@gmail.com";
-    private final String SUBJECT = "CONFIRM YOUR CODE";
+    private final String SUBJECT = "XÁC NHẬN MÃ ĐĂNG KÝ";
 
     private final Argon2PasswordEncoder passwordEncoder =  new Argon2PasswordEncoder();
     @Autowired
@@ -41,19 +41,19 @@ public class RegisterService {
     @Transactional
     public Response registerOrganization(RegisterOrganizationRequest request) {
         if (!request.getRole().equals(Role.ORGANIZATION))
-            return new Response(400, false, "Invalid role");
+            return new Response(400, false, "Vai trò không hợp lệ");
         if (!Validator.testEmail(request.getEmail())) {
-            return new Response(400, false, "Email not valid");
+            return new Response(400, false, "Email không hợp lệ");
         }
         if (!Validator.testPhoneNumber(request.getPhone())) {
-            return new Response(400, false, "Phone number not valid");
+            return new Response(400, false, "Số điện thoại không hợp lệ");
         }
         if (!request.getConfirmPassword().equals(request.getPassword())) {
-            return new Response(400, false, "Confirm password not match");
+            return new Response(400, false, "Mật khẩu nhập lại không khớp với mật khẩu gốc");
         }
         Optional<User> user = userService.getUserByEmailAndUsername(request.getUsername(), request.getEmail());
         if (user.isPresent() && user.get().getVerificationCode().getConfirmed()) {
-            return new Response(400, false, "Account already registered");
+            return new Response(400, false, "Tài khoản đã được đăng ký");
         }
         else if (user.isPresent() && !user.get().getVerificationCode().getConfirmed()) {
             return resendCode(user.get().getId());
@@ -86,33 +86,33 @@ public class RegisterService {
         emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(request.getName(), code));
         return new Response(200, true, new RegisterResponse(
                 newUser.getId(),
-                "Register successfully"
+                "Đăng ký tài khoản dành cho tổ chức y tế thành công"
         ));
     }
 
     @Transactional
     public Response registerDonor(RegisterDonorRequest request) {
         if (!request.getRole().equals(Role.DONOR))
-            return new Response(400, false, "Invalid role");
+            return new Response(400, false, "Vai trò không hợp lệ");
         if (!Validator.testEmail(request.getEmail())) {
-            return new Response(400, false, "Email not valid");
+            return new Response(400, false, "Email không hợp lệ");
         }
         if (!Validator.testPhoneNumber(request.getPhone())) {
-            return new Response(400, false, "Phone number not valid");
+            return new Response(400, false, "Số điện thoại không hợp lệ");
         }
         if (!request.getConfirmPassword().equals(request.getPassword())) {
-            return new Response(400, false, "Confirm password not match");
+            return new Response(400, false, "Mật khẩu nhập lại không khớp với mật khẩu gốc");
         }
         if (request.getBirthday().isAfter(LocalDate.now())) {
-            return new Response(400, false, "Invalid birthday");
+            return new Response(400, false, "Ngày sinh không hợp lệ");
         }
         LocalDate now = LocalDate.now();
         if (now.getYear() - request.getBirthday().getYear() < 18 || now.getYear() - request.getBirthday().getYear() > 60)
-            return new Response(400, false, "The age must be between 18 and 60.");
+            return new Response(400, false, "Tuổi của tình nguyện viên phải từ 18 tới 60 tuổi");
 
         Optional<User> user = userService.getUserByEmailAndUsername(request.getUsername(), request.getEmail());
         if (user.isPresent() && user.get().getVerificationCode().getConfirmed()) {
-            return new Response(400, false, "Account already registered");
+            return new Response(400, false, "Tài khoản đã được đăng ký");
         }
         else if (user.isPresent() && !user.get().getVerificationCode().getConfirmed()) {
             return resendCode(user.get().getId());
@@ -146,7 +146,7 @@ public class RegisterService {
         emailService.send(FROM, newUser.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmail(request.getName(), code));
         return new Response(200, true, new RegisterResponse(
                 newUser.getId(),
-                "Register successfully"
+                "Đăng ký tài khoản cho tình nguyện viên thành công"
         ));
 
     }
@@ -155,27 +155,27 @@ public class RegisterService {
     public Response confirmCode(int code) {
         Optional<VerificationCode> existVerificationCode = verificationCodeService.getVerificationCodeByCode(code);
         if (existVerificationCode.isEmpty())
-            return new Response(400, false, "Invalid code");
+            return new Response(400, false, "Mã xác nhận không hợp lệ");
         VerificationCode verificationCode = existVerificationCode.get();
         if (verificationCode.getExpiresAt().isBefore(LocalDateTime.now())) {
-            return new Response(406, false, "Code expires");
+            return new Response(406, false, "Mã xác nhận đã hết hạn");
         }
         verificationCodeService.setConfirmsAt(verificationCode);
         userService.enableUser(verificationCode.getUser());
         return new Response(200, true, new RegisterResponse(
                 verificationCode.getUserId(),
-                "Confirmed"
+                "Xác nhận mã thành công"
         ));
     }
 
     @Transactional
     public Response resendCode(Integer userId) {
         Optional<User> existUser = userService.getUserById(userId);
-        if (existUser.isEmpty()) return new Response(400, false, "ID not found");
+        if (existUser.isEmpty()) return new Response(400, false, "ID không tồn tại");
         User user = existUser.get();
         VerificationCode verificationCode = verificationCodeService.getVerificationCodeById(userId).get();
         if (verificationCode.getConfirmed()) {
-             return new Response(400, false, "Already registered");
+             return new Response(400, false, "Tài khoản đã xác nhận mã");
         }
         int code = verificationCodeService.alterVerificationCode(verificationCode);
         String name = "null";
@@ -187,7 +187,7 @@ public class RegisterService {
             emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmailForChangePass(name, code));
         return new Response(200, true, new RegisterResponse(
                 userId,
-                "Resend successfully"
+                "Gửi lại mã xác nhận thành công"
         ));
     }
 
@@ -195,9 +195,9 @@ public class RegisterService {
     public Response getAccountByEmailToChangePassword(String email) {
         Optional<User> isExistUser = userService.getUserByEmail(email);
         if (isExistUser.isEmpty() || !isExistUser.get().getEnabled())
-            return new Response(400, false, "This email has not been registered yet");
+            return new Response(400, false, "Email này chưa được đăng ký tài khoản");
         if (!isExistUser.get().getStatus())
-            return new Response(401, false, "Your account has been banned.");
+            return new Response(401, false, "Tài khoản của bạn đã bị khóa");
         User user = isExistUser.get();
         VerificationCode verificationCode = verificationCodeService.getVerificationCodeById(user.getId()).get();
         int code = verificationCodeService.alterVerificationCode(verificationCode);
@@ -207,22 +207,22 @@ public class RegisterService {
         emailService.send(FROM, user.getEmail(), SUBJECT, EmailPlatform.buildConfirmCodeEmailForChangePass(name, code));
         return new Response(200, true, new RegisterResponse(
                 user.getId(),
-                "Account exists. Next step is verifying code."
+                "Tài khoản tồn tại. Bước tiếp theo là xác nhận mã"
         ));
     }
 
     @Transactional
     public Response changePasswordWhenForgetting(Integer userId, ChangePasswordRequest request) {
         if (!request.getNewPassword().equals(request.getConfirmNewPassword()))
-            return new Response(400, false, "Confirm password not match");
+            return new Response(400, false, "Mật khẩu nhập lại không khớp với mật khẩu gốc");
         Optional<User> existUser = userService.getUserById(userId);
-        if (existUser.isEmpty()) return new Response(400, false, "ID not found");
+        if (existUser.isEmpty()) return new Response(400, false, "ID không tồn tại");
         User user = existUser.get();
         VerificationCode verificationCode = verificationCodeService.getVerificationCodeById(userId).get();
         if (!verificationCode.getConfirmed())
-            return new Response(403, false, "You haven't verify your email by verification code yet");
+            return new Response(403, false, "Tài khoản chưa được xác nhận mã lúc đăng ký");
         user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-        return new Response(200, true, "Change password successfully");
+        return new Response(200, true, "Thay đổi mật khẩu thành công");
 
 
     }

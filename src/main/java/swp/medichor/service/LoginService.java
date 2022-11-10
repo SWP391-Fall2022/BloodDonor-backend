@@ -65,11 +65,11 @@ public class LoginService {
             Role role = userDetails.getUser().getRole();
             return new Response(200, true, new LoginResponse(token, role));
         } catch (BadCredentialsException ex) {
-            return new Response(401, false, "Username or password is incorrect");
+            return new Response(401, false, "Tên đăng nhập hoặc mật khẩu không chính xác");
         } catch (LockedException ex) {
-            return new Response(401, false, "The account is locked");
+            return new Response(401, false, "Tài khoản đã bị khóa");
         } catch (DisabledException ex) {
-            return new Response(401, false, "The account is not verified or accepted by Admin");
+            return new Response(401, false, "Tài khoản chưa được xác nhận hay xác minh bởi quản trị viên");
         }
     }
 
