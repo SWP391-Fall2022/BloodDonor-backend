@@ -80,7 +80,7 @@ public class CampaignController {
         if (user.getOrganization() != null) {
             return new Response(200, true, campaignService.getAllByOrgIdAndDayRange(user.getId(), from, to));
         } else {
-            return new Response(403, false, "Current user is not an orrganization");
+            return new Response(403, false, "Người dùng hiện tại không phải là tổ chức");
         }
     }
 

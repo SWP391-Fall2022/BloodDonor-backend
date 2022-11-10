@@ -42,7 +42,7 @@ public class CurrentDonorController {
                 donorService.registerDonor(user.getDonor(), registration);
                 return new Response(200, true, null);
             }
-            return new Response(403, false, "Current user is not a donor");
+            return new Response(403, false, "Người dùng hiện tại không phải là tình nguyện viên");
         } catch (Exception e) {
             return new Response(400, false, e.getLocalizedMessage());
         }
@@ -58,7 +58,7 @@ public class CurrentDonorController {
                 donorService.updateDonateRegistration(user.getId(), campaignId, oldDate, registration);
                 return new Response(200, true, null);
             }
-            return new Response(403, false, "Current user is not a donor");
+            return new Response(403, false, "Người dùng hiện tại không phải là tình nguyện viên");
         } catch (Exception e) {
             return new Response(400, false, e.getLocalizedMessage());
         }
@@ -69,7 +69,7 @@ public class CurrentDonorController {
         if (user.getDonor() != null) {
             return new Response(200, true, donorService.getAllRegistrations(user.getId()));
         } else {
-            return new Response(403, false, "Current user is not a donor");
+            return new Response(403, false, "Người dùng hiện tại không phải là tình nguyện viên");
         }
     }
 
@@ -80,7 +80,7 @@ public class CurrentDonorController {
                 donorService.cancelRegistration(user.getId(), campaignId);
                 return new Response(200, true, null);
             } else {
-                return new Response(403, false, "Current user is not a donor");
+                return new Response(403, false, "Người dùng hiện tại không phải là tình nguyện viên");
             }
         } catch (Exception ex) {
             return new Response(400, false, ex.getLocalizedMessage());
@@ -92,7 +92,7 @@ public class CurrentDonorController {
         if (user.getDonor() != null) {
             return new Response(200, true, donorService.getAllDonations(user.getId()));
         } else {
-            return new Response(403, false, "Current user is not a donor");
+            return new Response(403, false, "Người dùng hiện tại không phải là tình nguyện viên");
         }
     }
 
@@ -145,7 +145,7 @@ public class CurrentDonorController {
             if (user.getDonor() != null) {
                 return new Response(200, true, donorService.getRegistrationStatus(user.getId(), campaignId));
             } else {
-                throw new RuntimeException("Current user is not a donor");
+                throw new RuntimeException("Người dùng hiện tại không phải là tình nguyện viên");
             }
         } catch (Exception ex) {
             return new Response(400, false, ex.getLocalizedMessage());

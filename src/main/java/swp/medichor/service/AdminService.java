@@ -29,25 +29,25 @@ public class AdminService {
     public Response verifyOrganizationAccount(Integer id) {
         Optional<Organization> existOrganization = organizationRepository.findById(id);
         if (existOrganization.isEmpty()) {
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "Không tìm thấy tổ chức");
         }
         Organization organization = existOrganization.get();
         VerificationCode code = verificationCodeRepository.findByUserId(organization.getUserId()).get();
         organization.setApprove(Approve.APPROVED);
         if (code.getConfirmed()) organization.getUser().setEnabled(true);
-        return new Response(200, true, "Verify successfully");
+        return new Response(200, true, "Đã xác nhận tổ chức");
     }
 
     @Transactional
     public Response rejectOrganizationAccount(Integer id) {
         Optional<Organization> existOrganization = organizationRepository.findById(id);
         if (existOrganization.isEmpty()) {
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "Không tìm thấy tổ chức");
         }
         Organization organization = existOrganization.get();
         organization.setApprove(Approve.REJECTED);
         organization.getUser().setEnabled(false);
-        return new Response(200, true, "Reject successfully");
+        return new Response(200, true, "Đã từ chối tổ chức");
     }
 
     @Transactional
@@ -62,10 +62,10 @@ public class AdminService {
                             });
                         }
                     } else {
-                        throw new RuntimeException("Cannot lock user with role ADMIN");
+                        throw new RuntimeException("Không thể khoá tài khoản ADMIN");
                     }
                 }, () -> {
-                    throw new RuntimeException("User ID not found");
+                    throw new RuntimeException("Không tìm thấy người dùng");
                 });
     }
 }

@@ -31,7 +31,7 @@ public class RewardController {
         if (reward != null) {
             return new Response(200, true, reward);
         } else {
-            return new Response(404, false, "Reward not found");
+            return new Response(404, false, "Không tìm thấy mã khuyến mãi");
         }
     }
 

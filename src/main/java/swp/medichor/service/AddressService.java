@@ -15,7 +15,7 @@ public class AddressService {
 
     public District getDistrictById(int districtId) {
         return districtRepository.findById(districtId).orElseThrow(() ->
-                new IllegalStateException("District id not found")
+                new IllegalStateException("Không tìm thấy thành phố/quận huyện")
         );
     }
 }

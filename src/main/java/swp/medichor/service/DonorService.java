@@ -114,23 +114,23 @@ public class DonorService {
                                 registrationReq.getPeriod(),
                                 registrationReq.getRegisterDate()
                         )).getBody() >= LIMIT_REGISTRATION) {
-                    throw new RuntimeException("Registration of this time has been full");
+                    throw new RuntimeException("Thời gian này đã đủ người đăng kí");
                 }
 
                 // The time between donations must be at least 12 weeks
                 donateRecordRepository.findTopById_DonorIdAndStatusTrueOrderById_RegisteredDateDesc(donor.getUserId())
                         .ifPresent(r -> {
                             if (ChronoUnit.WEEKS.between(r.getId().getRegisteredDate().toLocalDate(), registrationReq.getRegisterDate()) < 12) {
-                                throw new RuntimeException("The time between donations must be at least 12 weeks");
+                                throw new RuntimeException("Thời gian giữa 2 lần hiến máu phải ít nhất 12 tuần");
                             }
                         });
 
-                // There is no not_check_in registration
+                // Contains a not_check_in registration
                 if (!donateRegistrationRepository.findById_DonorIdAndId_CampaignIdAndStatus(donor.getUserId(),
                         c.getId(),
                         DonateRegistrationStatus.NOT_CHECKED_IN)
                         .isEmpty()) {
-                    throw new RuntimeException("The user has registered the campaign");
+                    throw new RuntimeException("Tình nguyện viên đã đăng kí chiến dịch này");
                 }
 
                 donateRegistrationRepository.findById(new DonateRegistrationKey(
@@ -140,7 +140,7 @@ public class DonorService {
                         .ifPresent(r -> {
                             // Cannot register the same day as checked_in
                             if (r.getStatus() == DonateRegistrationStatus.CHECKED_IN) {
-                                throw new RuntimeException("The user has registered the campaign on this day");
+                                throw new RuntimeException("Tình nguyện viên đã hiến máu vào ngày này");
                             } // Is canceled, delete to insert the new one
                             else {
                                 donateRegistrationRepository.delete(r);
@@ -167,10 +167,10 @@ public class DonorService {
                 ));
 
             } else {
-                throw new RuntimeException("Registration is not valid");
+                throw new RuntimeException("Đơn đăng kí không hợp lệ");
             }
         }, () -> {
-            throw new IllegalArgumentException("Campaign not found");
+            throw new IllegalArgumentException("Không tìm thấy chiến dịch");
         });
     }
 
@@ -186,7 +186,7 @@ public class DonorService {
                         donateRecordRepository.findTopById_DonorIdAndStatusTrueOrderById_RegisteredDateDesc(donorId)
                                 .ifPresent(record -> {
                                     if (ChronoUnit.WEEKS.between(record.getId().getRegisteredDate().toLocalDate(), req.getRegisterDate()) < 12) {
-                                        throw new RuntimeException("The time between donations must be at least 12 weeks");
+                                        throw new RuntimeException("Thời gian giữa 2 lần hiến máu phải ít nhất 12 tuần");
                                     }
                                 });
 
@@ -195,7 +195,7 @@ public class DonorService {
                             Optional<DonateRegistration> oldReg = donateRegistrationRepository.findById(new DonateRegistrationKey(donorId, campaignId, req.getRegisterDate()));
                             if (oldReg.isPresent()) {
                                 if (oldReg.get().getStatus() != DonateRegistrationStatus.CANCELLED) {
-                                    throw new RuntimeException("The day has been registered");
+                                    throw new RuntimeException("Tình nguyện viên đã đăng kí vào ngày này");
                                 }
                                 // Delete canceled registration to edit
                                 donateRegistrationRepository.delete(oldReg.get());
@@ -206,13 +206,13 @@ public class DonorService {
                                 req.getPeriod(),
                                 donorId,
                                 campaignId) == 0) {
-                            throw new RuntimeException("Cannot update the registration");
+                            throw new RuntimeException("Không thể chỉnh sửa đơn đăng kí");
                         }
                     } else {
-                        throw new RuntimeException("Registration is not valid");
+                        throw new RuntimeException("Đơn đăng kí không hợp lệ");
                     }
                 }, () -> {
-                    throw new RuntimeException("Registration does not exist");
+                    throw new RuntimeException("Đơn đăng kí không tồn tại");
                 });
     }
 
@@ -227,7 +227,7 @@ public class DonorService {
                     .map(r -> new DonateRegistrationResponse(r))
                     .collect(Collectors.toList());
         }
-        throw new IllegalArgumentException("Donor not found");
+        throw new IllegalArgumentException("Không tìm thấy tình nguyện viên");
     }
 
     public void cancelRegistration(int donorId, int campaignId) {
@@ -237,7 +237,7 @@ public class DonorService {
             reg.setStatus(DonateRegistrationStatus.CANCELLED);
             donateRegistrationRepository.save(reg);
         } else {
-            throw new RuntimeException("Campaign does not exist");
+            throw new RuntimeException("Không tìm thấy chiến dịch");
         }
     }
 
@@ -252,7 +252,7 @@ public class DonorService {
                     .map(r -> new DonateRecordResponse(r))
                     .collect(Collectors.toList());
         }
-        throw new IllegalArgumentException("Donor not found");
+        throw new IllegalArgumentException("Không tìm thấy tình nguyện viên");
     }
 
     public Optional<DonateRecordResponse> getLatestonation(int donorId) {
@@ -268,12 +268,12 @@ public class DonorService {
     public Response likeCampaign(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty()) {
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         }
         Optional<LikeRecord> isExistLikeRecord
                 = likeRecordRepository.findByCampaignIdAndDonorId(campaignId, user.getDonor().getUserId());
         if (isExistLikeRecord.isPresent()) {
-            return new Response(400, false, "Already liked");
+            return new Response(400, false, "Đã yêu thích chiến dịch này");
         }
         Campaign campaign = isExistCampaign.get();
         LikeRecord likeRecord = LikeRecord.builder()
@@ -282,7 +282,7 @@ public class DonorService {
                 .donor(user.getDonor())
                 .build();
         likeRecordRepository.save(likeRecord);
-        return new Response(200, true, "Like successfully");
+        return new Response(200, true, "Đã yêu thích");
     }
 
     public int getPoints(int donorId) {
@@ -315,13 +315,13 @@ public class DonorService {
                             .receiveDate(new Date(System.currentTimeMillis()))
                             .build());
                 } else {
-                    throw new RuntimeException("Cannot claim the reward");
+                    throw new RuntimeException("Không thể nhận mã khuyến mãi");
                 }
             }, () -> {
-                throw new RuntimeException("Donor ID does not exist");
+                throw new RuntimeException("Không tìm thấy tình nguyện viên");
             });
         }, () -> {
-            throw new RuntimeException("Reward ID does not exist");
+            throw new RuntimeException("Không tìm thấy mã khuyến mãi");
         });
     }
 
@@ -344,10 +344,10 @@ public class DonorService {
                 res.put("hasRegistered", hasRegistered);
                 return res;
             } else {
-                throw new RuntimeException("Campaign does not exist");
+                throw new RuntimeException("Không tìm thấy chiến dịch");
             }
         } else {
-            throw new RuntimeException("Donor does not exist");
+            throw new RuntimeException("Không tìm thấy tình nguyện viên");
         }
     }
 

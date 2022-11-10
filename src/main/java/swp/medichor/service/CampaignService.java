@@ -55,10 +55,10 @@ public class CampaignService {
     public Response createCampaign(Organization organization, CreateCampaignRequest request) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-            return new Response(403, false, "The account is disabled or unverified");
+            return new Response(403, false, "Tài khoản chưa được xác nhận hoặc không được chấp thuận");
         }
         if (!campaignRepository.findByOrganizationIdAndCampaignName(organization.getUserId(), request.getName()).isEmpty())
-            return new Response(400, false, "Campaign can not have duplicate name.");
+            return new Response(400, false, "Không thể trùng tiên với chiến dịch khác");
 
         if (request.isEmergency()) {
             request.setStartDate(LocalDate.now());
@@ -66,11 +66,11 @@ public class CampaignService {
         }
         else {
             if (request.getEndDate() == null)
-                return new Response(400, false, "Normal campaign requires end date.");
+                return new Response(400, false, "Chiến dịch thường yêu cầu ngày kết thúc");
             if (request.getStartDate().isAfter(request.getEndDate()))
-                return new Response(400, false, "Start date can not be after end date");
+                return new Response(400, false, "Ngày bắt đầu không thể sau ngày kết thúc");
             if (request.getEndDate().isBefore(LocalDate.now()))
-                return new Response(400, false, "End date can not be before today");
+                return new Response(400, false, "Ngày kết thúc không thể trước ngày hiện tại");
         }
 
         List<LocalDate> onSiteDatesList = new ArrayList<>();
@@ -170,10 +170,10 @@ public class CampaignService {
     public Response updateCampaign(User user, Integer campaignId, CreateCampaignRequest request) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         Campaign campaign = isExistCampaign.get();
         if (!campaign.getOrganization().getUserId().equals(user.getId())) {
-            return new Response(403, false, "You have no right to update other org's campaign");
+            return new Response(403, false, "Người dùng không có quyền chỉnh sửa chiến dịch này");
         }
 
         if (request.isEmergency()) {
@@ -182,11 +182,11 @@ public class CampaignService {
         }
         else {
             if (request.getEndDate() == null)
-                return new Response(400, false, "Normal campaign requires end date.");
+                return new Response(400, false, "Chiến dịch thường yêu cầu ngày kết thúc");
             if (request.getStartDate().isAfter(request.getEndDate()))
-                return new Response(400, false, "Start date can not be after end date");
+                return new Response(400, false, "Ngày bắt đầu không thể sau ngày kết thúc");
             if (request.getEndDate().isBefore(LocalDate.now()))
-                return new Response(400, false, "End date can not be before today");
+                return new Response(400, false, "Ngày kết thúc không thể trước ngày hiện tại");
         }
 
         List<LocalDate> onSiteDatesList = new ArrayList<>();
@@ -303,14 +303,14 @@ public class CampaignService {
     public Response deleteCampaign(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         Campaign campaign = isExistCampaign.get();
         if (user.getRole().equals(Role.ADMIN)) {
             campaign.setStatus(false);
         }
         else if (user.getRole().equals(Role.ORGANIZATION)) {
             if (!campaign.getOrganization().getUserId().equals(user.getId())) {
-                return new Response(403, false, "You have no right to delete other org's campaign");
+                return new Response(403, false, "Người dùng không có quyền xoá chiến dịch này");
             }
             campaign.setStatus(false);
         }
@@ -339,17 +339,17 @@ public class CampaignService {
                     ));
         }
 
-        return new Response(200, true, "Delete successfully");
+        return new Response(200, true, "Đã xoá chiến dịch");
     }
 
     @Transactional
     public Response closeCampaign(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         Campaign campaign = isExistCampaign.get();
         if (!campaign.getOrganization().getUserId().equals(user.getId())) {
-            return new Response(403, false, "You have no right to close other org's campaign");
+            return new Response(403, false, "Người dùng không có quyền đóng chiến dịch này");
         }
 
         List<DonateRegistration> listOfOutdatedRegistration = new ArrayList<>();
@@ -380,17 +380,17 @@ public class CampaignService {
                     ));
         }
 
-        return new Response(200, true, "Close successfully");
+        return new Response(200, true, "Đã đóng chiến dịch");
     }
 
     @Transactional
     public Response cancelOutdatedDonateRegistration(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         Campaign campaign = isExistCampaign.get();
         if (!campaign.getOrganization().getUserId().equals(user.getId())) {
-            return new Response(403, false, "You have no right to edit other org's campaign");
+            return new Response(403, false, "Người dùng không có quyền chỉnh sửa chiến dịch này");
         }
         List<DonateRegistration> donateRegistrationList = donateRegistrationRepository.findUrgentByCampaignIdAndOutDate(
                 campaignId,
@@ -400,7 +400,7 @@ public class CampaignService {
         for (DonateRegistration donateRegistration : donateRegistrationList) {
             donateRegistration.setStatus(DonateRegistrationStatus.CANCELLED);
         }
-        return new Response(200, true, "Cancel outdated donate registrations successfully");
+        return new Response(200, true, "Đã huỷ các đơn đăng kí hết hạn");
     }
 
     public Response getAllActiveCampaigns() {
@@ -417,7 +417,7 @@ public class CampaignService {
     public Response getAllActiveCampaignsByOrganizationId(Organization organization) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-            return new Response(403, false, "The account is disabled or unverified");
+            return new Response(403, false, "Tài khoản chưa được xác nhận hoặc không được chấp thuận");
         }
 
         List<Campaign> listActiveCampaigns = new ArrayList<>();
@@ -453,7 +453,7 @@ public class CampaignService {
     public Response getAllCampaignsByOrganizationId(Organization organization) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
-            return new Response(403, false, "The account is disabled or unverified");
+            return new Response(403, false, "Tài khoản chưa được xác nhận hoặc không được chấp thuận");
         }
 
         List<Campaign> listCampaigns = campaignRepository.findAllCampaignsByOrganizationId(organization.getUserId());
@@ -552,10 +552,10 @@ public class CampaignService {
     public Response updateMedicalDocument(User user, DonateRecordRequest request) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(request.getCampaignId());
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "Campaign Id not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         Optional<Donor> isExistDonor = donorRepository.findById((request.getDonorId()));
         if (isExistDonor.isEmpty())
-            return new Response(400, false, "Donor Id not found");
+            return new Response(400, false, "Không tìm thấy tình nguyện viên");
         Optional<DonateRegistration> isExistDonateRegistration = donateRegistrationRepository.findByCampaignIdAndDonorId(
                 request.getCampaignId(),
                 request.getDonorId(),
@@ -563,9 +563,9 @@ public class CampaignService {
                 request.getRegisteredDate().toLocalDate()
         );
         if (isExistDonateRegistration.isEmpty())
-            return new Response(400, false, "Donor haven't register for a campaign yet");
+            return new Response(400, false, "Tình nguyện viên chưa đăng kí chiến dịch này");
         if (!user.getId().equals(isExistCampaign.get().getOrganization().getUserId()))
-            return new Response(403, false, "You have no right to update medical document of other org's campaign");
+            return new Response(403, false, "Người dùng không có quyền chỉnh sửa kết quả kiểm tra sức khoẻ này");
 
         Campaign campaign = isExistCampaign.get();
         Donor donor = isExistDonor.get();
@@ -615,7 +615,7 @@ public class CampaignService {
     public Response getAllMedicalDocuments(Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "Campaign Id not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         List<DonateRecord> listOfDonateRecord = donateRecordRepository.findByCampaignId(campaignId);
         List<DonateRecordResponse> response = new ArrayList<>();
         for (DonateRecord donateRecord : listOfDonateRecord) {
@@ -627,14 +627,14 @@ public class CampaignService {
     public Response getMedicalDocumentByDonor(Integer userID, GetDonateRecordRequest request) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(request.getCampaignId());
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "Campaign Id not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         Optional<DonateRecord> isExistDonateRecord = donateRecordRepository.findByCampaignIdAndDonorId(
                 request.getCampaignId(),
                 userID,
                 request.getRegisteredDate()
         );
         if (isExistDonateRecord.isEmpty())
-            return new Response(400, false, "Donor haven't donated blood on this date yet");
+            return new Response(400, false, "Tình nguyện viên chưa thực hiện hiến máu vào ngày này");
         DonateRecordResponse donateRecordResponse = new DonateRecordResponse(isExistDonateRecord.get());
         return new Response(200, true, donateRecordResponse);
     }
@@ -642,7 +642,7 @@ public class CampaignService {
     public Response getTotalLike(Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "ID not found");
+            return new Response(400, false, "Không tìm thấy chiến dịch");
         Integer totalLike = likeRecordRepository.countTotalLikeByCampaignId(campaignId);
         return new Response(200, true, totalLike == null ? 0 : totalLike);
     }
