@@ -94,18 +94,18 @@ public class CampaignController {
         return campaignService.getAllNumberOfRegistration(campaignId);
     }
 
-    @GetMapping("/getNumberOfRegistrationPerDay/{campaignId}")
+    @PostMapping("/getNumberOfRegistrationPerDay/{campaignId}")
     public Response getNumberOfRegistrationPerDay(@PathVariable("campaignId") Integer campaignId,
             @RequestBody NumberOfRegistrationRequest request) {
         return campaignService.getNumberOfRegistrationPerDay(campaignId, request);
     }
 
-    @GetMapping("/getParticipatedDonor/{campaignId}")
+    @PostMapping("/getParticipatedDonor/{campaignId}")
     public Response getAllParticipatedDonor(@PathVariable("campaignId") Integer campaignId) {
         return campaignService.getAllParticipatedDonor(campaignId);
     }
 
-    @GetMapping("/getParticipatedDonorPerDay/{campaignId}")
+    @PostMapping("/getParticipatedDonorPerDay/{campaignId}")
     public Response getAllParticipatedDonorPerDay(@PathVariable("campaignId") Integer campaignId,
             @RequestBody NumberOfRegistrationRequest request) {
         return campaignService.getAllParticipatedDonorPerDay(campaignId, request);
@@ -123,15 +123,18 @@ public class CampaignController {
     }
 
     @GetMapping("/medicalDocument/getAll/{campaignId}")
-    public Response getAllMedicalDocuments(@PathVariable Integer campaignId) {
-        return campaignService.getAllMedicalDocuments(campaignId);
+    public Response getAllMedicalDocuments(@RequestAttribute User user,
+                                           @PathVariable Integer campaignId) {
+        return campaignService.getAllMedicalDocuments(user, campaignId);
     }
 
-    @GetMapping("medicalDocument/getByDonor")
+    @PostMapping("medicalDocument/getByDonor")
     public Response getMedicalDocumentByDonor(@RequestAttribute User user,
             @RequestBody GetDonateRecordRequest request) {
-        return campaignService.getMedicalDocumentByDonor(user.getDonor().getUserId(), request);
+        return campaignService.getMedicalDocumentByDonor(user, request);
     }
+
+
 
     @GetMapping("/totalLike/{campaignId}")
     public Response getTotalLike(@PathVariable Integer campaignId) {

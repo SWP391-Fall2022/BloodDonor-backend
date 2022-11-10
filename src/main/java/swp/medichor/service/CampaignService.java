@@ -612,10 +612,12 @@ public class CampaignService {
         return new Response(200, true, donateRecordResponse);
     }
 
-    public Response getAllMedicalDocuments(Integer campaignId) {
+    public Response getAllMedicalDocuments(User user, Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
             return new Response(400, false, "Không tìm thấy chiến dịch");
+        if (!user.getId().equals(isExistCampaign.get().getOrganization().getUserId()))
+            return new Response(403, false, "Người dùng không có quyền xem kết quả kiểm tra sức khoẻ của tổ chức khác");
         List<DonateRecord> listOfDonateRecord = donateRecordRepository.findByCampaignId(campaignId);
         List<DonateRecordResponse> response = new ArrayList<>();
         for (DonateRecord donateRecord : listOfDonateRecord) {
@@ -624,13 +626,20 @@ public class CampaignService {
         return new Response(200, true, response);
     }
 
-    public Response getMedicalDocumentByDonor(Integer userID, GetDonateRecordRequest request) {
+    public Response getMedicalDocumentByDonor(User user, GetDonateRecordRequest request) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(request.getCampaignId());
         if (isExistCampaign.isEmpty())
             return new Response(400, false, "Không tìm thấy chiến dịch");
+
+        if (user.getDonor() == null && user.getOrganization() == null)
+            return new Response(403, false, "Người dùng không có quyền xem kết quả kiểm tra sức khoẻ của tình nguyện viên khác");
+        if (user.getOrganization() != null && !user.getId().equals(isExistCampaign.get().getOrganization().getUserId()))
+            return new Response(403, false, "Người dùng không có quyền xem kết quả kiểm tra sức khoẻ của tổ chức khác");
+        if (user.getDonor() != null && !user.getId().equals(request.getDonorId()))
+            return new Response(403, false, "Người dùng không có quyền xem kết quả kiểm tra sức khoẻ của tình nguyện viên khác");
         Optional<DonateRecord> isExistDonateRecord = donateRecordRepository.findByCampaignIdAndDonorId(
                 request.getCampaignId(),
-                userID,
+                request.getDonorId(),
                 request.getRegisteredDate()
         );
         if (isExistDonateRecord.isEmpty())
