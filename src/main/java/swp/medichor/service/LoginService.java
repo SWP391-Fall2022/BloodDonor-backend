@@ -96,7 +96,7 @@ public class LoginService {
                 }
 
                 // Account cannot be accessed
-                return new Response(403, false, "Forbidden");
+                return new Response(403, false, "Tài khoản bị vô hiệu hoá hoặc chưa được xác minh");
             } catch (UsernameNotFoundException e) {
                 // Email is valid but account doesn't exist in database,
                 // should redirect to register page.
@@ -108,8 +108,8 @@ public class LoginService {
             }
 
         } else {
-//            throw new GeneralSecurityException("Invalid ID token");
-            return new Response(403, false, "Invalid ID token");
+            // Invalid idToken
+            return new Response(403, false, "Đã xảy ra lỗi khi xác thực với Google");
         }
 
     }
