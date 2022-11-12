@@ -75,4 +75,9 @@ public class Campaign implements Serializable {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Set<DonateRecord> record;
+
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<LikeRecord> likeRecord;
 }

@@ -138,7 +138,8 @@ public class CampaignController {
 
     @GetMapping("/totalLike/{campaignId}")
     public Response getTotalLike(@PathVariable Integer campaignId) {
-        return campaignService.getTotalLike(campaignId);
+        return new Response(200, true, campaignService.getTotalLike(campaignId));
+
     }
 
     @GetMapping("/top5Provinces")

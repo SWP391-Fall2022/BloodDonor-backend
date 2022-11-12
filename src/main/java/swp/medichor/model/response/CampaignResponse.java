@@ -10,13 +10,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import swp.medichor.model.Campaign;
+import swp.medichor.service.CampaignService;
 
 @Getter
 @Setter
 @AllArgsConstructor
 public class CampaignResponse {
-
     private Integer id;
     private String name;
     private String images;
@@ -30,6 +31,7 @@ public class CampaignResponse {
     private String organizationName;
     private List<LocalDate> onSiteDates = new ArrayList<>();
     private boolean status;
+    private int totalLike;
 
 
     public CampaignResponse(Campaign campaign) {
@@ -47,5 +49,6 @@ public class CampaignResponse {
         status = campaign.getStatus();
         if (campaign.getOnSiteDates() != null)
             onSiteDates = Stream.of(campaign.getOnSiteDates().split(" ")).map(LocalDate::parse).collect(Collectors.toList());
+        totalLike = campaign.getLikeRecord().size();
     }
 }

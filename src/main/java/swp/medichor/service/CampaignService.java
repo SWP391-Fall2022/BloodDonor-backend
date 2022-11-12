@@ -650,12 +650,11 @@ public class CampaignService {
         return new Response(200, true, donateRecordResponse);
     }
 
-    public Response getTotalLike(Integer campaignId) {
+    public Integer getTotalLike(Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
-            return new Response(400, false, "Không tìm thấy chiến dịch");
-        Integer totalLike = likeRecordRepository.countTotalLikeByCampaignId(campaignId);
-        return new Response(200, true, totalLike == null ? 0 : totalLike);
+            throw new RuntimeException("Không tìm thấy chiến dịch");
+        return likeRecordRepository.countTotalLikeByCampaignId(campaignId);
     }
 
     public List<Map<String, Object>> getTop5Provinces(Date from, Date to) {
