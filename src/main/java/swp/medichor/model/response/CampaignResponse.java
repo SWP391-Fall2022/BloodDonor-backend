@@ -53,7 +53,6 @@ public class CampaignResponse {
         status = campaign.getStatus();
         if (campaign.getOnSiteDates() != null) {
             onSiteDates = Stream.of(campaign.getOnSiteDates().split(" ")).map(LocalDate::parse).collect(Collectors.toList());
-            totalLike = campaign.getLikeRecord().size();
         }
     }
 
