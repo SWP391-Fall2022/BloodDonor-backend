@@ -1,6 +1,7 @@
 package swp.medichor.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,11 +37,13 @@ public class RewardController {
     }
 
     @PostMapping
+    @Secured("ADMIN")
     public Response addReward(@RequestBody RewardRequest request) {
         return new Response(200, true, rewardService.addReward(request));
     }
 
     @PutMapping("/{id}")
+    @Secured("ADMIN")
     public Response updateReward(@PathVariable int id, @RequestBody RewardRequest request) {
         try {
             rewardService.updateReward(id, request);
@@ -51,6 +54,7 @@ public class RewardController {
     }
 
     @PutMapping("/{id}/disable")
+    @Secured("ADMIN")
     public Response disableReward(@PathVariable int id) {
         try {
             rewardService.disableReward(id);

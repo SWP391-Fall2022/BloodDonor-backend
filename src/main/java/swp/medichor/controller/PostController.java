@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,6 +39,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}")
+    @Secured("ADMIN")
     public Response updatePost(@PathVariable int id, @RequestBody PostRequest postInfo) {
         try {
             postService.updatePost(id, postInfo);
@@ -48,12 +50,14 @@ public class PostController {
     }
 
     @PostMapping
+    @Secured("ADMIN")
     public Response createPost(@RequestBody PostRequest postInfo, @RequestAttribute User user) {
         int newPostId = postService.addPost(postInfo, user);
         return new Response(200, true, newPostId);
     }
 
     @PutMapping("/{id}/hide")
+    @Secured("ADMIN")
     public Response hidePost(@PathVariable int id) {
         try {
             postService.hide(id);
@@ -64,6 +68,7 @@ public class PostController {
     }
 
     @PutMapping("/{id}/unhide")
+    @Secured("ADMIN")
     public Response unhidePost(@PathVariable int id) {
         try {
             postService.unhide(id);
