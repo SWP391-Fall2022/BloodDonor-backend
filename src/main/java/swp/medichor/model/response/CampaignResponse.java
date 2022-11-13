@@ -28,10 +28,11 @@ public class CampaignResponse {
     private String bloodTypes;
     private Integer districtId;
     private String addressDetails;
-    private String organizationName;
+//    private String organizationName;
     private List<LocalDate> onSiteDates = new ArrayList<>();
     private boolean status;
     private int totalLike;
+    private OrganizationResponse organization;
 
 
     public CampaignResponse(Campaign campaign) {
@@ -45,7 +46,8 @@ public class CampaignResponse {
         bloodTypes = campaign.getBloodTypes();
         districtId = campaign.getDistrict().getId();
         addressDetails = campaign.getAddressDetails();
-        organizationName = campaign.getOrganization().getName();
+//        organizationName = campaign.getOrganization().getName();
+        organization = new OrganizationResponse(campaign.getOrganization());
         status = campaign.getStatus();
         if (campaign.getOnSiteDates() != null)
             onSiteDates = Stream.of(campaign.getOnSiteDates().split(" ")).map(LocalDate::parse).collect(Collectors.toList());
