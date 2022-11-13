@@ -288,13 +288,15 @@ public class DonorService {
     
     @Transactional
     public List<CampaignResponse> getLikedCampaigns(int userId) {
-        Optional<Donor> donor =  donorRepository.findById(userId);
-        if (donor.isEmpty())
+        Optional<Donor> donor = donorRepository.findById(userId);
+        if (donor.isEmpty()) {
             throw new RuntimeException("Không tìm thấy donor");
+        }
         return donor.get()
                 .getLikeRecord()
                 .stream()
                 .map(r -> new CampaignResponse(r.getCampaign()))
+                .filter(c -> c.isStatus() == true)
                 .collect(Collectors.toList());
     }
 
