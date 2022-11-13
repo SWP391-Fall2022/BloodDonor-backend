@@ -1,15 +1,18 @@
 package swp.medichor.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import swp.medichor.enums.Role;
 import swp.medichor.model.response.Response;
 import swp.medichor.service.AdminService;
 
 @RestController
 @RequestMapping("v1/admin")
+@Secured("ADMIN")
 public class AdminController {
 
     @Autowired

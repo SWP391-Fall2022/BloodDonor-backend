@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.User;
 import swp.medichor.model.request.CreateCampaignRequest;
@@ -20,12 +21,14 @@ public class CampaignController {
     @Autowired
     private CampaignService campaignService;
 
+    @Secured("ORGANIZATION")
     @PostMapping("/create")
     public Response createCampaign(@RequestAttribute User user,
             @RequestBody CreateCampaignRequest request) {
         return campaignService.createCampaign(user.getOrganization(), request);
     }
 
+    @Secured("ORGANIZATION")
     @PutMapping("/update/{campaignId}")
     public Response updateCampaign(@RequestAttribute User user,
             @PathVariable("campaignId") Integer campaignId,
@@ -38,18 +41,21 @@ public class CampaignController {
         return campaignService.readOneCampaign(campaignId);
     }
 
+    @Secured({"ADMIN", "ORGANIZATION"})
     @DeleteMapping("/delete/{campaignId}")
     public Response deleteCampaign(@RequestAttribute User user,
             @PathVariable("campaignId") Integer campaignId) {
         return campaignService.deleteCampaign(user, campaignId);
     }
 
+    @Secured("ORGANIZATION")
     @PutMapping("/close/{campaignId}")
     public Response closeCampaign(@RequestAttribute User user,
             @PathVariable("campaignId") Integer campaignId) {
         return campaignService.closeCampaign(user, campaignId);
     }
 
+    @Secured("ORGANIZATION")
     @PutMapping("/cancel-outdated-registration/{campaignId}")
     public Response cancelOutdatedDonateRegistration(@RequestAttribute User user,
             @PathVariable Integer campaignId) {
@@ -68,11 +74,13 @@ public class CampaignController {
     }
 
     //Get all active campaigns of a particular organizations
+    @Secured("ORGANIZATION")
     @GetMapping("/getAllActiveByOrganization")
     public Response getAllActiveCampaigns(@RequestAttribute User user) {
         return campaignService.getAllActiveCampaignsByOrganizationId(user.getOrganization());
     }
 
+    @Secured("ORGANIZATION")
     @GetMapping("/active")
     public Response getActiveInDayRange(@RequestAttribute User user,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate from,
@@ -84,6 +92,7 @@ public class CampaignController {
         }
     }
 
+    @Secured("ORGANIZATION")
     @GetMapping("/getAllByOrganization")
     public Response getAllCampaigns(@RequestAttribute User user) {
         return campaignService.getAllCampaignsByOrganizationId(user.getOrganization());
@@ -100,11 +109,13 @@ public class CampaignController {
         return campaignService.getNumberOfRegistrationPerDay(campaignId, request);
     }
 
+    @Secured("ORGANIZATION")
     @PostMapping("/getParticipatedDonor/{campaignId}")
     public Response getAllParticipatedDonor(@PathVariable("campaignId") Integer campaignId) {
         return campaignService.getAllParticipatedDonor(campaignId);
     }
 
+    @Secured("ORGANIZATION")
     @PostMapping("/getParticipatedDonorPerDay/{campaignId}")
     public Response getAllParticipatedDonorPerDay(@PathVariable("campaignId") Integer campaignId,
             @RequestBody NumberOfRegistrationRequest request) {
@@ -116,18 +127,21 @@ public class CampaignController {
         return campaignService.getTotalAmountOfBlood(campaignId);
     }
 
+    @Secured("ORGANIZATION")
     @PostMapping("/updateMedicalDocument")
     public Response updateMedicalDocument(@RequestAttribute User user,
             @RequestBody DonateRecordRequest request) {
         return campaignService.updateMedicalDocument(user, request);
     }
 
+    @Secured("ORGANIZATION")
     @GetMapping("/medicalDocument/getAll/{campaignId}")
     public Response getAllMedicalDocuments(@RequestAttribute User user,
                                            @PathVariable Integer campaignId) {
         return campaignService.getAllMedicalDocuments(user, campaignId);
     }
 
+    @Secured({"DONOR", "ORGANIZATION"})
     @PostMapping("medicalDocument/getByDonor")
     public Response getMedicalDocumentByDonor(@RequestAttribute User user,
             @RequestBody GetDonateRecordRequest request) {

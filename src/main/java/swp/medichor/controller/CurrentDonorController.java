@@ -3,6 +3,7 @@ package swp.medichor.controller;
 import java.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 import swp.medichor.model.User;
 import swp.medichor.model.request.DonateRegistrationRequest;
@@ -14,6 +15,7 @@ import swp.medichor.service.RewardService;
 
 @RestController
 @RequestMapping("/v1/donors/me")
+@Secured("DONOR")
 public class CurrentDonorController {
 
     @Autowired

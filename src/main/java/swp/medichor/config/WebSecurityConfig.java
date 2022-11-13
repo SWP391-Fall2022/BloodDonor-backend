@@ -64,8 +64,22 @@ public class WebSecurityConfig {
                 .antMatchers("/v1/login/**").permitAll()
                 .antMatchers("/v1/register/**").permitAll()
                 .antMatchers("/swagger-ui/**", "/v3/api-docs/**", "/medichorApi.html").permitAll()
-//                .antMatchers("/v1/admin/**").hasAuthority(Role.ADMIN.toString())
-//                .antMatchers("/v1/donors/me/**").hasAuthority(Role.DONOR.toString())
+//                .antMatchers
+//                        (
+//                        "/v1/admin/**",
+//                        "/v1/campaign/delete/*",
+//
+//                        ).hasAuthority(Role.ADMIN.toString())
+//                .antMatchers
+//                        (
+//                        "/v1/donors/me/**",
+//
+//                        ).hasAuthority(Role.DONOR.toString())
+//                .antMatchers
+//                        (
+//                        "/v1/donors/me/**",
+//
+//                        ).hasAuthority(Role.ORGANIZATION.toString())
 //                .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class)
