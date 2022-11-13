@@ -101,6 +101,15 @@ public class CurrentDonorController {
             @PathVariable Integer campaignId) {
         return donorService.likeCampaign(user, campaignId);
     }
+    
+    @GetMapping("/campaign-interest")
+    public Response getLikedCampaigns(@RequestAttribute User user) {
+        try {
+            return new Response(200, true, donorService.getLikedCampaigns(user.getId()));
+        } catch (Exception ex) {
+            return new Response(400, false, ex.getMessage());
+        }
+    }
 
     @GetMapping("/points")
     public Response getPoints(@RequestAttribute User user) {

@@ -66,6 +66,11 @@ public class Donor implements Serializable {
     @ToString.Exclude
     private Set<DonateRecord> record;
 
+    @OneToMany(mappedBy = "donor", cascade = CascadeType.MERGE)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private Set<LikeRecord> likeRecord;
+
     public Donor(User user, String name, LocalDate birthday, Sex sex, String identityNum, String avatar,
             String bloodType, String anamnesis) {
         this.user = user;

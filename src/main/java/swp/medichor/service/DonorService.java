@@ -20,6 +20,7 @@ import swp.medichor.model.compositekey.LikeRecordKey;
 import swp.medichor.model.request.DonateRegistrationRequest;
 import swp.medichor.model.request.NumberOfRegistrationRequest;
 import swp.medichor.model.request.UpdateDonorRequest;
+import swp.medichor.model.response.CampaignResponse;
 import swp.medichor.model.response.DonateRecordResponse;
 import swp.medichor.model.response.DonateRegistrationResponse;
 import swp.medichor.model.response.Response;
@@ -283,6 +284,18 @@ public class DonorService {
                 .build();
         likeRecordRepository.save(likeRecord);
         return new Response(200, true, "Đã yêu thích");
+    }
+    
+    @Transactional
+    public List<CampaignResponse> getLikedCampaigns(int userId) {
+        Optional<Donor> donor =  donorRepository.findById(userId);
+        if (donor.isEmpty())
+            throw new RuntimeException("Không tìm thấy donor");
+        return donor.get()
+                .getLikeRecord()
+                .stream()
+                .map(r -> new CampaignResponse(r.getCampaign()))
+                .collect(Collectors.toList());
     }
 
     public int getPoints(int donorId) {
