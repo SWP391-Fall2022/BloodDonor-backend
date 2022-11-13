@@ -52,6 +52,7 @@ public class CampaignService {
     private final String SUBJECT = "THÔNG TIN CHIẾN DỊCH HIẾN MÁU";
     private final String MEDICAL_DOCUMENT_SUBJECT = "PHIẾU KHÁM SỨC KHỎE SAU ĐỢT HIẾN MÁU";
 
+    @Transactional
     public Response createCampaign(Organization organization, CreateCampaignRequest request) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
@@ -292,6 +293,7 @@ public class CampaignService {
         return new Response(200, true, campaignInfo);
     }
 
+    @Transactional
     public Response readOneCampaign(Integer campaignId) {
         Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
         if (isExistCampaign.isEmpty())
@@ -405,6 +407,7 @@ public class CampaignService {
         return new Response(200, true, "Đã huỷ các đơn đăng kí hết hạn");
     }
 
+    @Transactional
     public Response getAllActiveCampaigns() {
         List<Campaign> listActiveCampaigns = new ArrayList<>();
         List<CampaignResponse> listActiveCampaignsInfo = new ArrayList<>();
@@ -416,6 +419,7 @@ public class CampaignService {
         return new Response(200, true, listActiveCampaignsInfo);
     }
 
+    @Transactional
     public Response getAllActiveCampaignsByOrganizationId(Organization organization) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
@@ -433,6 +437,7 @@ public class CampaignService {
         return new Response(200, true, listActiveCampaignsInfo);
     }
     
+    @Transactional
     public List<CampaignResponse> getAllByOrgIdAndDayRange(int orgId, LocalDate from, LocalDate to){
         return campaignRepository.findAllActiveCampaignsByOrganizationId(orgId, LocalDate.now())
                 .stream()
@@ -442,6 +447,7 @@ public class CampaignService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public Response getAllCampaigns() {
         List<Campaign> listCampaigns = campaignRepository.findAllCampaigns();
         List<CampaignResponse> listCampaignsInfo = new ArrayList<>();
@@ -452,6 +458,7 @@ public class CampaignService {
         return new Response(200, true, listCampaignsInfo);
     }
 
+    @Transactional
     public Response getAllCampaignsByOrganizationId(Organization organization) {
         if (!organization.getUser().getStatus() || !organization.getUser().getEnabled()
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
