@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import swp.medichor.enums.Approve;
 import swp.medichor.enums.DonateRegistrationStatus;
 import swp.medichor.enums.Role;
+import swp.medichor.enums.Sex;
 import swp.medichor.model.*;
 import swp.medichor.model.compositekey.DonateRecordKey;
 import swp.medichor.model.request.CreateCampaignRequest;
@@ -22,10 +23,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalField;
 import java.time.temporal.WeekFields;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -681,5 +679,46 @@ public class CampaignService {
 
     public List<Map<String, Object>> getTop5Orgs(Date from, Date to) {
         return campaignRepository.findTop5Orgs(from, to);
+    }
+
+    public Response getStatistic(User user, Integer campaignId) {
+        Optional<Campaign> isExistCampaign = campaignRepository.findById(campaignId);
+        if (isExistCampaign.isEmpty()) {
+            return new Response(400, false, "ID không tồn tại");
+        }
+        Campaign campaign = isExistCampaign.get();
+        if (!user.getId().equals(campaign.getOrganization().getUserId()))
+            return new Response(403, false, "Bạn không có quyền xem lượng máu của chiến dịch thuộc tổ chức khác");
+
+        List<DonateRecord> records = donateRecordRepository.findByCampaignIdWithStatusTrue(campaignId);
+        HashMap<String, Integer> results = new HashMap<>();
+        int bloodA = 0, bloodB = 0, bloodO = 0, bloodAB = 0;
+        int age18_30 = 0, age30_40 = 0, age40_50 = 0, age50_60 = 0;
+        int male = 0, female = 0;
+        for (DonateRecord record : records) {
+            if (record.getBloodType().equals("O")) bloodO += record.getAmount();
+            if (record.getBloodType().equals("A")) bloodA += record.getAmount();
+            if (record.getBloodType().equals("B")) bloodB += record.getAmount();
+            if (record.getBloodType().equals("AB")) bloodAB += record.getAmount();
+            int age = LocalDate.now().getYear() - record.getDonor().getBirthday().getYear();
+            if (age >= 18 && age <= 30) age18_30++;
+            if (age > 30 && age <= 40) age30_40++;
+            if (age > 40 && age <= 50) age40_50++;
+            if (age > 50 && age <= 60) age50_60++;
+            if (record.getDonor().getSex().equals(Sex.MALE)) male++;
+            if (record.getDonor().getSex().equals(Sex.FEMALE)) female++;
+        }
+        results.put("BloodO", bloodO);
+        results.put("BloodA", bloodA);
+        results.put("BloodB", bloodB);
+        results.put("BloodAB", bloodAB);
+        results.put("18-30", age18_30);
+        results.put("30-40", age30_40);
+        results.put("40-50", age40_50);
+        results.put("50-60", age50_60);
+        results.put("Male", male);
+        results.put("Female", female);
+
+        return new Response(200, true, results);
     }
 }

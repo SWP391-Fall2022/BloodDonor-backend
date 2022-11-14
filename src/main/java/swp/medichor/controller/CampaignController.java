@@ -165,4 +165,11 @@ public class CampaignController {
     public Response getTop5Orgs(@RequestParam Date from, @RequestParam Date to) {
         return new Response(200, true, campaignService.getTop5Orgs(from, to));
     }
+
+    @Secured("ORGANIZATION")
+    @GetMapping("/statistic/{campaignId}")
+    public Response getStatistic(@RequestAttribute User user,
+                                 @PathVariable Integer campaignId) {
+        return campaignService.getStatistic(user, campaignId);
+    }
 }
