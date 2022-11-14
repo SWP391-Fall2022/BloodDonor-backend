@@ -712,10 +712,10 @@ public class CampaignService {
         results.put("BloodA", bloodA);
         results.put("BloodB", bloodB);
         results.put("BloodAB", bloodAB);
-        results.put("18-30", age18_30);
-        results.put("30-40", age30_40);
-        results.put("40-50", age40_50);
-        results.put("50-60", age50_60);
+        results.put("age18_30", age18_30);
+        results.put("age30_40", age30_40);
+        results.put("age40_50", age40_50);
+        results.put("age50_60", age50_60);
         results.put("Male", male);
         results.put("Female", female);
 
