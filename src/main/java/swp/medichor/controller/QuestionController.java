@@ -34,7 +34,7 @@ public class QuestionController {
 
     @PutMapping("/refuse/{questionId}")
     @Secured("ORGANIZATION")
-    public Response answerQuestion(@RequestAttribute User user,
+    public Response refuseQuestion(@RequestAttribute User user,
             @PathVariable("questionId") Integer questionId) {
         return questionService.refuseQuestion(user, questionId);
     }

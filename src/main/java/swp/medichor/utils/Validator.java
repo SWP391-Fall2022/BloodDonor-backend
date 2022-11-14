@@ -22,6 +22,14 @@ public class Validator {
         return matcher.matches();
     }
 
+    public static boolean testName(String name) {
+        String regex = "^[a-zA-Z" +
+                "ÀÁÂÃÈÉÊÌÍÒÓÔÕÙÚĂĐĨŨƠàáâãèéêìíòóôõùúăđĩũơƯĂẠẢẤẦẨẪẬẮẰẲẴẶẸẺẼỀỀỂẾưăạảấầẩẫậắằẳẵặẹẻẽềềểếỄỆỈỊỌỎỐỒỔỖỘỚỜỞỠỢỤỦỨỪễệỉịọỏốồổỗộớờởỡợụủứừỬỮỰỲỴÝỶỸửữựỳỵỷỹ0-9\\s_]+$";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(name);
+        return matcher.matches();
+    }
+
     public static boolean canCampaignRegistered(Campaign campaign, LocalDate registerDate) {
         return campaign.getStatus() == true // not deleted
                 && !registerDate.isBefore(LocalDate.now())

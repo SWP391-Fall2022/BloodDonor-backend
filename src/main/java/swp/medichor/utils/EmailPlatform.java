@@ -388,7 +388,7 @@ public class EmailPlatform {
                 "                                          >tài khoản của</span\n" +
                 "                                        ></span\n" +
                 "                                      >\n" +
-                "                                    </strong> </span\n" +
+                "                                    </strong></span\n" +
                 "                                  ><span\n" +
                 "                                    style=\"font-size: 24px; line-height: 38.4px\"\n" +
                 "                                    ><strong\n" +
@@ -402,7 +402,7 @@ public class EmailPlatform {
                 "                                            line-height: 38.4px;\n" +
                 "                                            font-size: 24px;\n" +
                 "                                          \"\n" +
-                "                                          > " + name + " là:</span\n" +
+                "                                          >" + name + " là:</span\n" +
                 "                                        ></span\n" +
                 "                                      >\n" +
                 "                                    </strong>\n" +

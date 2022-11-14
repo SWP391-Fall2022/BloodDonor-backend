@@ -15,6 +15,7 @@ import swp.medichor.model.request.NumberOfRegistrationRequest;
 import swp.medichor.model.response.*;
 import swp.medichor.repository.*;
 import swp.medichor.utils.EmailPlatform;
+import swp.medichor.utils.Validator;
 
 import javax.transaction.Transactional;
 import java.time.DayOfWeek;
@@ -58,6 +59,10 @@ public class CampaignService {
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "Tài khoản chưa được xác nhận hoặc không được chấp thuận");
         }
+
+        if (!Validator.testName(request.getName()))
+            return new Response(400, false, "Kí tự trong tên không phù hợp");
+
         if (!campaignRepository.findByOrganizationIdAndCampaignName(organization.getUserId(), request.getName()).isEmpty())
             return new Response(400, false, "Không thể trùng tên với chiến dịch khác");
 
@@ -177,6 +182,12 @@ public class CampaignService {
         if (!campaign.getOrganization().getUserId().equals(user.getId())) {
             return new Response(403, false, "Người dùng không có quyền chỉnh sửa chiến dịch này");
         }
+
+        if (!Validator.testName(request.getName()))
+            return new Response(400, false, "Kí tự trong tên không phù hợp");
+
+        if (!campaignRepository.findByOrganizationIdAndCampaignName(user.getId(), request.getName()).isEmpty())
+            return new Response(400, false, "Không thể trùng tên với chiến dịch khác");
 
         if (request.isEmergency()) {
             request.setStartDate(LocalDate.now());

@@ -42,6 +42,10 @@ public class RegisterService {
     public Response registerOrganization(RegisterOrganizationRequest request) {
         if (!request.getRole().equals(Role.ORGANIZATION))
             return new Response(400, false, "Vai trò không hợp lệ");
+        if (!Validator.testName(request.getUsername()))
+            return new Response(400, false, "Kí tự trong tên đăng nhập không phù hợp");
+        if (!Validator.testName(request.getName()))
+            return new Response(400, false, "Kí tự trong tên không phù hợp");
         if (!Validator.testEmail(request.getEmail())) {
             return new Response(400, false, "Email không hợp lệ");
         }
@@ -94,6 +98,10 @@ public class RegisterService {
     public Response registerDonor(RegisterDonorRequest request) {
         if (!request.getRole().equals(Role.DONOR))
             return new Response(400, false, "Vai trò không hợp lệ");
+        if (!Validator.testName(request.getUsername()))
+            return new Response(400, false, "Kí tự trong tên đăng nhập không phù hợp");
+        if (!Validator.testName(request.getName()))
+            return new Response(400, false, "Kí tự trong tên không phù hợp");
         if (!Validator.testEmail(request.getEmail())) {
             return new Response(400, false, "Email không hợp lệ");
         }

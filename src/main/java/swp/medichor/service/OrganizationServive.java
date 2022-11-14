@@ -77,6 +77,8 @@ public class OrganizationServive {
                 || organization.getApprove().equals(Approve.PENDING) || organization.getApprove().equals(Approve.REJECTED)) {
             return new Response(403, false, "Tài khoản đã bị khóa hoặc chưa được xác minh");
         }
+        if (!Validator.testName(request.getName()))
+            return new Response(400, false, "Kí tự trong tên không phù hợp");
         if (!Validator.testPhoneNumber(request.getPhone())) {
             return new Response(400, false, "Số điện thoại không hợp lệ");
         }

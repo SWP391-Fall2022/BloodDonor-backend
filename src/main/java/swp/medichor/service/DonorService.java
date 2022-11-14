@@ -82,6 +82,8 @@ public class DonorService {
     }
 
     public void updateDonor(Donor donor, UpdateDonorRequest updatedDonor) {
+        if (!Validator.testName(updatedDonor.getName()))
+            throw new RuntimeException("Kí tự trong tên không phù hợp");
         donor.setName(updatedDonor.getName());
         donor.setBirthday(updatedDonor.getBirthday());
         donor.setSex(updatedDonor.getSex());
