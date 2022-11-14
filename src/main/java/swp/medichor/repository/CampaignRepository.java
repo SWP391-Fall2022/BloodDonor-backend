@@ -15,7 +15,7 @@ import java.util.Optional;
 public interface CampaignRepository extends JpaRepository<Campaign, Integer> {
 
     @Query("select c from Campaign c where c.organization.userId = ?1 and c.name = ?2 and c.status = true")
-    List<Campaign> findByOrganizationIdAndCampaignName(Integer organizationId, String campaignName);
+    Optional<Campaign> findByOrganizationIdAndCampaignName(Integer organizationId, String campaignName);
 
     @Query("SELECT c from Campaign c where c.startDate <= ?1 and c.endDate >= ?1 and c.status = true")
     List<Campaign> findAllActiveCampaigns(LocalDate now);

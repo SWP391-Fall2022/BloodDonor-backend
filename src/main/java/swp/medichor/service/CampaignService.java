@@ -184,7 +184,8 @@ public class CampaignService {
         if (!Validator.testName(request.getName()))
             return new Response(400, false, "Kí tự trong tên không phù hợp");
 
-        if (!campaignRepository.findByOrganizationIdAndCampaignName(user.getId(), request.getName()).isEmpty())
+        if (!campaignRepository.findByOrganizationIdAndCampaignName(user.getId(), request.getName()).isEmpty() &&
+        !campaignRepository.findByOrganizationIdAndCampaignName(user.getId(), request.getName()).get().getId().equals(campaignId))
             return new Response(400, false, "Không thể trùng tên với chiến dịch khác");
 
         if (request.isEmergency()) {
