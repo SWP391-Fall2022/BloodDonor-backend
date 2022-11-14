@@ -7,7 +7,7 @@ import swp.medichor.model.User;
 
 public class EmailPlatform {
     private static final String DOMAIN = "http://localhost:3000/";
-    private static final String LINK = DOMAIN + "campaign/detailCampaign/";
+    private static final String LINK = DOMAIN + "campaign/campaign-detail/";
     private static final String OTHER_CAMPAIGNS_LINK = DOMAIN + "campaign";
     private static final String MEDICAL_LINK = DOMAIN + "donor/history";
 
